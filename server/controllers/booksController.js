@@ -1,4 +1,3 @@
-const { outFormat } = require("oracledb");
 const oracledb = require("oracledb");
 
 const server = require("../serverInformation");
@@ -153,14 +152,15 @@ async function addBook(req, resp) {
 
     console.log(bookInsertResult);
 
-    for(let i=0; i<genreArr.length; i++){
+    for (let i = 0; i < genreArr.length; i++) {
       genre_id = genreArr[i];
-      let genreInsertQuery = "INSERT INTO BOOKS_GENRE(BOOK_ID, GENRE_ID) VALUES(:book_id, :genre_id)";
+      let genreInsertQuery =
+        "INSERT INTO BOOKS_GENRE(BOOK_ID, GENRE_ID) VALUES(:book_id, :genre_id)";
       let genreInsertResult = await connection.execute(genreInsertQuery, [
         book_id,
-        genre_id
+        genre_id,
       ]);
-      
+
       console.log(genreInsertResult);
     }
 
@@ -316,22 +316,35 @@ async function getBooks(req, resp) {
 
     console.log(bookSelectResult);
 
-    let bookObject = [];
-    for(let i = 0; i < bookSelectResult.rows.length; i++){
-      let bookItem = bookSelectResult.rows[i];
+    if (bookSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND",
+      };
+    } else {
+      let bookObject = [];
+      for (let i = 0; i < bookSelectResult.rows.length; i++) {
+        let bookItem = bookSelectResult.rows[i];
 
-      let authorId = bookItem.AUTHOR_ID;
-      let authorQuery = "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
-      let authorName = await connection.execute(authorQuery, [authorId], {outFormat: oracledb.OUT_FORMAT_OBJECT,});
-      authorName = authorName.rows[0].AUTHOR_NAME;
+        let authorId = bookItem.AUTHOR_ID;
+        let authorQuery =
+          "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
+        let authorName = await connection.execute(authorQuery, [authorId], {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        });
+        authorName = authorName.rows[0].AUTHOR_NAME;
 
-      let publisherId = bookItem.PUBLISHER_ID;
-      let publisherQuery = "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
-      let publisherName = await connection.execute(publisherQuery, [publisherId], {outFormat: oracledb.OUT_FORMAT_OBJECT,});
-      publisherName = publisherName.rows[0].PUBLISHER_NAME;
+        let publisherId = bookItem.PUBLISHER_ID;
+        let publisherQuery =
+          "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
+        let publisherName = await connection.execute(
+          publisherQuery,
+          [publisherId],
+          { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        publisherName = publisherName.rows[0].PUBLISHER_NAME;
 
-      bookObject.push(
-        {
+        bookObject.push({
           BookID: bookItem.BOOK_ID,
           Title: bookItem.BOOK_TITLE,
           Author: authorName,
@@ -340,23 +353,13 @@ async function getBooks(req, resp) {
           Description: bookItem.DESCRIPTION,
           Language: bookItem.LANGUAGE,
           Edition: bookItem.EDITION,
-          ISBN: bookItem.ISBN
-        }
-      )
-    }
-
-    console.log(bookSelectResult);
-
-    if (bookSelectResult.rows.length === 0) {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "NO DATA FOUND",
-      };
-    } else {
+          ISBN: bookItem.ISBN,
+        });
+      }
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
-        Books: bookObject
+        Books: bookObject,
       };
     }
   } catch (err) {
@@ -398,5 +401,5 @@ module.exports = {
   addAuthor,
   addBook,
   addPublisher,
-  getBooks,
+  getBooks
 };
