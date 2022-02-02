@@ -1,3 +1,4 @@
+const { outFormat } = require("oracledb");
 const oracledb = require("oracledb");
 
 const server = require("../serverInformation");
@@ -20,7 +21,7 @@ async function addAuthor(req, resp) {
     console.log("DATABASE CONNECTED");
 
     let authorInsertQuery;
-    
+
     let author_name = req.body.AUTHOR_NAME;
     let dateOfBirth = null;
     if (typeof req.body.DATE_OF_BIRTH !== "undefined") {
@@ -70,7 +71,7 @@ async function addAuthor(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
-    }
+    };
     resp.send(responseObj);
   } finally {
     if (connection) {
@@ -82,7 +83,7 @@ async function addAuthor(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
-        }
+        };
         resp.send(responseObj);
       }
       if (responseObj.ResponseCode == 1) {
@@ -94,7 +95,7 @@ async function addAuthor(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT INSERTED",
-      }
+      };
       resp.send(responseObj);
     }
   }
@@ -112,17 +113,18 @@ async function addBook(req, resp) {
     });
     console.log("DATABASE CONNECTED");
 
-    let bookInsertQuery;
-    
     let title = req.body.TITLE;
-    let yearOfPublication = new Date(req.body.YEAR);
+    let yearOfPublication = req.body.YEAR;
     let book_description = null;
     if (typeof req.body.DESCRIPTION !== "undefined") {
       book_description = req.body.DESCRIPTION;
     }
     let language = req.body.LANGUAGE;
     let author_id = req.body.AUTHOR_ID;
+    let edition = req.body.EDITION;
+    let isbn = req.body.ISBN;
     let publisher_id = req.body.PUBLISHER_ID;
+    let genreArr = req.body.GENRE;
 
     //Get Next Book Id
     let book_id;
@@ -134,20 +136,33 @@ async function addBook(req, resp) {
 
     console.log(book_id);
 
-    bookInsertQuery =
-      "INSERT INTO BOOKS (BOOK_ID, BOOK_TITLE, YEAR_OF_PUBLICATION, DESCRIPTION, LANGUAGE, AUTHOR_ID, PUBLISHER_ID) "+
-       "VALUES( :book_id, :title, :yearOfPublication, :book_description, :language, :author_id, :publisher_id)";
+    let bookInsertQuery =
+      "INSERT INTO BOOKS (BOOK_ID, BOOK_TITLE, YEAR_OF_PUBLICATION, DESCRIPTION, EDITION, ISBN, LANGUAGE, AUTHOR_ID, PUBLISHER_ID) " +
+      "VALUES( :book_id, :title, :yearOfPublication, :book_description, :edition, :isbn, :language, :author_id, :publisher_id)";
     let bookInsertResult = await connection.execute(bookInsertQuery, [
       book_id,
       title,
       yearOfPublication,
       book_description,
+      edition,
+      isbn,
       language,
       author_id,
       publisher_id,
     ]);
 
     console.log(bookInsertResult);
+
+    for(let i=0; i<genreArr.length; i++){
+      genre_id = genreArr[i];
+      let genreInsertQuery = "INSERT INTO BOOKS_GENRE(BOOK_ID, GENRE_ID) VALUES(:book_id, :genre_id)";
+      let genreInsertResult = await connection.execute(genreInsertQuery, [
+        book_id,
+        genre_id
+      ]);
+      
+      console.log(genreInsertResult);
+    }
 
     connection.commit();
 
@@ -159,15 +174,17 @@ async function addBook(req, resp) {
       AuthorId: author_id,
       Publisher_id: publisher_id,
       YearOfPublication: yearOfPublication,
+      Edition: edition,
+      ISBN: isbn,
       Description: book_description,
-      Language: language
+      Language: language,
     };
   } catch (err) {
     console.log(err);
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
-    }
+    };
     resp.send(responseObj);
   } finally {
     if (connection) {
@@ -179,7 +196,7 @@ async function addBook(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
-        }
+        };
         resp.send(responseObj);
       }
       if (responseObj.ResponseCode == 1) {
@@ -191,7 +208,7 @@ async function addBook(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT INSERTED",
-      }
+      };
       resp.send(responseObj);
     }
   }
@@ -210,7 +227,7 @@ async function addPublisher(req, resp) {
     console.log("DATABASE CONNECTED");
 
     let publisherInsertQuery;
-    
+
     let publisher_name = req.body.PUBLISHER_NAME;
     let phone = req.body.PHONE;
     let address = req.body.ADDRESS;
@@ -231,7 +248,7 @@ async function addPublisher(req, resp) {
       publisher_id,
       publisher_name,
       phone,
-      address
+      address,
     ]);
 
     console.log(publisherInsertResult);
@@ -244,14 +261,14 @@ async function addPublisher(req, resp) {
       PublisherName: publisher_name,
       PublisherId: publisher_id,
       Phone: phone,
-      Address: address
+      Address: address,
     };
   } catch (err) {
     console.log(err);
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
-    }
+    };
     resp.send(responseObj);
   } finally {
     if (connection) {
@@ -263,7 +280,7 @@ async function addPublisher(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
-        }
+        };
         resp.send(responseObj);
       }
       if (responseObj.ResponseCode == 1) {
@@ -275,12 +292,111 @@ async function addPublisher(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT INSERTED",
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
+async function getBooks(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    bookSelectQuery = "SELECT * FROM BOOKS";
+    let bookSelectResult = await connection.execute(bookSelectQuery, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    console.log(bookSelectResult);
+
+    let bookObject = [];
+    for(let i = 0; i < bookSelectResult.rows.length; i++){
+      let bookItem = bookSelectResult.rows[i];
+
+      let authorId = bookItem.AUTHOR_ID;
+      let authorQuery = "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
+      let authorName = await connection.execute(authorQuery, [authorId], {outFormat: oracledb.OUT_FORMAT_OBJECT,});
+      authorName = authorName.rows[0].AUTHOR_NAME;
+
+      let publisherId = bookItem.PUBLISHER_ID;
+      let publisherQuery = "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
+      let publisherName = await connection.execute(publisherQuery, [publisherId], {outFormat: oracledb.OUT_FORMAT_OBJECT,});
+      publisherName = publisherName.rows[0].PUBLISHER_NAME;
+
+      bookObject.push(
+        {
+          BookID: bookItem.BOOK_ID,
+          Title: bookItem.BOOK_TITLE,
+          Author: authorName,
+          Publisher: publisherName,
+          YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
+          Description: bookItem.DESCRIPTION,
+          Language: bookItem.LANGUAGE,
+          Edition: bookItem.EDITION,
+          ISBN: bookItem.ISBN
+        }
+      )
+    }
+
+    console.log(bookSelectResult);
+
+    if (bookSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND",
+      };
+    } else {
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        Books: bookObject
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+        };
+        resp.send(responseObj);
       }
+      if (responseObj.ResponseCode == 1) {
+        console.log("FOUND");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT FOUND");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+      };
       resp.send(responseObj);
     }
   }
 }
 
 module.exports = {
-  addAuthor, addBook, addPublisher
+  addAuthor,
+  addBook,
+  addPublisher,
+  getBooks,
 };

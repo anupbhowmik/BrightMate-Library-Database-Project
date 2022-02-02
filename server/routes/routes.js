@@ -16,5 +16,6 @@ router.post("/api/addAuthor", bodyParser, booksController.addAuthor);
 router.post("/api/addBook", bodyParser, booksController.addBook);
 router.post("/api/addPublisher", bodyParser, booksController.addPublisher);
 
+router.get("/api/getBooks", bodyParser, booksController.getBooks);
 
 module.exports = router;
