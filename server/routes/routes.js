@@ -13,5 +13,8 @@ router.post("/api/signUp", bodyParser, userController.signUp);
 router.get("/api/signIn", bodyParser, userController.signIn);
 
 router.post("/api/addAuthor", bodyParser, booksController.addAuthor);
+router.post("/api/addBook", bodyParser, booksController.addBook);
+router.post("/api/addPublisher", bodyParser, booksController.addPublisher);
+
 
 module.exports = router;
