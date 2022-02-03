@@ -1,7 +1,7 @@
 const oracledb = require("oracledb");
 const bcrypt = require("bcrypt");
 const server = require("../serverInformation");
-const syRegister = require('../util/syRegister');
+const syRegister = require("../util/syRegister");
 const dbuser = server.user;
 const dbpassword = server.password;
 const connectionString = server.connectionString;
@@ -23,7 +23,7 @@ async function signUp(req, resp) {
       connectString: connectionString,
     });
     console.log("DATABASE CONNECTED");
-    
+
     let user_name = req.body.USER_NAME;
     let email = req.body.EMAIL;
     let user_password = req.body.PASSWORD;
@@ -36,7 +36,7 @@ async function signUp(req, resp) {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
     console.log(user_exists);
-  
+
     if (user_exists.rows.length == 0) {
       //user does not exist
       console.log("user does not exist");
@@ -44,12 +44,14 @@ async function signUp(req, resp) {
 
       //Get Next User Id
       let user_id;
-      await syRegister.getNextId(connection, syRegisterUsers).then(function(data) {
-        user_id = data;
-      });
+      await syRegister
+        .getNextId(connection, syRegisterUsers)
+        .then(function (data) {
+          user_id = data;
+        });
 
       console.log(user_id);
-      console.log(user_password, ' ', salt);
+      console.log(user_password, " ", salt);
       const hash = bcrypt.hashSync(user_password, salt);
 
       let userInsertQuery =
@@ -82,21 +84,20 @@ async function signUp(req, resp) {
       connection.commit();
 
       responseObj = {
-        "ResponseCode" : 1,
-        "ResponseDesc" : 'SUCCESS',
-        "Username" : user_name,
-        "UserId" : user_id,
-        "Email" : email,
-        "Mobile" : mobile,
-        "Gender" : gender,
-        "LibraryCardNumber" : library_card_num,
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        Username: user_name,
+        UserId: user_id,
+        Email: email,
+        Mobile: mobile,
+        Gender: gender,
+        LibraryCardNumber: library_card_num,
       };
-
     } else {
       responseObj = {
-        "ResponseCode" : 0,
-        "ResponseDesc" : 'FAILURE'
-      }
+        ResponseCode: 0,
+        ResponseDesc: "FAILURE",
+      };
       console.log("USER EXISTS ALREADY");
     }
   } catch (err) {
@@ -124,7 +125,7 @@ async function signUp(req, resp) {
   }
 }
 
-async function signIn(req, resp){
+async function signIn(req, resp) {
   let connection;
   let userExistsAlready = 0;
   try {
@@ -143,42 +144,42 @@ async function signIn(req, resp){
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
     console.log(userInfo);
-    if(userInfo.rows.length == 0){
+    if (userInfo.rows.length == 0) {
       //user does not exist
       responseObj = {
-        "ResponseCode" : 0,
-        "ResponseDesc" : 'USER DOES NOT EXIST'
-      }
-    } else{
+        ResponseCode: 0,
+        ResponseDesc: "USER DOES NOT EXIST",
+      };
+    } else {
       let passwordKey = userInfo.rows[0].PASSWORD_KEY;
       let user_id = userInfo.rows[0].USER_ID;
       let user_name = userInfo.rows[0].USER_NAME;
       let email = userInfo.rows[0].EMAIL;
       let mobile = userInfo.rows[0].MOBILE;
       let gender = userInfo.rows[0].GENDER;
-      let user_type_id =  userInfo.rows[0].USER_TYPE_ID;
+      let user_type_id = userInfo.rows[0].USER_TYPE_ID;
 
       let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
-      if(passwordCorrect){
+      if (passwordCorrect) {
         responseObj = {
-          "ResponseCode" : 1,
-          "ResponseDesc" : 'SUCCESS',
-          "UserId" : user_id,
-          "Username" : user_name,
-          "Email" : email,
-          "Mobile" : mobile,
-          "Gender" : gender,
-          "UserTypeId" : user_type_id
-        }
-      }else{
+          ResponseCode: 1,
+          ResponseDesc: "SUCCESS",
+          UserId: user_id,
+          Username: user_name,
+          Email: email,
+          Mobile: mobile,
+          Gender: gender,
+          UserTypeId: user_type_id,
+        };
+      } else {
         responseObj = {
-          "ResponseCode" : 0,
-          "ResponseDesc" : 'PASSWORD INCORRECT'
-        }
+          ResponseCode: 0,
+          ResponseDesc: "PASSWORD INCORRECT",
+        };
       }
     }
     //connection.commit();
-  }catch (err) {
+  } catch (err) {
     console.log(err);
     resp.send(err);
   } finally {
@@ -194,7 +195,7 @@ async function signIn(req, resp){
         if (responseObj.ResponseCode == 1) {
           console.log("USER LOGGED IN SUUCCESSFULLY");
           resp.send(responseObj);
-        } else{
+        } else {
           console.log("NOT LOGGED IN");
           resp.send(responseObj);
         }
@@ -206,6 +207,136 @@ async function signIn(req, resp){
   }
 }
 
+async function addEmployee(req, resp) {
+  let connection;
+  let userExistsAlready = true;
+  let syRegisterUsers = 1;
+
+  const saltRounds = 5;
+  const salt = bcrypt.genSaltSync(saltRounds);
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let user_name = req.body.USER_NAME;
+    let email = req.body.EMAIL;
+    let user_password = req.body.PASSWORD;
+    let mobile = req.body.MOBILE;
+    let gender = req.body.GENDER;
+    let job_id = req.body.JOB_ID;
+    let user_type_id = 2; //EMPLOYEE
+
+    let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
+    let user_exists = await connection.execute(userCheckQuery, [email], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(user_exists);
+
+    if (user_exists.rows.length == 0) {
+      //user does not exist
+      console.log("user does not exist");
+      userExistsAlready = false;
+
+      //Get Next User Id
+      let user_id;
+      await syRegister
+        .getNextId(connection, syRegisterUsers)
+        .then(function (data) {
+          user_id = data;
+        });
+
+      console.log(user_id);
+      console.log(user_password, " ", salt);
+      const hash = bcrypt.hashSync(user_password, salt);
+
+      let userInsertQuery =
+        "INSERT INTO USERS (USER_ID, USER_NAME, EMAIL, PASSWORD_KEY, MOBILE, GENDER, USER_TYPE_ID) VALUES( :user_id, :user_name, :email, :hash, :mobile, :gender, :user_type_id)";
+      let userInsertResult = await connection.execute(userInsertQuery, [
+        user_id,
+        user_name,
+        email,
+        hash,
+        mobile,
+        gender,
+        user_type_id,
+      ]);
+
+      console.log(userInsertResult);
+
+      join_date = new Date();
+
+      let employeeInsertQuery =
+        "INSERT INTO USER_EMPLOYEE (USER_ID, JOIN_DATE, JOB_ID) VALUES( :user_id, :join_date, :job_id)";
+      employeeInsertresult = await connection.execute(employeeInsertQuery, [
+        user_id,
+        join_date,
+        job_id,
+      ]);
+
+      console.log(employeeInsertresult);
+
+      connection.commit();
+
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        Username: user_name,
+        UserType: 2,
+        UserId: user_id,
+        Email: email,
+        Mobile: mobile,
+        Gender: gender,
+        JobID: job_id,
+      };
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "FAILURE",
+      };
+      console.log("USER EXISTS ALREADY");
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "Error closing connection",
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("INSERTED");
+        resp.send(responseObj);
+      } else {
+        console.log("NOT INSERTED");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "USER EXISTS ALREADY",
+        };
+        resp.send(responseObj);
+      }
+    }
+  }
+}
+
 module.exports = {
-  signUp, signIn
+  signUp,
+  signIn,
+  addEmployee,
 };
