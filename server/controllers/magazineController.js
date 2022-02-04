@@ -64,6 +64,7 @@ async function addMagazine(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         MagazineID: magazine_id,
         Title: magazine_title,
         Publisher_id: publisher_id,
@@ -74,6 +75,7 @@ async function addMagazine(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "FAILURE",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     } finally {
@@ -86,6 +88,7 @@ async function addMagazine(req, resp) {
           responseObj = {
             ResponseCode: 0,
             ResponseDesc: "ERROR CLOSING CONNECTION",
+            ResponseStatus: resp.statusCode,
           };
           resp.send(responseObj);
         }
@@ -98,6 +101,7 @@ async function addMagazine(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "NOT INSERTED",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -131,6 +135,7 @@ async function getMagazines(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "NO DATA FOUND",
+          ResponseStatus: resp.statusCode,
         };
       } else {
         let magazineObject = [];
@@ -157,6 +162,7 @@ async function getMagazines(req, resp) {
         responseObj = {
           ResponseCode: 1,
           ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
           Magazines: magazineObject,
         };
       }
@@ -165,6 +171,7 @@ async function getMagazines(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "FAILURE",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     } finally {
@@ -177,6 +184,7 @@ async function getMagazines(req, resp) {
           responseObj = {
             ResponseCode: 0,
             ResponseDesc: "ERROR CLOSING CONNECTION",
+            ResponseStatus: resp.statusCode,
           };
           resp.send(responseObj);
         }
@@ -189,6 +197,7 @@ async function getMagazines(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "NOT FOUND",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }

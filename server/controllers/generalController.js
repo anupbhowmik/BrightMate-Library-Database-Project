@@ -70,6 +70,7 @@ async function addAuthor(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -82,6 +83,7 @@ async function addAuthor(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -94,6 +96,7 @@ async function addAuthor(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT INSERTED",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }
@@ -144,6 +147,7 @@ async function addPublisher(req, resp) {
     responseObj = {
       ResponseCode: 1,
       ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
       PublisherName: publisher_name,
       PublisherId: publisher_id,
       Phone: phone,
@@ -154,6 +158,7 @@ async function addPublisher(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -166,6 +171,7 @@ async function addPublisher(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -178,6 +184,7 @@ async function addPublisher(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT INSERTED",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }
@@ -205,7 +212,8 @@ async function getGenre(req, resp) {
     if (genreSelectResult.rows.length === 0) {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "NO DATA FOUND",
+        ResponseDesc: "NO DATA FOUND IN DATABASE",
+        ResponseStatus: resp.statusCode,
       };
     } else {
       let genreObject = [];
@@ -220,6 +228,7 @@ async function getGenre(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         GenreList: genreObject,
       };
     }
@@ -228,6 +237,7 @@ async function getGenre(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -240,6 +250,7 @@ async function getGenre(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -252,6 +263,7 @@ async function getGenre(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }
@@ -280,6 +292,7 @@ async function getJobs(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NO DATA FOUND",
+        ResponseStatus: resp.statusCode,
       };
     } else {
       let jobObject = [];
@@ -295,6 +308,7 @@ async function getJobs(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         Jobs: jobObject,
       };
     }
@@ -303,6 +317,7 @@ async function getJobs(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -315,6 +330,7 @@ async function getJobs(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -327,6 +343,7 @@ async function getJobs(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }
@@ -354,7 +371,8 @@ async function getAuthors(req, resp) {
     if (authorSelectResult.rows.length === 0) {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "NO DATA FOUND",
+        ResponseDesc: "NO DATA FOUND IN DATABASE",
+        ResponseStatus: resp.statusCode,
       };
     } else {
       let authorObject = [];
@@ -372,6 +390,7 @@ async function getAuthors(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         AuthorList: authorObject,
       };
     }
@@ -380,6 +399,7 @@ async function getAuthors(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -392,6 +412,7 @@ async function getAuthors(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -404,6 +425,7 @@ async function getAuthors(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }

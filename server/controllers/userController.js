@@ -149,6 +149,7 @@ async function signIn(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "USER DOES NOT EXIST",
+        ResponseStatus: resp.statusCode,
       };
     } else {
       let passwordKey = userInfo.rows[0].PASSWORD_KEY;
@@ -164,6 +165,7 @@ async function signIn(req, resp) {
         responseObj = {
           ResponseCode: 1,
           ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
           UserId: user_id,
           Username: user_name,
           Email: email,
@@ -175,13 +177,19 @@ async function signIn(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "PASSWORD INCORRECT",
+          ResponseStatus: resp.statusCode,
         };
       }
     }
     //connection.commit();
   } catch (err) {
     console.log(err);
-    resp.send(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
   } finally {
     if (connection) {
       try {
@@ -189,7 +197,12 @@ async function signIn(req, resp) {
         console.log("CONNECTION CLOSED");
       } catch (err) {
         console.log("Error closing connection");
-        resp.send(err);
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
       }
       if (userExistsAlready == 1) {
         if (responseObj.ResponseCode == 1) {
@@ -285,6 +298,7 @@ async function addEmployee(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         Username: user_name,
         UserType: 2,
         UserId: user_id,
@@ -297,6 +311,7 @@ async function addEmployee(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "FAILURE",
+        ResponseStatus: resp.statusCode,
       };
       console.log("USER EXISTS ALREADY");
     }
@@ -305,6 +320,7 @@ async function addEmployee(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -317,6 +333,7 @@ async function addEmployee(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "Error closing connection",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -328,6 +345,7 @@ async function addEmployee(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "USER EXISTS ALREADY",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }

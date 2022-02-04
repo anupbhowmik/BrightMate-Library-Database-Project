@@ -51,6 +51,7 @@ async function rentBook(req, resp) {
     responseObj = {
       ResponseCode: 1,
       ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
       RentId: rent_id,
       BookID: book_id,
       BorrowerID: user_id,
@@ -62,6 +63,7 @@ async function rentBook(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -74,6 +76,7 @@ async function rentBook(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -86,6 +89,7 @@ async function rentBook(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT INSERTED",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }
@@ -131,6 +135,7 @@ async function returnBook(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         RentId: rent_id,
         BookID: book_id,
         BorrowerID: user_id,
@@ -142,6 +147,7 @@ async function returnBook(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "FAILURE",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     } finally {
@@ -154,6 +160,7 @@ async function returnBook(req, resp) {
           responseObj = {
             ResponseCode: 0,
             ResponseDesc: "ERROR CLOSING CONNECTION",
+            ResponseStatus: resp.statusCode,
           };
           resp.send(responseObj);
         }
@@ -166,6 +173,7 @@ async function returnBook(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "NOT INSERTED",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }

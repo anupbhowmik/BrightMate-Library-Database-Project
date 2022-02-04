@@ -26,7 +26,7 @@ async function addBook(req, resp) {
       book_description = req.body.DESCRIPTION;
     }
     let language = req.body.LANGUAGE;
-    let author_id = req.body.AUTHOR_ID;
+    let authorArr = req.body.AUTHOR_ID;
     let edition = req.body.EDITION;
     let isbn = req.body.ISBN;
     let publisher_id = req.body.PUBLISHER_ID;
@@ -43,8 +43,8 @@ async function addBook(req, resp) {
     console.log(book_id);
 
     let bookInsertQuery =
-      "INSERT INTO BOOKS (BOOK_ID, BOOK_TITLE, YEAR_OF_PUBLICATION, DESCRIPTION, EDITION, ISBN, LANGUAGE, AUTHOR_ID, PUBLISHER_ID) " +
-      "VALUES( :book_id, :title, :yearOfPublication, :book_description, :edition, :isbn, :language, :author_id, :publisher_id)";
+      "INSERT INTO BOOKS (BOOK_ID, BOOK_TITLE, YEAR_OF_PUBLICATION, DESCRIPTION, EDITION, ISBN, LANGUAGE, PUBLISHER_ID) " +
+      "VALUES( :book_id, :title, :yearOfPublication, :book_description, :edition, :isbn, :language, :publisher_id)";
     let bookInsertResult = await connection.execute(bookInsertQuery, [
       book_id,
       title,
@@ -53,11 +53,22 @@ async function addBook(req, resp) {
       edition,
       isbn,
       language,
-      author_id,
       publisher_id,
     ]);
 
     console.log(bookInsertResult);
+
+    for (let i = 0; i < authorArr.length; i++) {
+      author_id = authorArr[i];
+      let authorInsertQuery =
+        "INSERT INTO BOOKS_AUTHORS(BOOK_ID, AUTHOR_ID) VALUES(:book_id, :author_id)";
+      let authorInsertResult = await connection.execute(authorInsertQuery, [
+        book_id,
+        author_id,
+      ]);
+
+      console.log(authorInsertResult);
+    }
 
     for (let i = 0; i < genreArr.length; i++) {
       genre_id = genreArr[i];
@@ -76,9 +87,11 @@ async function addBook(req, resp) {
     responseObj = {
       ResponseCode: 1,
       ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
       BookID: book_id,
       Title: title,
-      AuthorId: author_id,
+      AuthorId: authorArr,
+      Genre: genreArr,
       Publisher_id: publisher_id,
       YearOfPublication: yearOfPublication,
       Edition: edition,
@@ -91,6 +104,7 @@ async function addBook(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -103,6 +117,7 @@ async function addBook(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -115,6 +130,7 @@ async function addBook(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT INSERTED",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }
@@ -142,7 +158,8 @@ async function getBooks(req, resp) {
     if (bookSelectResult.rows.length === 0) {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "NO DATA FOUND",
+        ResponseDesc: "NO DATA FOUND IN DATABASE",
+        ResponseStatus: resp.statusCode,
       };
     } else {
       let bookObject = [];
@@ -188,6 +205,7 @@ async function getBooks(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         Books: bookObject,
       };
     }
@@ -196,6 +214,7 @@ async function getBooks(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -208,6 +227,7 @@ async function getBooks(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -220,6 +240,7 @@ async function getBooks(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }
