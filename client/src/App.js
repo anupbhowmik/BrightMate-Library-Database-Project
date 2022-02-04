@@ -6,7 +6,7 @@ import Books from "./components/books";
 import {ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {TailSpin} from "react-loader-spinner";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Dialog, DialogContent} from "@mui/material";
 import ResponsiveAppBar from "./components/topNavBar";
 
@@ -20,7 +20,13 @@ import {Route, Routes} from "react-router-dom";
 var showToast;
 var setLoading;
 
+var transferData
+var setTransferData
+
 function App() {
+     [transferData, setTransferData] = useState(null)
+
+
     const [loading, setL] = useState(false);
     setLoading = setL;
     showToast = (message) => {
@@ -74,3 +80,4 @@ function App() {
 
 export default App;
 export {showToast, setLoading};
+export {transferData, setTransferData}

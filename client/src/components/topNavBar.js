@@ -50,11 +50,11 @@ const ResponsiveAppBar = () => {
   };
 
   return (
-    <AppBar position="sticky">
+    <AppBar style={{backgroundColor: "white"}} position="sticky">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <img onClick={() => showHome("/")} src={logo} className="App-logo" alt="logo" />
-          <h1>&nbsp;&nbsp;&nbsp;&nbsp;</h1><h3> BrightMate Library </h3><h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h1>
+          <h1>&nbsp;&nbsp;&nbsp;&nbsp;</h1><h3 > <font color="black"> BrightMate Library </font></h3><h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h1>
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -104,7 +104,7 @@ const ResponsiveAppBar = () => {
               <Button
                 key={page}
                 onClick={() => handleCloseNavMenu(page.address)}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{ my: 2, color: "#1565C0", display: "block" }}
               >
                 {page.title}
               </Button>
@@ -114,7 +114,7 @@ const ResponsiveAppBar = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton  onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <MdAccountCircle color="white" size="40"/>
+                  <MdAccountCircle color="#1565C0" size="40"/>
               </IconButton>
             </Tooltip>
             <Menu
