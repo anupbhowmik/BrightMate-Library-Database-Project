@@ -5,6 +5,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import {transferData} from "./App";
 
 const bull = (
     <Box
@@ -31,7 +32,12 @@ export default function SingleBookDetails() {
                         adjective
                     </Typography>
                     <Typography variant="body2">
-                        well meaning and kindly.
+
+                        {transferData != null ? (JSON.stringify(transferData)) : (
+                            <div>
+                                no data found
+                            </div>
+                        )}
                         <br/>
                         {'"a benevolent smile"'}
                     </Typography>
