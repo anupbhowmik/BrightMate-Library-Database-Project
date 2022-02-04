@@ -150,22 +150,28 @@ async function getBooks(req, resp) {
         let bookItem = bookSelectResult.rows[i];
 
         let authorId = bookItem.AUTHOR_ID;
-        let authorQuery =
-          "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
-        let authorName = await connection.execute(authorQuery, [authorId], {
-          outFormat: oracledb.OUT_FORMAT_OBJECT,
-        });
-        authorName = authorName.rows[0].AUTHOR_NAME;
+        let authorName;
+        if (authorId != undefined) {
+          let authorQuery =
+            "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
+          authorName = await connection.execute(authorQuery, [authorId], {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          });
+          authorName = authorName.rows[0].AUTHOR_NAME;
+        }
 
         let publisherId = bookItem.PUBLISHER_ID;
-        let publisherQuery =
-          "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
-        let publisherName = await connection.execute(
-          publisherQuery,
-          [publisherId],
-          { outFormat: oracledb.OUT_FORMAT_OBJECT }
-        );
-        publisherName = publisherName.rows[0].PUBLISHER_NAME;
+        let publisherName;
+        if (publisherId != undefined) {
+          let publisherQuery =
+            "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
+          publisherName = await connection.execute(
+            publisherQuery,
+            [publisherId],
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
+          );
+          publisherName = publisherName.rows[0].PUBLISHER_NAME;
+        }
 
         bookObject.push({
           BookID: bookItem.BOOK_ID,
@@ -222,5 +228,5 @@ async function getBooks(req, resp) {
 
 module.exports = {
   addBook,
-  getBooks
+  getBooks,
 };
