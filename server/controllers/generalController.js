@@ -333,9 +333,87 @@ async function getJobs(req, resp) {
   }
 }
 
+async function getAuthors(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    authorSelectQuery = "SELECT * FROM AUTHOR ORDER BY AUTHOR_NAME ASC";
+    let authorSelectResult = await connection.execute(authorSelectQuery, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    console.log(authorSelectResult);
+
+    if (authorSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND",
+      };
+    } else {
+      let authorObject = [];
+      for (let i = 0; i < authorSelectResult.rows.length; i++) {
+        let authorItem = authorSelectResult.rows[i];
+        
+        authorObject.push({
+          AuthorID: authorItem.AUTHOR_ID,
+          AuthorName: authorItem.AUTHOR_NAME,
+          DateOfBirth: authorItem.DATE_OF_BIRTH,
+          DateOfDeath: authorItem.DATE_OF_DEATH,
+          Bio: authorItem.BIO
+        });
+      }
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        AuthorList: authorObject,
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("FOUND");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT FOUND");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   addAuthor,
   addPublisher,
   getGenre,
   getJobs,
+  getAuthors
 };

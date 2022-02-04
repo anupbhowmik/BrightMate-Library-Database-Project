@@ -3,6 +3,7 @@ const userController = require('../controllers/userController');
 const generalController = require('../controllers/generalController');
 const booksController = require('../controllers/booksController');
 const magazineController = require('../controllers/magazineController');
+const rentController = require('../controllers/rentController');
 const bodyParser = require("body-parser").json();
 
 var router = express.Router();
@@ -17,11 +18,14 @@ router.post("/api/addAuthor", bodyParser, generalController.addAuthor);
 router.post("/api/addPublisher", bodyParser, generalController.addPublisher);
 router.get("/api/getGenre", bodyParser, generalController.getGenre);
 router.get("/api/getJobs", bodyParser, generalController.getJobs);
+router.get("/api/getAuthors", bodyParser, generalController.getAuthors);
 
 router.post("/api/addBook", bodyParser, booksController.addBook);
 router.get("/api/getBooks", bodyParser, booksController.getBooks);
 
 router.post("/api/addMagazine", bodyParser, magazineController.addMagazine);
 router.get("/api/getMagazines", bodyParser, magazineController.getMagazines);
+
+router.post("/api/rentBook", bodyParser, rentController.rentBook);
 
 module.exports = router;
