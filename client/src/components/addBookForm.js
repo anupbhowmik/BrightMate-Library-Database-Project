@@ -57,7 +57,6 @@ const AddBookForm = (props) => {
       .then((res) => res.json())
       .then((genres) => setGenre(genres))
       .then(() => {
-        showToast("All Genres loaded");
         var arr = []
           genres.GenreList.map(() => {
               arr.push(false)
