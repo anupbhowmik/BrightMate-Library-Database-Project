@@ -27,5 +27,6 @@ router.post("/api/addMagazine", bodyParser, magazineController.addMagazine);
 router.get("/api/getMagazines", bodyParser, magazineController.getMagazines);
 
 router.post("/api/rentBook", bodyParser, rentController.rentBook);
+router.post("/api/returnBook", bodyParser, rentController.returnBook);
 
 module.exports = router;
