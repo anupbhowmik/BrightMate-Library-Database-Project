@@ -46,6 +46,14 @@ async function rentBook(req, resp) {
 
     console.log(rentInsertResult);
 
+    
+    let bookUpdateQuery = "UPDATE BOOKS SET AVAILABLE_STATUS = 0 WHERE BOOK_ID = :book_id";
+    let bookUpdateResult = await connection.execute(bookUpdateQuery, [
+        book_id
+    ]);
+
+    console.log(bookUpdateResult);
+
     connection.commit();
 
     responseObj = {
@@ -123,7 +131,7 @@ async function returnBook(req, resp) {
   
       console.log(rentUpdateResult);
 
-      let bookUpdateQuery = "UPDATE BOOKS SET STATUS = 1 WHERE BOOK_ID = :book_id";
+      let bookUpdateQuery = "UPDATE BOOKS SET AVAILABLE_STATUS = 1 WHERE BOOK_ID = :book_id";
       let bookUpdateResult = await connection.execute(bookUpdateQuery, [
           book_id
       ]);
