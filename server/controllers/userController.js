@@ -353,8 +353,89 @@ async function addEmployee(req, resp) {
   }
 }
 
+async function getJobs(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    jobSelectQuery = "SELECT * FROM JOBS";
+    let jobSelectResult = await connection.execute(jobSelectQuery, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    console.log(jobSelectResult);
+
+    if (jobSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+    } else {
+      let jobObject = [];
+      for (let i = 0; i < jobSelectResult.rows.length; i++) {
+        let jobItem = jobSelectResult.rows[i];
+
+        jobObject.push({
+          JobID: jobItem.JOB_ID,
+          JobTitle: jobItem.JOB_TITLE,
+          Salary: jobItem.SALARY,
+        });
+      }
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        Jobs: jobObject,
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("FOUND");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT FOUND");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
   addEmployee,
+  getJobs,
 };
