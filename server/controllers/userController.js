@@ -149,6 +149,7 @@ async function signIn(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "USER DOES NOT EXIST",
+        ResponseStatus: resp.statusCode,
       };
     } else {
       let passwordKey = userInfo.rows[0].PASSWORD_KEY;
@@ -164,6 +165,7 @@ async function signIn(req, resp) {
         responseObj = {
           ResponseCode: 1,
           ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
           UserId: user_id,
           Username: user_name,
           Email: email,
@@ -175,13 +177,19 @@ async function signIn(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "PASSWORD INCORRECT",
+          ResponseStatus: resp.statusCode,
         };
       }
     }
     //connection.commit();
   } catch (err) {
     console.log(err);
-    resp.send(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
   } finally {
     if (connection) {
       try {
@@ -189,7 +197,12 @@ async function signIn(req, resp) {
         console.log("CONNECTION CLOSED");
       } catch (err) {
         console.log("Error closing connection");
-        resp.send(err);
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
       }
       if (userExistsAlready == 1) {
         if (responseObj.ResponseCode == 1) {
@@ -285,6 +298,7 @@ async function addEmployee(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         Username: user_name,
         UserType: 2,
         UserId: user_id,
@@ -297,6 +311,7 @@ async function addEmployee(req, resp) {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "FAILURE",
+        ResponseStatus: resp.statusCode,
       };
       console.log("USER EXISTS ALREADY");
     }
@@ -305,6 +320,7 @@ async function addEmployee(req, resp) {
     responseObj = {
       ResponseCode: 0,
       ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
     };
     resp.send(responseObj);
   } finally {
@@ -317,6 +333,7 @@ async function addEmployee(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "Error closing connection",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
@@ -328,9 +345,90 @@ async function addEmployee(req, resp) {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "USER EXISTS ALREADY",
+          ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
+    }
+  }
+}
+
+async function getJobs(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    jobSelectQuery = "SELECT * FROM JOBS";
+    let jobSelectResult = await connection.execute(jobSelectQuery, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    console.log(jobSelectResult);
+
+    if (jobSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+    } else {
+      let jobObject = [];
+      for (let i = 0; i < jobSelectResult.rows.length; i++) {
+        let jobItem = jobSelectResult.rows[i];
+
+        jobObject.push({
+          JobID: jobItem.JOB_ID,
+          JobTitle: jobItem.JOB_TITLE,
+          Salary: jobItem.SALARY,
+        });
+      }
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        Jobs: jobObject,
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("FOUND");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT FOUND");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
     }
   }
 }
@@ -339,4 +437,5 @@ module.exports = {
   signUp,
   signIn,
   addEmployee,
+  getJobs,
 };
