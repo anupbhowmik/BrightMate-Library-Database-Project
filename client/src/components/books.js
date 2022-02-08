@@ -76,7 +76,7 @@ const Books = (props) => {
                         primary={book.Title}
                         secondary={
                           "Edition " + book.Edition } />
-                        <h1>&nbsp;&nbsp;&nbsp;&nbsp;</h1><h4>2 Copies Available</h4>
+                        <h1>&nbsp;&nbsp;&nbsp;&nbsp;</h1><h4>Available copies: {book.CountOfBooks}</h4>
 
                     </ListItem>
 

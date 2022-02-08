@@ -1,13 +1,10 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import {transferData} from "./App";
-
-import BookIcon from '@mui/icons-material/Book';
 import {
     Avatar, Grid,
     List,
@@ -21,24 +18,15 @@ import CreateIcon from '@mui/icons-material/Create';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LanguageIcon from '@mui/icons-material/Language';
+import logo from ".//logo.png";
 
-const bull = (
-    <Box
-        component="span"
-        sx={{display: 'inline-block', mx: '2px', transform: 'scale(0.8)'}}
-    >
-        •
-    </Box>
-);
 
 export default function SingleBookDetails() {
     return (
-        <Grid container spacing={4} padding={10}>
+        <Grid container spacing={4} padding={5}>
             <Grid item xs={12} md={12}>
                 <center>
-                    {/*<Avatar sx={{bgcolor: "#E91E63"}}>*/}
-                    {/*    <BookIcon/>*/}
-                    {/*</Avatar>*/}
+                    <img src={logo} height={120} width={120}/>
                 </center>
             </Grid>
             <Grid item xs={0} md={2}>
@@ -49,7 +37,7 @@ export default function SingleBookDetails() {
                     <Card sx={{minWidth: 800}}>
                         <CardContent>
 
-                            <b><strong><Typography fontFamily="montserrat" variant="h4" component="div">
+                            <b><strong><Typography variant="h4" component="div">
                                 {transferData.Title}
                             </Typography> </strong></b>
                             <br/>
@@ -60,40 +48,45 @@ export default function SingleBookDetails() {
                                 ISBN: {transferData.ISBN}
                             </Typography>
 
+                            <hr color="#E1EBFF"/>
+
+                            <br/>
                             <Avatar sx={{bgcolor: "#50CB88"}}>
+                                <CheckCircleIcon/>
+                            </Avatar>
+                            <Typography paddingTop={1} variant="h5">
+                                Available Copies: {transferData.CountOfBooks}
+                            </Typography>
+                            <br/>
+
+                            <Avatar sx={{bgcolor: "#E91E63"}}>
                                 <CreateIcon/>
                             </Avatar>
-                            <List>
-                                {transferData.Author.map((singleAuthor) => (
+                            <List disablePadding>
+                                {transferData.AuthorObject.map((singleAuthor) => (
                                     <ListItem divider={false}>
                                         <ListItemText
-                                            key={singleAuthor.id}
-                                            primary={singleAuthor.name}
+                                            key={singleAuthor.AuthorId}
+                                            primary={singleAuthor.AuthorName}
                                         />
                                     </ListItem>
                                 ))}
 
                             </List>
+                            <br/>
 
 
                             <Avatar sx={{bgcolor: "#3A7CFF"}}>
                                 <LocalPrintshopIcon/>
                             </Avatar>
 
-                            <Typography paddingTop={1}  variant="body2">
+                            <Typography paddingTop={1} variant="body2">
                                 {transferData.Publisher}
                             </Typography>
 
-                            <br/>
-                            <Avatar  sx={{bgcolor: "#50CB88"}}>
-                                <CheckCircleIcon/>
-                            </Avatar>
-                            <Typography paddingTop={1} variant="body2">
-                                Available Copies: {transferData.CountOfBooks}
-                            </Typography>
 
                             <br/>
-                            <Avatar  sx={{bgcolor: "#E91E63"}}>
+                            <Avatar sx={{bgcolor: "#E91E63"}}>
                                 <LanguageIcon/>
                             </Avatar>
                             <Typography paddingTop={1} variant="body2">
@@ -101,11 +94,11 @@ export default function SingleBookDetails() {
                             </Typography>
 
                             <br/>
-                            <Avatar  sx={{bgcolor: "#6C63FF"}}>
+                            <Avatar sx={{bgcolor: "#6C63FF"}}>
                                 <DescriptionIcon/>
                             </Avatar>
                             <Typography paddingTop={1} variant="body2">
-                              {transferData.Description}
+                                {transferData.Description}
                             </Typography>
 
 
