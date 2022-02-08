@@ -36,9 +36,9 @@ export default function SingleBookDetails() {
         <Grid container spacing={4} padding={10}>
             <Grid item xs={12} md={12}>
                 <center>
-                    <Avatar sx={{bgcolor: "#E91E63"}}>
-                        <BookIcon/>
-                    </Avatar>
+                    {/*<Avatar sx={{bgcolor: "#E91E63"}}>*/}
+                    {/*    <BookIcon/>*/}
+                    {/*</Avatar>*/}
                 </center>
             </Grid>
             <Grid item xs={0} md={2}>
@@ -64,11 +64,11 @@ export default function SingleBookDetails() {
                                 <CreateIcon/>
                             </Avatar>
                             <List>
-                                {transferData.Author.map((book) => (
+                                {transferData.Author.map((singleAuthor) => (
                                     <ListItem divider={false}>
                                         <ListItemText
-                                            key={transferData.Author}
-                                            primary={transferData.Author}
+                                            key={singleAuthor.id}
+                                            primary={singleAuthor.name}
                                         />
                                     </ListItem>
                                 ))}
