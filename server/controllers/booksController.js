@@ -194,18 +194,20 @@ async function getBooks(req, resp) {
         );
 
         console.log(authorSelectResult);
-        let authorNameArr = [];
-        let authorIdArr = [];
+        let authorObject = [];
         if (authorSelectResult.rows.length != 0) {
           for (let j = 0; j < authorSelectResult.rows.length; j++) {
             let authorId = authorSelectResult.rows[j].AUTHOR_ID;
-            authorIdArr[j] = authorId;
             let authorQuery =
               "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
             authorNameResult = await connection.execute(authorQuery, [authorId], {
               outFormat: oracledb.OUT_FORMAT_OBJECT,
             });
-            authorNameArr[j] = authorNameResult.rows[0].AUTHOR_NAME;
+            let authorName = authorNameResult.rows[0].AUTHOR_NAME;
+            authorObject.push({
+              AuthorId: authorId,
+              AuthorName : authorName
+            });
           }
         }
 
@@ -225,8 +227,7 @@ async function getBooks(req, resp) {
         bookObject.push({
           BookID: book_id,
           Title: bookItem.BOOK_TITLE,
-          AuthorId: authorIdArr,
-          AuthorName: authorNameArr,
+          AuthorObject: authorObject,
           Publisher: publisherName,
           CountOfBooks: bookItem.CNT,
           YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
