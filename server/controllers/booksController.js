@@ -195,9 +195,11 @@ async function getBooks(req, resp) {
 
         console.log(authorSelectResult);
         let authorNameArr = [];
+        let authorIdArr = [];
         if (authorSelectResult.rows.length != 0) {
           for (let j = 0; j < authorSelectResult.rows.length; j++) {
             let authorId = authorSelectResult.rows[j].AUTHOR_ID;
+            authorIdArr[j] = authorId;
             let authorQuery =
               "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
             authorNameResult = await connection.execute(authorQuery, [authorId], {
@@ -223,7 +225,8 @@ async function getBooks(req, resp) {
         bookObject.push({
           BookID: book_id,
           Title: bookItem.BOOK_TITLE,
-          Author: authorNameArr,
+          AuthorId: authorIdArr,
+          AuthorName: authorNameArr,
           Publisher: publisherName,
           CountOfBooks: bookItem.CNT,
           YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
