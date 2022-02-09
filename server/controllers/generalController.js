@@ -119,7 +119,10 @@ async function addPublisher(req, resp) {
 
     let publisher_name = req.body.PUBLISHER_NAME;
     let phone = req.body.PHONE;
-    let address = req.body.ADDRESS;
+    let addressLine = req.body.ADDRESS_LINE;
+    let city = req.body.CITY;
+    let postalCode = req.body.POSTAL_CODE;
+    let country = req.body.COUNTRY;
 
     //Get Next Publisher Id
     let publisher_id;
@@ -132,12 +135,15 @@ async function addPublisher(req, resp) {
     console.log(publisher_id);
 
     publisherInsertQuery =
-      "INSERT INTO PUBLISHER (PUBLISHER_ID, PUBLISHER_NAME, PHONE, ADDRESS) VALUES( :publisher_id, :publisher_name, :phone, :address)";
+      "INSERT INTO PUBLISHER (PUBLISHER_ID, PUBLISHER_NAME, PHONE, ADDRESS_LINE, CITY, POSTAL_CODE, COUNTRY) VALUES( :publisher_id, :publisher_name, :phone, :addressLine, :city, :postalCode, :country)";
     let publisherInsertResult = await connection.execute(publisherInsertQuery, [
       publisher_id,
       publisher_name,
       phone,
-      address,
+      addressLine,
+      city,
+      postalCode,
+      country
     ]);
 
     console.log(publisherInsertResult);
