@@ -34,7 +34,6 @@ async function addBook(req, resp) {
       }
       let language = req.body.LANGUAGE;
       let authorArr = req.body.AUTHOR_ID;
-      let edition = req.body.EDITION;
       let isbn = req.body.ISBN;
       let publisher_id = req.body.PUBLISHER_ID;
       let genreArr = req.body.GENRE;
@@ -50,17 +49,16 @@ async function addBook(req, resp) {
       console.log(book_id);
 
       let bookInsertQuery =
-        "INSERT INTO BOOKS (BOOK_ID, BOOK_TITLE, YEAR_OF_PUBLICATION, DESCRIPTION, EDITION, ISBN, LANGUAGE, PUBLISHER_ID) " +
-        "VALUES( :book_id, :title, :yearOfPublication, :book_description, :edition, :isbn, :language, :publisher_id)";
+        "INSERT INTO BOOKS (BOOK_ID, BOOK_TITLE, YEAR_OF_PUBLICATION, DESCRIPTION, LANGUAGE, PUBLISHER_ID, ISBN) " +
+        "VALUES( :book_id, :title, :yearOfPublication, :book_description, :language, :publisher_id, :isbn)";
       let bookInsertResult = await connection.execute(bookInsertQuery, [
         book_id,
         title,
         yearOfPublication,
         book_description,
-        edition,
-        isbn,
         language,
         publisher_id,
+        isbn,
       ]);
 
       console.log(bookInsertResult);
@@ -101,7 +99,6 @@ async function addBook(req, resp) {
         Genre: genreArr,
         Publisher_id: publisher_id,
         YearOfPublication: yearOfPublication,
-        Edition: edition,
         ISBN: isbn,
         Description: book_description,
         Language: language,
@@ -164,8 +161,8 @@ async function getBooks(req, resp) {
     console.log("DATABASE CONNECTED");
 
     bookSelectQuery =
-      "SELECT MIN(BOOK_ID) AS BID, COUNT(BOOK_ID) AS CNT, ISBN, BOOK_TITLE, EDITION, PUBLISHER_ID, DESCRIPTION, LANGUAGE FROM BOOKS WHERE AVAILABLE_STATUS = 1 GROUP BY ISBN, EDITION, BOOK_TITLE, PUBLISHER_ID, DESCRIPTION, LANGUAGE";
-       let bookSelectResult = await connection.execute(bookSelectQuery, [], {
+      "SELECT * FROM BOOKS WHERE AVAILABLE_COPIES > 1";
+    let bookSelectResult = await connection.execute(bookSelectQuery, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
 
@@ -182,7 +179,8 @@ async function getBooks(req, resp) {
       for (let i = 0; i < bookSelectResult.rows.length; i++) {
         let bookItem = bookSelectResult.rows[i];
 
-        let book_id = bookItem.BID;
+        let book_id = bookItem.BOOK_ID;
+
         authorSelectQuery =
           "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
         let authorSelectResult = await connection.execute(
@@ -200,13 +198,17 @@ async function getBooks(req, resp) {
             let authorId = authorSelectResult.rows[j].AUTHOR_ID;
             let authorQuery =
               "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
-            authorNameResult = await connection.execute(authorQuery, [authorId], {
-              outFormat: oracledb.OUT_FORMAT_OBJECT,
-            });
+            authorNameResult = await connection.execute(
+              authorQuery,
+              [authorId],
+              {
+                outFormat: oracledb.OUT_FORMAT_OBJECT,
+              }
+            );
             let authorName = authorNameResult.rows[0].AUTHOR_NAME;
             authorObject.push({
               AuthorId: authorId,
-              AuthorName : authorName
+              AuthorName: authorName,
             });
           }
         }
@@ -224,10 +226,67 @@ async function getBooks(req, resp) {
           publisherName = publisherName.rows[0].PUBLISHER_NAME;
         }
 
+        genreSelectQuery =
+          "SELECT * FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
+        let genreSelectResult = await connection.execute(
+          genreSelectQuery,
+          [book_id],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        console.log(genreSelectResult);
+        let genreObject = [];
+        if (genreSelectResult.rows.length != 0) {
+          for (let j = 0; j < genreSelectResult.rows.length; j++) {
+            let genreId = genreSelectResult.rows[j].GENRE_ID;
+            let genreQuery =
+              "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
+              genreNameResult = await connection.execute(
+              genreQuery,
+              [genreId],
+              {
+                outFormat: oracledb.OUT_FORMAT_OBJECT,
+              }
+            );
+            let genreName = genreNameResult.rows[0].GENRE_NAME;
+            genreObject.push({
+              GenreId: genreId,
+              GenreName: genreName,
+            });
+          }
+        }
+
+        copySelectQuery =
+          "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
+        let copySelectResult = await connection.execute(
+          copySelectQuery,
+          [book_id],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        console.log(copySelectResult);
+        let copyObject = [];
+        if (copySelectResult.rows.length != 0) {
+          for (let k = 0; k < copySelectResult.rows.length; k++) {
+            let copyCount = copySelectResult.rows[k].CNT;
+            let edition = copySelectResult.rows[0].EDITION;
+            copyObject.push({
+              CopyCount: copyCount,
+              Edition: edition,
+            });
+          }
+        }
+
         bookObject.push({
           BookID: book_id,
           Title: bookItem.BOOK_TITLE,
           AuthorObject: authorObject,
+          GenreObject: genreObject,
+          CopyObject: copyObject,
           Publisher: publisherName,
           CountOfBooks: bookItem.CNT,
           YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
@@ -282,7 +341,105 @@ async function getBooks(req, resp) {
   }
 }
 
+async function addBookCopies(req, resp) {
+  let connection;
+  let syRegisterCopies = 9;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let book_id = req.body.BOOK_ID;
+    let copies = req.body.COPIES;
+    let edition = req.body.EDITION;
+
+    //Get Next Copy Id
+    let copy_id;
+    let nextValueQuery =
+      "SELECT SY_REGISTER_NEXTVAL FROM SYSTEM_REGISTER WHERE SY_REGISTER_ID = :syRegisterCopies";
+    copy_id = await connection.execute(nextValueQuery, [syRegisterCopies], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    copy_id = copy_id.rows[0].SY_REGISTER_NEXTVAL;
+
+    let i = 0;
+    do {
+      console.log(copy_id);
+
+      let copyInsertQuery =
+        "INSERT INTO BOOK_COPY (BOOK_COPY_ID, EDITION, BOOK_ID) VALUES(:copy_id, :edition, :book_id)";
+      let copyInsertResult = await connection.execute(copyInsertQuery, [
+        copy_id,
+        edition,
+        book_id,
+      ]);
+
+      console.log(copyInsertResult);
+
+      i = i + 1;
+      copy_id = copy_id + 1;
+    } while (i < copies);
+
+    let updateValueQuery =
+      "UPDATE SYSTEM_REGISTER SET SY_REGISTER_NEXTVAL = :copy_id WHERE SY_REGISTER_ID = :syRegisterCopies";
+    let updateValue = await connection.execute(updateValueQuery, [
+      copy_id,
+      syRegisterCopies,
+    ]);
+
+    console.log(updateValue);
+
+    connection.commit();
+
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+    };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("INSERTED");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT INSERTED");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT INSERTED",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   addBook,
   getBooks,
+  addBookCopies
 };

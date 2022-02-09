@@ -366,7 +366,7 @@ async function searchByBook(req, resp) {
     let searchKey = req.body.SEARCH_KEY;
     searchKey = "%" + searchKey + "%";
     let searchQuery =
-      "SELECT MIN(BOOK_ID) AS BID, COUNT(BOOK_ID) AS CNT, ISBN, BOOK_TITLE, EDITION, PUBLISHER_ID, DESCRIPTION, LANGUAGE FROM BOOKS WHERE UPPER(BOOK_TITLE) LIKE UPPER(:searchKey) AND AVAILABLE_STATUS = 1 GROUP BY ISBN, EDITION, BOOK_TITLE, PUBLISHER_ID, DESCRIPTION, LANGUAGE";
+      "SELECT * FROM BOOKS WHERE UPPER(BOOK_TITLE) LIKE UPPER(:searchKey) AND AVAILABLE_COPIES > 0 ORDER BY YEAR_OF_PUBLICATION DESC";
       let searchResult = await connection.execute(searchQuery, [searchKey], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
@@ -377,7 +377,7 @@ async function searchByBook(req, resp) {
     for (let i = 0; i < searchResult.rows.length; i++) {
       let bookItem = searchResult.rows[i];
 
-      let book_id = bookItem.BID;
+      let book_id = bookItem.BOOK_ID;
 
       authorSelectQuery =
         "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
@@ -421,7 +421,7 @@ async function searchByBook(req, resp) {
         Title: bookItem.BOOK_TITLE,
         Author: authorNameArr,
         Publisher: publisherName,
-        CountOfBooks: bookItem.CNT,
+        AvailableCopies: bookItem.AVAILABLE_COPIES,
         YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
         Description: bookItem.DESCRIPTION,
         Language: bookItem.LANGUAGE,
