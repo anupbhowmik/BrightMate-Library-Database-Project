@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {dataTransfer, setLoading, setTransferData, showToast, transferData} from "../App";
+import {setLoading, setTransferData, showToast, transferData} from "../App";
 import {
   Button,
   Card,

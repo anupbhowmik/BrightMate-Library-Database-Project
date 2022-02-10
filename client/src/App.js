@@ -1,7 +1,4 @@
-import logo from "./logo.png";
 import "./App.css";
-import AddBookForm from "./components/addBookForm";
-import Books from "./components/books";
 
 import {ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,6 +11,8 @@ import Home from "./Home";
 import About from "./About";
 import SearchResult from "./SearchResult";
 import SingleBookDetails from "./SingleBookDetails";
+import Login from "./Login";
+import Register from "./Register";
 
 import {Route, Routes} from "react-router-dom";
 
@@ -23,8 +22,15 @@ var setLoading;
 var transferData
 var setTransferData
 
+var isLoggedIn
+var setLoggedIn
+// var isAdmin
+
 function App() {
-     [transferData, setTransferData] = useState(null)
+    [transferData, setTransferData] = useState(null);
+
+    [isLoggedIn, setLoggedIn] = useState(false);
+    // [isAdmin, setAdminStatus] = useState(false)
 
 
     const [loading, setL] = useState(false);
@@ -70,6 +76,8 @@ function App() {
                         <Route exact path="/about" element={<About/>}/>
                         <Route exact path="/bookdetails" element={<SingleBookDetails/>}/>
                         <Route exact path="/searchresult" element={<SearchResult/>}/>
+                        <Route exact path="/login" element={<Login/>}/>
+                        <Route exact path="/register" element={<Register/>}/>
 
                     </Routes>
                 </div>
@@ -80,4 +88,4 @@ function App() {
 
 export default App;
 export {showToast, setLoading};
-export {transferData, setTransferData}
+export {transferData, setTransferData, isLoggedIn, setLoggedIn}

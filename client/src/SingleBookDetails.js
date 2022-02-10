@@ -41,9 +41,12 @@ export default function SingleBookDetails() {
                                 {transferData.Title}
                             </Typography> </strong></b>
                             <br/>
-                            <Typography sx={{mb: 1.5}} color="text.secondary">
-                                Edition: {transferData.Edition}
-                            </Typography>
+                            {transferData.Edition != null ?
+                                <Typography sx={{mb: 1.5}} color="text.secondary">
+                                    Edition: {transferData.Edition}
+                                </Typography> :
+                                <Typography sx={{mb: 1.5}} color="text.secondary"> Edition not spcified </Typography>}
+
                             <Typography sx={{mb: 1.5}} color="text.primary">
                                 ISBN: {transferData.ISBN}
                             </Typography>
@@ -73,6 +76,9 @@ export default function SingleBookDetails() {
                                 ))}
 
                             </List>
+
+
+
                             <br/>
 
 
