@@ -111,7 +111,6 @@ async function rentBook(req, resp) {
   }
 }
 
-//-----------RETURN BOOK SHOULD BE HANDLED FROM ADMIN SIDE------------
 async function returnBook(req, resp) {
   let connection;
 
@@ -126,27 +125,56 @@ async function returnBook(req, resp) {
     let return_date = new Date();
     let status = 3; //3 means returned
     let rent_id = req.body.RENT_ID;
-    //let admin_id = req.body.ADMIN_ID;
+    let employee_id = req.body.EMPLOYEE_ID;
+    let employee_password = req.body.EMPLOYEE_PASSWORD;
 
-    let rentUpdateQuery =
-      "UPDATE RENTAL_HISTORY SET RETURN_DATE = :return_date, RENTAL_STATUS = :status WHERE RENTAL_HISTORY_ID = :rent_id";
-    let rentUpdateResult = await connection.execute(rentUpdateQuery, [
-      return_date,
-      status,
-      rent_id,
+    let employeeSelectQuery =
+      "SELECT USER_TYPE_ID FROM USERS WHERE USER_ID = :employee_id";
+    let employeeSelectResult = await connection.execute(employeeSelectQuery, [
+      employee_id,
     ]);
 
-    console.log(rentUpdateResult);
+    let user_type_id = employeeSelectResult.rows[0][0];
+    console.log(user_type_id);
+
+    if (user_type_id == 2) {
+      let jobSelectQuery =
+        "SELECT JOB_ID FROM USER_EMPLOYEE WHERE USER_ID = :employee_id";
+      let jobSelectResult = await connection.execute(jobSelectQuery, [
+        employee_id,
+      ]);
+
+      let job_id = jobSelectResult.rows[0][0];
+      console.log(job_id);
+      if (job_id == 1 || job_id == 3) {
+        let rentUpdateQuery =
+          "UPDATE RENTAL_HISTORY SET RETURN_DATE = :return_date, RENTAL_STATUS = :status WHERE RENTAL_HISTORY_ID = :rent_id";
+        let rentUpdateResult = await connection.execute(rentUpdateQuery, [
+          return_date,
+          status,
+          rent_id,
+        ]);
+
+        console.log(rentUpdateResult);
+        responseObj = {
+          ResponseCode: 1,
+          ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
+          RentId: rent_id,
+          ReturnDate: return_date,
+        };
+      }
+    }else{
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "USER ODES NOT HAVE PERMISSION TO ACCEPT A BOOK",
+        ResponseStatus: resp.statusCode,
+      };
+    }
 
     connection.commit();
 
-    responseObj = {
-      ResponseCode: 1,
-      ResponseDesc: "SUCCESS",
-      ResponseStatus: resp.statusCode,
-      RentId: rent_id,
-      ReturnDate: return_date,
-    };
+    
   } catch (err) {
     console.log(err);
     responseObj = {

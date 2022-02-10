@@ -2,6 +2,11 @@ const oracledb = require("oracledb");
 const bcrypt = require("bcrypt");
 const server = require("../serverInformation");
 const syRegister = require("../util/syRegister");
+const {
+  v4 : uuidv4,
+  parse:uuidParse,
+  stringify : uuidStringify
+} = require('uuid');
 const dbuser = server.user;
 const dbpassword = server.password;
 const connectionString = server.connectionString;
@@ -68,7 +73,8 @@ async function signUp(req, resp) {
 
       console.log(userInsertResult);
 
-      library_card_num = 1;
+      const library_card_num = uuidv4();
+      console.log(library_card_num);
       today = new Date();
 
       let readerInsertQuery =
@@ -86,6 +92,7 @@ async function signUp(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         Username: user_name,
         UserId: user_id,
         Email: email,
@@ -96,13 +103,18 @@ async function signUp(req, resp) {
     } else {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "FAILURE",
+        ResponseDesc: "USER EXISTS ALREADY WITH THIS EMAIL",
+        ResponseStatus: resp.statusCode,
       };
-      console.log("USER EXISTS ALREADY");
     }
   } catch (err) {
     console.log(err);
-    resp.send(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
   } finally {
     if (connection) {
       try {
@@ -110,7 +122,12 @@ async function signUp(req, resp) {
         console.log("CONNECTION CLOSED");
       } catch (err) {
         console.log("Error closing connection");
-        resp.send(err);
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
       }
       if (userExistsAlready == 0) {
         if (responseObj.ResponseCode == 1) {
