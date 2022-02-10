@@ -22,6 +22,7 @@ async function rentBook(req, resp) {
     let status = 1;
     let user_id = req.body.USER_ID;
     let book_id = req.body.BOOK_ID;
+    let edition = req.body.EDITION;
 
     //Get Next Rental History Id
     let rent_id;
@@ -32,57 +33,46 @@ async function rentBook(req, resp) {
       });
 
     console.log(rent_id);
+    console.log(book_id);
+    console.log(edition);
 
-    let statusCheckQuery =
-      "SELECT AVAILABLE_STATUS FROM BOOKS WHERE BOOK_ID = :book_id";
-    let statusCheckResult = await connection.execute(statusCheckQuery, [
+    let copySelectQuery =
+      "SELECT MIN(BOOK_COPY_ID) AS COP_ID FROM BOOK_COPY WHERE BOOK_ID = :book_id AND EDITION = :edition AND STATUS = 1";
+    let copySelectResult = await connection.execute(copySelectQuery, [
       book_id,
+      edition,
+    ]);
+    console.log(copySelectResult);
+    let copy_id = copySelectResult.rows[0][0];
+    console.log(copy_id);
+
+    let rentInsertQuery =
+      "INSERT INTO RENTAL_HISTORY (RENTAL_HISTORY_ID, ISSUE_DATE, RENTAL_STATUS, USER_ID, BOOK_COPY_ID) " +
+      "VALUES( :rent_id, :issue_date, :status, :user_id, :copy_id)";
+    let rentInsertResult = await connection.execute(rentInsertQuery, [
+      rent_id,
+      issue_date,
+      status,
+      user_id,
+      copy_id,
     ]);
 
-    console.log(statusCheckResult);
+    console.log(rentInsertResult);
 
-    if (statusCheckResult.rows[0][0] == "1") {
-      let rentInsertQuery =
-        "INSERT INTO RENTAL_HISTORY (RENTAL_HISTORY_ID, ISSUE_DATE, RENTAL_STATUS, USER_ID, BOOK_ID) " +
-        "VALUES( :rent_id, :issue_date, :status, :user_id, :book_id)";
-      let rentInsertResult = await connection.execute(rentInsertQuery, [
-        rent_id,
-        issue_date,
-        status,
-        user_id,
-        book_id,
-      ]);
+    connection.commit();
 
-      console.log(rentInsertResult);
-
-      let bookUpdateQuery =
-        "UPDATE BOOKS SET AVAILABLE_STATUS = 0 WHERE BOOK_ID = :book_id";
-      let bookUpdateResult = await connection.execute(bookUpdateQuery, [
-        book_id,
-      ]);
-
-      console.log(bookUpdateResult);
-
-      connection.commit();
-
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        ResponseStatus: resp.statusCode,
-        RentId: rent_id,
-        BookID: book_id,
-        BorrowerID: user_id,
-        IssueDate: issue_date,
-        Status: status,
-      };
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "BOOK IS NOT AVAILABLE",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      RentId: rent_id,
+      BookID: book_id,
+      CopyId: copy_id,
+      Edition: edition,
+      BorrowerID: user_id,
+      IssueDate: issue_date,
+      Status: status,
+    };
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -134,15 +124,9 @@ async function returnBook(req, resp) {
     console.log("DATABASE CONNECTED");
 
     let return_date = new Date();
-    let status = 3;   //3 means returned
+    let status = 3; //3 means returned
     let rent_id = req.body.RENT_ID;
-
-    let bookQuery =
-      "SELECT BOOK_ID FROM RENTAL_HISTORY WHERE RENTAL_HISTORY_ID = :rent_id";
-    let bookResult = await connection.execute(bookQuery, [rent_id]);
-
-    console.log(bookResult);
-    let book_id = bookResult.rows[0][0];
+    //let admin_id = req.body.ADMIN_ID;
 
     let rentUpdateQuery =
       "UPDATE RENTAL_HISTORY SET RETURN_DATE = :return_date, RENTAL_STATUS = :status WHERE RENTAL_HISTORY_ID = :rent_id";
@@ -154,12 +138,6 @@ async function returnBook(req, resp) {
 
     console.log(rentUpdateResult);
 
-    let bookUpdateQuery =
-      "UPDATE BOOKS SET AVAILABLE_STATUS = 1 WHERE BOOK_ID = :book_id";
-    let bookUpdateResult = await connection.execute(bookUpdateQuery, [book_id]);
-
-    console.log(bookUpdateResult);
-
     connection.commit();
 
     responseObj = {
@@ -167,7 +145,6 @@ async function returnBook(req, resp) {
       ResponseDesc: "SUCCESS",
       ResponseStatus: resp.statusCode,
       RentId: rent_id,
-      BookID: book_id,
       ReturnDate: return_date,
     };
   } catch (err) {

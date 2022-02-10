@@ -119,7 +119,10 @@ async function addPublisher(req, resp) {
 
     let publisher_name = req.body.PUBLISHER_NAME;
     let phone = req.body.PHONE;
-    let address = req.body.ADDRESS;
+    let addressLine = req.body.ADDRESS_LINE;
+    let city = req.body.CITY;
+    let postalCode = req.body.POSTAL_CODE;
+    let country = req.body.COUNTRY;
 
     //Get Next Publisher Id
     let publisher_id;
@@ -132,12 +135,15 @@ async function addPublisher(req, resp) {
     console.log(publisher_id);
 
     publisherInsertQuery =
-      "INSERT INTO PUBLISHER (PUBLISHER_ID, PUBLISHER_NAME, PHONE, ADDRESS) VALUES( :publisher_id, :publisher_name, :phone, :address)";
+      "INSERT INTO PUBLISHER (PUBLISHER_ID, PUBLISHER_NAME, PHONE, ADDRESS_LINE, CITY, POSTAL_CODE, COUNTRY) VALUES( :publisher_id, :publisher_name, :phone, :addressLine, :city, :postalCode, :country)";
     let publisherInsertResult = await connection.execute(publisherInsertQuery, [
       publisher_id,
       publisher_name,
       phone,
-      address,
+      addressLine,
+      city,
+      postalCode,
+      country
     ]);
 
     console.log(publisherInsertResult);
@@ -366,7 +372,7 @@ async function searchByBook(req, resp) {
     let searchKey = req.body.SEARCH_KEY;
     searchKey = "%" + searchKey + "%";
     let searchQuery =
-      "SELECT MIN(BOOK_ID) AS BID, COUNT(BOOK_ID) AS CNT, ISBN, BOOK_TITLE, EDITION, PUBLISHER_ID, DESCRIPTION, LANGUAGE FROM BOOKS WHERE UPPER(BOOK_TITLE) LIKE UPPER(:searchKey) AND AVAILABLE_STATUS = 1 GROUP BY ISBN, EDITION, BOOK_TITLE, PUBLISHER_ID, DESCRIPTION, LANGUAGE";
+      "SELECT * FROM BOOKS WHERE UPPER(BOOK_TITLE) LIKE UPPER(:searchKey) AND AVAILABLE_COPIES > 0 ORDER BY YEAR_OF_PUBLICATION DESC";
       let searchResult = await connection.execute(searchQuery, [searchKey], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
@@ -377,7 +383,7 @@ async function searchByBook(req, resp) {
     for (let i = 0; i < searchResult.rows.length; i++) {
       let bookItem = searchResult.rows[i];
 
-      let book_id = bookItem.BID;
+      let book_id = bookItem.BOOK_ID;
 
       authorSelectQuery =
         "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
@@ -421,7 +427,7 @@ async function searchByBook(req, resp) {
         Title: bookItem.BOOK_TITLE,
         Author: authorNameArr,
         Publisher: publisherName,
-        CountOfBooks: bookItem.CNT,
+        AvailableCopies: bookItem.AVAILABLE_COPIES,
         YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
         Description: bookItem.DESCRIPTION,
         Language: bookItem.LANGUAGE,
