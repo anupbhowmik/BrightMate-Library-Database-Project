@@ -3,10 +3,10 @@ const bcrypt = require("bcrypt");
 const server = require("../serverInformation");
 const syRegister = require("../util/syRegister");
 const {
-  v4 : uuidv4,
-  parse:uuidParse,
-  stringify : uuidStringify
-} = require('uuid');
+  v4: uuidv4,
+  parse: uuidParse,
+  stringify: uuidStringify,
+} = require("uuid");
 const dbuser = server.user;
 const dbpassword = server.password;
 const connectionString = server.connectionString;
@@ -260,77 +260,101 @@ async function addEmployee(req, resp) {
     let gender = req.body.GENDER;
     let job_id = req.body.JOB_ID;
     let user_type_id = 2; //EMPLOYEE
+    let admin_id = req.body.ADMIN_ID;
+    let admin_password = req.body.ADMIN_PASSWORD;
 
-    let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
-    let user_exists = await connection.execute(userCheckQuery, [email], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
-    console.log(user_exists);
+    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
+    let adminCheckResult = await connection.execute(
+      adminCheckQuery,
+      [admin_id],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
+    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
 
-    if (user_exists.rows.length == 0) {
-      //user does not exist
-      console.log("user does not exist");
-      userExistsAlready = false;
+    if (adminTypeId == 3 && admin_password == adminCheckResult.rows[0].PASSWORD_KEY) {
+      console.log("GOT ADMIN PERMISSION");
 
-      //Get Next User Id
-      let user_id;
-      await syRegister
-        .getNextId(connection, syRegisterUsers)
-        .then(function (data) {
-          user_id = data;
-        });
+      let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
+      let user_exists = await connection.execute(userCheckQuery, [email], {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      });
+      console.log(user_exists);
 
-      console.log(user_id);
-      console.log(user_password, " ", salt);
-      const hash = bcrypt.hashSync(user_password, salt);
+      if (user_exists.rows.length == 0) {
+        //user does not exist
+        console.log("user does not exist");
+        userExistsAlready = false;
 
-      let userInsertQuery =
-        "INSERT INTO USERS (USER_ID, USER_NAME, EMAIL, PASSWORD_KEY, MOBILE, GENDER, USER_TYPE_ID) VALUES( :user_id, :user_name, :email, :hash, :mobile, :gender, :user_type_id)";
-      let userInsertResult = await connection.execute(userInsertQuery, [
-        user_id,
-        user_name,
-        email,
-        hash,
-        mobile,
-        gender,
-        user_type_id,
-      ]);
+        //Get Next User Id
+        let user_id;
+        await syRegister
+          .getNextId(connection, syRegisterUsers)
+          .then(function (data) {
+            user_id = data;
+          });
 
-      console.log(userInsertResult);
+        console.log(user_id);
+        const hash = bcrypt.hashSync(user_password, salt);
 
-      join_date = new Date();
+        let userInsertQuery =
+          "INSERT INTO USERS (USER_ID, USER_NAME, EMAIL, PASSWORD_KEY, MOBILE, GENDER, USER_TYPE_ID) VALUES( :user_id, :user_name, :email, :hash, :mobile, :gender, :user_type_id)";
+        let userInsertResult = await connection.execute(userInsertQuery, [
+          user_id,
+          user_name,
+          email,
+          hash,
+          mobile,
+          gender,
+          user_type_id,
+        ]);
 
-      let employeeInsertQuery =
-        "INSERT INTO USER_EMPLOYEE (USER_ID, JOIN_DATE, JOB_ID) VALUES( :user_id, :join_date, :job_id)";
-      employeeInsertresult = await connection.execute(employeeInsertQuery, [
-        user_id,
-        join_date,
-        job_id,
-      ]);
+        console.log(userInsertResult);
 
-      console.log(employeeInsertresult);
+        join_date = new Date();
 
-      connection.commit();
+        let employeeInsertQuery =
+          "INSERT INTO USER_EMPLOYEE (USER_ID, JOIN_DATE, JOB_ID) VALUES( :user_id, :join_date, :job_id)";
+        employeeInsertResult = await connection.execute(employeeInsertQuery, [
+          user_id,
+          join_date,
+          job_id,
+        ]);
 
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        ResponseStatus: resp.statusCode,
-        Username: user_name,
-        UserType: 2,
-        UserId: user_id,
-        Email: email,
-        Mobile: mobile,
-        Gender: gender,
-        JobID: job_id,
-      };
+        console.log(employeeInsertResult);
+
+        connection.commit();
+
+        responseObj = {
+          ResponseCode: 1,
+          ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
+          Username: user_name,
+          UserType: 2,
+          UserId: user_id,
+          Email: email,
+          Mobile: mobile,
+          Gender: gender,
+          JobID: job_id,
+        };
+      }
+      else {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "USER EXISTS ALREADY",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
     } else {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "FAILURE",
+        ResponseDesc: "DO NOT HAVE PERMISSION",
         ResponseStatus: resp.statusCode,
       };
-      console.log("USER EXISTS ALREADY");
+      resp.send(responseObj);
     }
   } catch (err) {
     console.log(err);
@@ -361,11 +385,18 @@ async function addEmployee(req, resp) {
         console.log("NOT INSERTED");
         responseObj = {
           ResponseCode: 0,
-          ResponseDesc: "USER EXISTS ALREADY",
+          ResponseDesc: "FAILURE",
           ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
+    }else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "SOMETHING WENT WRONG",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
     }
   }
 }

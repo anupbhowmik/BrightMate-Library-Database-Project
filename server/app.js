@@ -5,12 +5,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-// var indexRouter = require('./routes/index');
 var router = require('./routes/routes');
-// var helloRouter = require('./routes/hello');
-// var customerRouter = require('./routes/orcl');
-// var addBookRouter = require('./routes/orcl_addBook');
-// var getBooksRouter = require('./routes/getBooks');
 
 var cors = require('cors')
 
