@@ -375,20 +375,24 @@ async function search(req, resp) {
     let authorKey = req.body.AUTHOR_OBJECT;
     let is_author_filter = authorKey.IS_AUTHOR_FILTER;
     let author_name;
-    let authorQuery;
+    let authorQuery = "";
+    let authorFromQuery = "";
     if(is_author_filter == 1){
       author_name = authorKey.AUTHOR_NAME;
-      author_name = "%" + author_name + "%";
-      authorQuery = " AND ba.AUTHOR_ID IN (SELECT AUTHOR_ID FROM AUTHOR WHERE UPPER(AUTHOR_NAME) LIKE UPPER(:author_name)) AND b.BOOK_ID = ba.BOOK_ID"
+      author_name = "'%" + author_name + "%'";
+      authorFromQuery = " , BOOKS_AUTHORS ba ";
+      authorQuery = ' AND ba.AUTHOR_ID IN (SELECT AUTHOR_ID FROM AUTHOR WHERE UPPER(AUTHOR_NAME) LIKE UPPER('+ author_name +')) AND b.BOOK_ID = ba.BOOK_ID';
     }
 
     let genreKey = req.body.GENRE_OBJECT;
     let is_genre_filter = genreKey.IS_GENRE_FILTER;
     let genre_id;
     let genreQuery = "";
+    let genreFromQuery = "";
     if(is_genre_filter == 1){
       genre_id = genreKey.GENRE_ID;
-      genreQuery = "";
+      genreFromQuery = " , BOOKS_GENRE bg ";
+      genreQuery = ' AND bg.GENRE_ID = ' + genre_id + ' AND b.BOOK_ID = bg.BOOK_ID ';
     }
 
     let yearKey = req.body.YEAR_OBJECT;
@@ -397,15 +401,15 @@ async function search(req, resp) {
     let yearQuery = "";
     if(is_year_filter == 1){
       year = yearKey.YEAR;
-      yearQuery = "";
+      yearQuery = ' AND b.YEAR_OF_PUBLICATION = ' + year;
     }
 
     let searchQuery =
-      "SELECT ba.BOOK_ID, b.BOOK_TITLE, b.DESCRIPTION, b.LANGUAGE, b.PUBLISHER_ID, b.ISBN, b.AVAILABLE_COPIES" +
-       " FROM BOOKS b, BOOKS_AUTHORS ba WHERE UPPER(b.BOOK_TITLE) LIKE UPPER(:searchKey) AND b.AVAILABLE_COPIES > 0 " +
+      "SELECT b.BOOK_ID, b.BOOK_TITLE, b.DESCRIPTION, b.LANGUAGE, b.PUBLISHER_ID, b.ISBN, b.AVAILABLE_COPIES" +
+       " FROM BOOKS b " + authorFromQuery + genreFromQuery + " WHERE UPPER(b.BOOK_TITLE) LIKE UPPER(:searchKey) AND b.AVAILABLE_COPIES > 0 " +
        authorQuery + genreQuery + yearQuery + " ORDER BY b.YEAR_OF_PUBLICATION DESC";
        console.log(searchQuery);
-      let searchResult = await connection.execute(searchQuery, [searchKey, author_name], {
+      let searchResult = await connection.execute(searchQuery, [searchKey], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
 
@@ -427,7 +431,6 @@ async function search(req, resp) {
         }
       );
 
-      console.log("authorSelectResult:",authorSelectResult);
       let authorNameArr = [];
       if (authorSelectResult.rows.length != 0) {
         for (let j = 0; j < authorSelectResult.rows.length; j++) {
