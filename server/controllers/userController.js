@@ -274,7 +274,10 @@ async function addEmployee(req, resp) {
     let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
     //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
 
-    if (adminTypeId == 3 && admin_password == adminCheckResult.rows[0].PASSWORD_KEY) {
+    if (
+      adminTypeId == 3 &&
+      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
+    ) {
       console.log("GOT ADMIN PERMISSION");
 
       let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
@@ -339,8 +342,7 @@ async function addEmployee(req, resp) {
           Gender: gender,
           JobID: job_id,
         };
-      }
-      else {
+      } else {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "USER EXISTS ALREADY",
@@ -390,7 +392,7 @@ async function addEmployee(req, resp) {
         };
         resp.send(responseObj);
       }
-    }else {
+    } else {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "SOMETHING WENT WRONG",
@@ -481,9 +483,139 @@ async function getJobs(req, resp) {
   }
 }
 
+async function getUserInfo(req, resp) {
+  let connection;
+
+  const saltRounds = 5;
+  const salt = bcrypt.genSaltSync(saltRounds);
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let user_id = req.body.USER_ID;
+    // let email = req.body.EMAIL;
+    // let user_password = req.body.USER_PASSWORD;
+
+    let userQuery = "SELECT * FROM USERS WHERE USER_ID = :user_id";
+    let userResult = await connection.execute(userQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    let user = userResult.rows[0];
+
+    let rentalQuery = "SELECT * FROM RENTAL_HISTORY WHERE USER_ID = :user_id";
+    let rentalResult = await connection.execute(rentalQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(rentalResult);
+      let rentalObject = [];
+      if (rentalResult.rows.length != 0) {
+        for (let j = 0; j < rentalResult.rows.length; j++) {
+          let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
+          console.log(rentalId);
+          rentalObject.push({
+            RentalId: rentalId,
+            BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
+            IssueDate: rentalResult.rows[j].ISSUE_DATE,
+            ReturnDate: rentalResult.rows[j].RETURN_DATE,
+            RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
+          });
+        }
+      }
+
+    let fineQuery = "SELECT * FROM FINE_HISTORY WHERE USER_ID = :user_id";
+    let fineResult = await connection.execute(fineQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(fineResult);
+      let fineObject = [];
+      if (fineResult.rows.length != 0) {
+        for (let j = 0; j < fineResult.rows.length; j++) {
+          let fineId = fineResult.rows[j].FINE_HISTORY_ID;
+          console.log(fineId);
+
+          // let issue_date = rentalResult.rows[j].ISSUE_DATE;
+          // let today = new Date();
+          // if(to)
+
+
+          fineObject.push({
+            FineId: fineId,
+            FineStartingDate: fineResult.rows[j].FINE_STARTING_DATE,
+            Fee: fineResult.rows[j].FEE_AMOUNT,
+            FineStatus: fineResult.rows[j].PAYMENT_STATUS,
+            PaymentDate: fineResult.rows[j].PAYMENT_DATE,
+            RentalId: fineResult.rows[j].RENTAL_HISTORY_ID,
+          });
+        }
+      }
+
+      connection.commit();
+
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        Username: user.USER_NAME,
+        UserType: user.USER_TYPE_ID,
+        UserId: user.USER_ID,
+        Email: user.EMAIL,
+        Mobile: user.MOBILE,
+        Gender: user.GENDER,
+        RentalObject: rentalObject,
+        FineObject: fineObject
+      };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "Error closing connection",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        resp.send(responseObj);
+      } else {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "SOMETHING WENT WRONG",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
   addEmployee,
   getJobs,
+  getUserInfo
 };

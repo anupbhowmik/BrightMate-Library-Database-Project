@@ -14,6 +14,7 @@ router.post("/api/signUp", bodyParser, userController.signUp);
 router.get("/api/signIn", bodyParser, userController.signIn);
 router.post("/api/addEmployee", bodyParser, userController.addEmployee);
 router.get("/api/getJobs", bodyParser, userController.getJobs);
+router.get("/api/getUserInfo", bodyParser, userController.getUserInfo);
 
 router.post("/api/addAuthor", bodyParser, generalController.addAuthor);
 router.post("/api/editAuthor", bodyParser, generalController.editAuthor);
@@ -31,7 +32,9 @@ router.post("/api/editBook", bodyParser, booksController.editBook);
 router.post("/api/deleteBook", bodyParser, booksController.deleteBook);
 
 router.post("/api/addMagazine", bodyParser, magazineController.addMagazine);
+router.post("/api/editMagazine", bodyParser, magazineController.editMagazine);
 router.get("/api/getMagazines", bodyParser, magazineController.getMagazines);
+router.get("/api/getMagazineInfo", bodyParser, magazineController.getMagazineInfo);
 
 router.post("/api/rentBook", bodyParser, rentController.rentBook);
 router.post("/api/returnBook", bodyParser, rentController.returnBook);
