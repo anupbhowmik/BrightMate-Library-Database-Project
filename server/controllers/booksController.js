@@ -160,149 +160,299 @@ async function getBooks(req, resp) {
     });
     console.log("DATABASE CONNECTED");
 
-    bookSelectQuery =
-      "SELECT * FROM BOOKS WHERE AVAILABLE_COPIES > 1";
+    bookSelectQuery = "SELECT * FROM BOOKS";
     let bookSelectResult = await connection.execute(bookSelectQuery, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
 
     console.log(bookSelectResult);
 
-    if (bookSelectResult.rows.length === 0) {
+    let bookObject = [];
+    for (let i = 0; i < bookSelectResult.rows.length; i++) {
+      let bookItem = bookSelectResult.rows[i];
+
+      let book_id = bookItem.BOOK_ID;
+
+      authorSelectQuery =
+        "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
+      let authorSelectResult = await connection.execute(
+        authorSelectQuery,
+        [book_id],
+        {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        }
+      );
+
+      console.log(authorSelectResult);
+      let authorObject = [];
+      if (authorSelectResult.rows.length != 0) {
+        for (let j = 0; j < authorSelectResult.rows.length; j++) {
+          let authorId = authorSelectResult.rows[j].AUTHOR_ID;
+          let authorQuery =
+            "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
+          authorNameResult = await connection.execute(authorQuery, [authorId], {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          });
+          let authorName = authorNameResult.rows[0].AUTHOR_NAME;
+          authorObject.push({
+            AuthorId: authorId,
+            AuthorName: authorName,
+          });
+        }
+      }
+
+      let publisherId = bookItem.PUBLISHER_ID;
+      let publisherName;
+      if (publisherId != undefined) {
+        let publisherQuery =
+          "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
+        publisherName = await connection.execute(
+          publisherQuery,
+          [publisherId],
+          { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        publisherName = publisherName.rows[0].PUBLISHER_NAME;
+      }
+
+      genreSelectQuery = "SELECT * FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
+      let genreSelectResult = await connection.execute(
+        genreSelectQuery,
+        [book_id],
+        {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        }
+      );
+
+      console.log(genreSelectResult);
+      let genreObject = [];
+      if (genreSelectResult.rows.length != 0) {
+        for (let j = 0; j < genreSelectResult.rows.length; j++) {
+          let genreId = genreSelectResult.rows[j].GENRE_ID;
+          let genreQuery =
+            "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
+          genreNameResult = await connection.execute(genreQuery, [genreId], {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          });
+          let genreName = genreNameResult.rows[0].GENRE_NAME;
+          genreObject.push({
+            GenreId: genreId,
+            GenreName: genreName,
+          });
+        }
+      }
+
+      copySelectQuery =
+        "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
+      let copySelectResult = await connection.execute(
+        copySelectQuery,
+        [book_id],
+        {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        }
+      );
+
+      console.log(copySelectResult);
+      let copyObject = [];
+      if (copySelectResult.rows.length != 0) {
+        for (let k = 0; k < copySelectResult.rows.length; k++) {
+          let copyCount = copySelectResult.rows[k].CNT;
+          let edition = copySelectResult.rows[k].EDITION;
+          copyObject.push({
+            CopyCount: copyCount,
+            Edition: edition,
+          });
+        }
+      }
+
+      bookObject.push({
+        BookID: book_id,
+        Title: bookItem.BOOK_TITLE,
+        AuthorObject: authorObject,
+        GenreObject: genreObject,
+        CopyObject: copyObject,
+        Publisher: publisherName,
+        CountOfBooks: bookItem.CNT,
+        YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
+        Description: bookItem.DESCRIPTION,
+        Language: bookItem.LANGUAGE,
+        Edition: bookItem.EDITION,
+        ISBN: bookItem.ISBN,
+      });
+    }
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      Books: bookObject,
+    };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("FOUND");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT FOUND");
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "NO DATA FOUND IN DATABASE",
+        ResponseDesc: "NOT FOUND",
         ResponseStatus: resp.statusCode,
       };
-    } else {
-      let bookObject = [];
-      for (let i = 0; i < bookSelectResult.rows.length; i++) {
-        let bookItem = bookSelectResult.rows[i];
+      resp.send(responseObj);
+    }
+  }
+}
 
-        let book_id = bookItem.BOOK_ID;
+async function getBookInfo(req, resp) {
+  let connection;
 
-        authorSelectQuery =
-          "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
-        let authorSelectResult = await connection.execute(
-          authorSelectQuery,
-          [book_id],
-          {
-            outFormat: oracledb.OUT_FORMAT_OBJECT,
-          }
-        );
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
 
-        console.log(authorSelectResult);
-        let authorObject = [];
-        if (authorSelectResult.rows.length != 0) {
-          for (let j = 0; j < authorSelectResult.rows.length; j++) {
-            let authorId = authorSelectResult.rows[j].AUTHOR_ID;
-            let authorQuery =
-              "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
-            authorNameResult = await connection.execute(
-              authorQuery,
-              [authorId],
-              {
-                outFormat: oracledb.OUT_FORMAT_OBJECT,
-              }
-            );
-            let authorName = authorNameResult.rows[0].AUTHOR_NAME;
-            authorObject.push({
-              AuthorId: authorId,
-              AuthorName: authorName,
-            });
-          }
-        }
+    let book_id = req.body.BOOK_ID;
 
-        let publisherId = bookItem.PUBLISHER_ID;
-        let publisherName;
-        if (publisherId != undefined) {
-          let publisherQuery =
-            "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
-          publisherName = await connection.execute(
-            publisherQuery,
-            [publisherId],
-            { outFormat: oracledb.OUT_FORMAT_OBJECT }
-          );
-          publisherName = publisherName.rows[0].PUBLISHER_NAME;
-        }
+    bookSelectQuery = "SELECT * FROM BOOKS b WHERE BOOK_ID = :book_id";
+    let bookSelectResult = await connection.execute(
+      bookSelectQuery,
+      [book_id],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
 
-        genreSelectQuery =
-          "SELECT * FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
-        let genreSelectResult = await connection.execute(
-          genreSelectQuery,
-          [book_id],
-          {
-            outFormat: oracledb.OUT_FORMAT_OBJECT,
-          }
-        );
+    console.log(bookSelectResult);
+    let bookItem = bookSelectResult.rows[0];
+    console.log(bookItem);
+    authorSelectQuery = "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
+    let authorSelectResult = await connection.execute(
+      authorSelectQuery,
+      [book_id],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
 
-        console.log(genreSelectResult);
-        let genreObject = [];
-        if (genreSelectResult.rows.length != 0) {
-          for (let j = 0; j < genreSelectResult.rows.length; j++) {
-            let genreId = genreSelectResult.rows[j].GENRE_ID;
-            let genreQuery =
-              "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
-              genreNameResult = await connection.execute(
-              genreQuery,
-              [genreId],
-              {
-                outFormat: oracledb.OUT_FORMAT_OBJECT,
-              }
-            );
-            let genreName = genreNameResult.rows[0].GENRE_NAME;
-            genreObject.push({
-              GenreId: genreId,
-              GenreName: genreName,
-            });
-          }
-        }
-
-        copySelectQuery =
-          "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
-        let copySelectResult = await connection.execute(
-          copySelectQuery,
-          [book_id],
-          {
-            outFormat: oracledb.OUT_FORMAT_OBJECT,
-          }
-        );
-
-        console.log(copySelectResult);
-        let copyObject = [];
-        if (copySelectResult.rows.length != 0) {
-          for (let k = 0; k < copySelectResult.rows.length; k++) {
-            let copyCount = copySelectResult.rows[k].CNT;
-            let edition = copySelectResult.rows[0].EDITION;
-            copyObject.push({
-              CopyCount: copyCount,
-              Edition: edition,
-            });
-          }
-        }
-
-        bookObject.push({
-          BookID: book_id,
-          Title: bookItem.BOOK_TITLE,
-          AuthorObject: authorObject,
-          GenreObject: genreObject,
-          CopyObject: copyObject,
-          Publisher: publisherName,
-          CountOfBooks: bookItem.CNT,
-          YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
-          Description: bookItem.DESCRIPTION,
-          Language: bookItem.LANGUAGE,
-          Edition: bookItem.EDITION,
-          ISBN: bookItem.ISBN,
+    console.log(authorSelectResult);
+    let authorObject = [];
+    if (authorSelectResult.rows.length != 0) {
+      for (let j = 0; j < authorSelectResult.rows.length; j++) {
+        let authorId = authorSelectResult.rows[j].AUTHOR_ID;
+        let authorQuery =
+          "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
+        authorNameResult = await connection.execute(authorQuery, [authorId], {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        });
+        let authorName = authorNameResult.rows[0].AUTHOR_NAME;
+        authorObject.push({
+          AuthorId: authorId,
+          AuthorName: authorName,
         });
       }
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        ResponseStatus: resp.statusCode,
-        Books: bookObject,
-      };
     }
+
+    let publisherId = bookItem.PUBLISHER_ID;
+    let publisherName;
+    if (publisherId != undefined) {
+      let publisherQuery =
+        "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
+      publisherName = await connection.execute(publisherQuery, [publisherId], {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      });
+      publisherName = publisherName.rows[0].PUBLISHER_NAME;
+    }
+
+    genreSelectQuery = "SELECT * FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
+    let genreSelectResult = await connection.execute(
+      genreSelectQuery,
+      [book_id],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+
+    console.log(genreSelectResult);
+    let genreObject = [];
+    if (genreSelectResult.rows.length != 0) {
+      for (let j = 0; j < genreSelectResult.rows.length; j++) {
+        let genreId = genreSelectResult.rows[j].GENRE_ID;
+        let genreQuery =
+          "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
+        genreNameResult = await connection.execute(genreQuery, [genreId], {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        });
+        let genreName = genreNameResult.rows[0].GENRE_NAME;
+        genreObject.push({
+          GenreId: genreId,
+          GenreName: genreName,
+        });
+      }
+    }
+
+    copySelectQuery =
+      "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY WHERE STATUS = 1 GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
+    let copySelectResult = await connection.execute(
+      copySelectQuery,
+      [book_id],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+
+    console.log(copySelectResult);
+    let copyObject = [];
+    if (copySelectResult.rows.length != 0) {
+      for (let k = 0; k < copySelectResult.rows.length; k++) {
+        let copyCount = copySelectResult.rows[k].CNT;
+        let edition = copySelectResult.rows[k].EDITION;
+        copyObject.push({
+          CopyCount: copyCount,
+          Edition: edition,
+        });
+      }
+    }
+
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      BookID: book_id,
+      Title: bookItem.BOOK_TITLE,
+      AuthorObject: authorObject,
+      GenreObject: genreObject,
+      CopyObject: copyObject,
+      Publisher: publisherName,
+      CountOfBooks: bookItem.CNT,
+      YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
+      Description: bookItem.DESCRIPTION,
+      Language: bookItem.LANGUAGE,
+      Edition: bookItem.EDITION,
+      ISBN: bookItem.ISBN,
+    };
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -438,8 +588,175 @@ async function addBookCopies(req, resp) {
   }
 }
 
+async function editBook(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let book_id = req.body.BOOK_ID;
+    let yearOfPublication = req.body.YEAR;
+    let book_description = req.body.DESCRIPTION;
+    let language = req.body.LANGUAGE;
+    let isbn = req.body.ISBN;
+    let publisher_id = req.body.PUBLISHER_ID;
+    let genreArr = req.body.GENRE;
+    let available_copies = req.body.AVAILABLE_COPIES;
+
+    let bookEditQuery =
+      "UPDATE BOOKS SET YEAR_OF_PUBLICATION = :yearOfPublication, DESCRIPTION = :book_description, LANGUAGE = :language, PUBLISHER_ID = :publisher_id, ISBN = :isbn, AVAILABLE_COPIES = :available_copies WHERE BOOK_ID = :book_id";
+    let bookEditResult = await connection.execute(bookEditQuery, [
+      yearOfPublication,
+      book_description,
+      language,
+      publisher_id,
+      isbn,
+      available_copies,
+      book_id,
+    ]);
+
+    console.log(bookEditResult);
+
+    let genreDeleteQuery = "DELETE FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
+    let genreDeleteResult = await connection.execute(genreDeleteQuery, [
+      book_id,
+    ]);
+
+    console.log(genreDeleteResult);
+
+    for (let i = 0; i < genreArr.length; i++) {
+      genre_id = genreArr[i];
+      let genreInsertQuery =
+        "INSERT INTO BOOKS_GENRE(BOOK_ID, GENRE_ID) VALUES(:book_id, :genre_id)";
+      let genreInsertResult = await connection.execute(genreInsertQuery, [
+        book_id,
+        genre_id,
+      ]);
+
+      console.log(genreInsertResult);
+    }
+
+    connection.commit();
+
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      BookID: book_id,
+    };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("INSERTED");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT INSERTED");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT INSERTED",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
+async function deleteBook(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let book_id = req.body.BOOK_ID;
+
+    let bookDeleteQuery =
+      "DELETE FROM BOOKS WHERE BOOK_ID = :book_id";
+    let bookDeleteResult = await connection.execute(bookDeleteQuery, [
+      book_id,
+    ]);
+
+    console.log(bookDeleteResult);
+    connection.commit();
+
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+    };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("INSERTED");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT INSERTED");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT INSERTED",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   addBook,
   getBooks,
-  addBookCopies
+  getBookInfo,
+  addBookCopies,
+  editBook,
+  deleteBook
 };
