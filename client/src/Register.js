@@ -43,7 +43,7 @@ const Register = (props) => {
         const pass = state.password;
         const mbl = state.mobile_no;
 
-        console.log("register req: ", "username ", name, "password ", pass, "gender ", gender);
+        console.log("register req: ", "username ", name, " email ", email, "password ", pass, "gender ", gender, " mobile ", mbl);
 
         const requestOptions = {
             method: "POST",
@@ -53,7 +53,7 @@ const Register = (props) => {
                 EMAIL: email,
                 PASSWORD: pass,
                 MOBILE: mbl,
-                GENDER: state.gender,
+                GENDER: gender,
             }),
         };
 
@@ -88,7 +88,7 @@ const Register = (props) => {
                     style={{backgroundColor: "white"}}
                     onChange={onTextChange}
                     value={state.user_name}
-                    name="username"
+                    name="user_name"
                     fullWidth
                     id="outlined-basic"
                     label="User Name"
@@ -154,7 +154,7 @@ const Register = (props) => {
                     style={{backgroundColor: "white"}}
                     onChange={onTextChange}
                     value={state.mobile_no}
-                    name="mobile-no"
+                    name="mobile_no"
                     fullWidth
                     id="outlined-basic"
                     label="Mobile No."

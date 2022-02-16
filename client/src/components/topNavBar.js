@@ -1,6 +1,6 @@
 import * as React from "react";
 import logo from ".//logo.png";
-import {isLoggedIn, setTransferData, showToast} from "../App";
+import {isLoggedIn, setTransferData, showToast, userInfo} from "../App";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -117,6 +117,7 @@ const ResponsiveAppBar = () => {
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
                                     <MdAccountCircle color="#1565C0" size="40"/>
+                                    Welcome, username
                                 </IconButton>
                             </Tooltip>
                             <Menu
