@@ -97,7 +97,7 @@ export default function SingleBookDetails() {
 
     function collectBook(userID, book, edition) {
 
-        console.log("rent book req ", "userID ", userID, "book id ", book.BookID, " edition ", edition);
+        console.log("rent book req ", "userID ", userID, "book id ", book.BookID, " edition ", edition, " pass " , userInfo.PasswordKey);
 
         const requestOptions = {
             method: "POST",
