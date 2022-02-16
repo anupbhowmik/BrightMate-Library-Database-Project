@@ -267,10 +267,10 @@ async function getAllRentalHistoryList(req, resp) {
 
         if (today - issue_date >= 14) {
           let fineQuery =
-            "SELECT * FROM FINE_HISTORY WHERE USER_ID = :user_id AND RENTAL_HISTORY_ID = :rentalId";
+            "SELECT * FROM FINE_HISTORY WHERE RENTAL_HISTORY_ID = :rentalId";
           let fineResult = await connection.execute(
             fineQuery,
-            [user_id, rentalId],
+            [rentalId],
             {
               outFormat: oracledb.OUT_FORMAT_OBJECT,
             }
@@ -278,6 +278,15 @@ async function getAllRentalHistoryList(req, resp) {
           console.log(fineResult);
 
           if (fineResult.rows.length != 0) {
+            fine_starting_date = fineResult.rows[0].FINE_STARTING_DATE;
+            let days = today - f
+            let fineUpdateQuery =
+              "UPDATE FINE_HISTORY SET FEE_AMOUNT =  WHERE RENTAL_HISTORY_ID = :rentalId";
+            let rentUpdateResult = await connection.execute(rentUpdateQuery, [
+              rentalId,
+            ]);
+
+            console.log(rentUpdateResult);
           } else {
             let rentUpdateQuery =
               "UPDATE RENTAL_HISTORY SET RENTAL_STATUS = 2 WHERE RENTAL_HISTORY_ID = :rentalId";
@@ -297,15 +306,15 @@ async function getAllRentalHistoryList(req, resp) {
 
             console.log(fine_id);
 
-            // let fineInsertQuery =
-            //   "INSERT INTO FINE_HISTORY (FINE_HISTORY_ID, USER_ID, FINE_STARTING_DATE, FEE_AMOUNT, PAYMENT_STATUS, RENTAL_HISTORY_ID)" +
-            //   " VALUES(:fine_id, :user_id, :today, 20, 1);";
-            //   fineInsertResult = await connection.execute(
-            //     fineInsertQuery,
-            //   [fine_id, user_id, today, ]
-            // );
+            let fineInsertQuery =
+              "INSERT INTO FINE_HISTORY (FINE_HISTORY_ID, USER_ID, FINE_STARTING_DATE, FEE_AMOUNT, PAYMENT_STATUS, RENTAL_HISTORY_ID)" +
+              " VALUES(:fine_id, :user_id, :today, 20, 0, :rentalId);";
+              fineInsertResult = await connection.execute(
+                fineInsertQuery,
+              [fine_id, user_id, today, rentalId]
+            );
 
-            // console.log(fineInsertResult);
+            console.log(fineInsertResult);
           }
         }
 
