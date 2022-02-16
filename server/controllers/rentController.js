@@ -126,18 +126,18 @@ async function returnBook(req, resp) {
     let status = 3; //3 means returned
     let rent_id = req.body.RENT_ID;
     let employee_id = req.body.EMPLOYEE_ID;
-    let employee_password = req.body.EMPLOYEE_PASSWORD;
+    let employee_password = req.body.EMPLOYEE_PASSWORD_KEY;
 
     let employeeSelectQuery =
-      "SELECT USER_TYPE_ID FROM USERS WHERE USER_ID = :employee_id";
+      "SELECT PASSWORD_KEY, USER_TYPE_ID FROM USERS WHERE USER_ID = :employee_id";
     let employeeSelectResult = await connection.execute(employeeSelectQuery, [
       employee_id,
     ]);
 
-    let user_type_id = employeeSelectResult.rows[0][0];
-    console.log(user_type_id);
-
-    if (user_type_id == 2) {
+    let employee_password_key = employeeSelectResult.rows[0][0];
+    let user_type_id = employeeSelectResult.rows[0][1];
+    
+    if (employee_password == employee_password_key && user_type_id == 2) {
       let jobSelectQuery =
         "SELECT JOB_ID FROM USER_EMPLOYEE WHERE USER_ID = :employee_id";
       let jobSelectResult = await connection.execute(jobSelectQuery, [

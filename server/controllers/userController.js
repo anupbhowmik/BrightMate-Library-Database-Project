@@ -96,6 +96,7 @@ async function signUp(req, resp) {
         Username: user_name,
         UserId: user_id,
         Email: email,
+        PasswordKey: hash,
         Mobile: mobile,
         Gender: gender,
         LibraryCardNumber: library_card_num,
@@ -186,6 +187,7 @@ async function signIn(req, resp) {
           UserId: user_id,
           Username: user_name,
           Email: email,
+          PasswordKey: passwordKey,
           Mobile: mobile,
           Gender: gender,
           UserTypeId: user_type_id,
@@ -237,9 +239,83 @@ async function signIn(req, resp) {
   }
 }
 
+async function changePassword(req, resp) {
+  let connection;
+  const saltRounds = 5;
+  const salt = bcrypt.genSaltSync(saltRounds);
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let user_id = req.body.USER_ID;
+    let email = req.body.EMAIL;
+    let user_password = req.body.PASSWORD;
+
+    const hash = bcrypt.hashSync(user_password, salt);
+
+    let setPasswordQuery =
+      "UPDATE USERS SET PASSWORD_KEY = :hash WHERE EMAIL = :email";
+    let setPasswordResult = await connection.execute(
+      setPasswordQuery,
+      [hash, email],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+    console.log(setPasswordResult);
+
+    connection.commit();
+
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      UserId: user_id,
+      PasswordKey: hash,
+    };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        resp.send(responseObj);
+      } else {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+    }
+  }
+}
+
 async function addEmployee(req, resp) {
   let connection;
-  let userExistsAlready = true;
   let syRegisterUsers = 1;
 
   const saltRounds = 5;
@@ -338,6 +414,7 @@ async function addEmployee(req, resp) {
           UserType: 2,
           UserId: user_id,
           Email: email,
+          PasswordKey: hash,
           Mobile: mobile,
           Gender: gender,
           JobID: job_id,
@@ -512,63 +589,63 @@ async function getUserInfo(req, resp) {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
     console.log(rentalResult);
-      let rentalObject = [];
-      if (rentalResult.rows.length != 0) {
-        for (let j = 0; j < rentalResult.rows.length; j++) {
-          let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
-          console.log(rentalId);
-          rentalObject.push({
-            RentalId: rentalId,
-            BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
-            IssueDate: rentalResult.rows[j].ISSUE_DATE,
-            ReturnDate: rentalResult.rows[j].RETURN_DATE,
-            RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
-          });
-        }
+    let rentalObject = [];
+    if (rentalResult.rows.length != 0) {
+      for (let j = 0; j < rentalResult.rows.length; j++) {
+        let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
+        console.log(rentalId);
+        rentalObject.push({
+          RentalId: rentalId,
+          BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
+          IssueDate: rentalResult.rows[j].ISSUE_DATE,
+          ReturnDate: rentalResult.rows[j].RETURN_DATE,
+          RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
+        });
       }
+    }
 
     let fineQuery = "SELECT * FROM FINE_HISTORY WHERE USER_ID = :user_id";
     let fineResult = await connection.execute(fineQuery, [user_id], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
     console.log(fineResult);
-      let fineObject = [];
-      if (fineResult.rows.length != 0) {
-        for (let j = 0; j < fineResult.rows.length; j++) {
-          let fineId = fineResult.rows[j].FINE_HISTORY_ID;
-          console.log(fineId);
+    let fineObject = [];
+    if (fineResult.rows.length != 0) {
+      for (let j = 0; j < fineResult.rows.length; j++) {
+        let fineId = fineResult.rows[j].FINE_HISTORY_ID;
+        console.log(fineId);
 
-          // let issue_date = rentalResult.rows[j].ISSUE_DATE;
-          // let today = new Date();
-          // if(to)
+        // let issue_date = rentalResult.rows[j].ISSUE_DATE;
+        // let today = new Date();
+        // if(to)
 
-
-          fineObject.push({
-            FineId: fineId,
-            FineStartingDate: fineResult.rows[j].FINE_STARTING_DATE,
-            Fee: fineResult.rows[j].FEE_AMOUNT,
-            FineStatus: fineResult.rows[j].PAYMENT_STATUS,
-            PaymentDate: fineResult.rows[j].PAYMENT_DATE,
-            RentalId: fineResult.rows[j].RENTAL_HISTORY_ID,
-          });
-        }
+        fineObject.push({
+          FineId: fineId,
+          FineStartingDate: fineResult.rows[j].FINE_STARTING_DATE,
+          Fee: fineResult.rows[j].FEE_AMOUNT,
+          FineStatus: fineResult.rows[j].PAYMENT_STATUS,
+          PaymentDate: fineResult.rows[j].PAYMENT_DATE,
+          RentalId: fineResult.rows[j].RENTAL_HISTORY_ID,
+        });
       }
+    }
 
-      connection.commit();
+    connection.commit();
 
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        ResponseStatus: resp.statusCode,
-        Username: user.USER_NAME,
-        UserType: user.USER_TYPE_ID,
-        UserId: user.USER_ID,
-        Email: user.EMAIL,
-        Mobile: user.MOBILE,
-        Gender: user.GENDER,
-        RentalObject: rentalObject,
-        FineObject: fineObject
-      };
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      Username: user.USER_NAME,
+      UserType: user.USER_TYPE_ID,
+      UserId: user.USER_ID,
+      Email: user.EMAIL,
+      PasswordKey: user.PASSWORD_KEY,
+      Mobile: user.MOBILE,
+      Gender: user.GENDER,
+      RentalObject: rentalObject,
+      FineObject: fineObject,
+    };
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -615,7 +692,8 @@ async function getUserInfo(req, resp) {
 module.exports = {
   signUp,
   signIn,
+  changePassword,
   addEmployee,
   getJobs,
-  getUserInfo
+  getUserInfo,
 };
