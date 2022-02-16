@@ -143,7 +143,7 @@ async function returnBook(req, resp) {
     let status = 3; //3 means returned
     let rent_id = req.body.RENT_ID;
     let employee_id = req.body.EMPLOYEE_ID;
-    let employee_password = req.body.EMPLOYEE_PASSWORD_KEY;
+    let employee_password = req.body.EMPLOYEE_PASSWORD;
 
     let employeeSelectQuery =
       "SELECT PASSWORD_KEY, USER_TYPE_ID FROM USERS WHERE USER_ID = :employee_id";
@@ -154,6 +154,9 @@ async function returnBook(req, resp) {
     let employee_password_key = employeeSelectResult.rows[0][0];
     let user_type_id = employeeSelectResult.rows[0][1];
 
+    console.log("employee_password_key = ",employee_password_key);
+    console.log("user_type_id = ",user_type_id);
+
     if (employee_password == employee_password_key && user_type_id == 2) {
       let jobSelectQuery =
         "SELECT JOB_ID FROM USER_EMPLOYEE WHERE USER_ID = :employee_id";
@@ -162,8 +165,10 @@ async function returnBook(req, resp) {
       ]);
 
       let job_id = jobSelectResult.rows[0][0];
-      console.log(job_id);
-      if (job_id == 1 || job_id == 3) {
+      console.log("job_id = ",job_id);
+
+      if (job_id == 1 || job_id == 3) {         //LIBRARIAN OR LIBRARY ASSISTANT ONLY
+        
         let rentUpdateQuery =
           "UPDATE RENTAL_HISTORY SET RETURN_DATE = :return_date, RENTAL_STATUS = :status WHERE RENTAL_HISTORY_ID = :rent_id";
         let rentUpdateResult = await connection.execute(rentUpdateQuery, [
@@ -181,15 +186,15 @@ async function returnBook(req, resp) {
           ReturnDate: return_date,
         };
       }
+      connection.commit();
     } else {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "USER ODES NOT HAVE PERMISSION TO ACCEPT A BOOK",
+        ResponseDesc: "NOT A LIBRARIAN OR LIBRARY ASSISTANT ACCOUNT / INVALID PASSWORD",
         ResponseStatus: resp.statusCode,
       };
+      resp.send(responseObj);
     }
-
-    connection.commit();
   } catch (err) {
     console.log(err);
     responseObj = {
