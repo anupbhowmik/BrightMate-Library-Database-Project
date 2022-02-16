@@ -238,6 +238,14 @@ async function returnBook(req, resp) {
   }
 }
 
+async function getNumberOfDays(date1, date2) {
+  const oneDay = 1000 * 60 * 60 * 24;
+  const diffInTime = date2.getTime() - date1.getTime();
+  const diffInDays = Math.round(diffInTime / oneDay);
+
+  return diffInDays;
+}
+
 async function getAllRentalHistoryList(req, resp) {
   let connection;
   let syRegisterFine = 8;
@@ -253,40 +261,41 @@ async function getAllRentalHistoryList(req, resp) {
     let rentalResult = await connection.execute(rentalQuery, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
-    console.log(rentalResult);
 
     let rentalObject = [];
     if (rentalResult.rows.length != 0) {
       for (let j = 0; j < rentalResult.rows.length; j++) {
         let user_id = rentalResult.rows[j].USER_ID;
         let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
+
         let issue_date = rentalResult.rows[j].ISSUE_DATE;
         let today = new Date();
-        console.log(issue_date);
-        console.log(today);
 
-        if (today - issue_date >= 14) {
+        let differenceOfDays = getNumberOfDays(issue_date, today);
+        console.log(differenceOfDays);
+
+        if (differenceOfDays >= 14) {
           let fineQuery =
             "SELECT * FROM FINE_HISTORY WHERE RENTAL_HISTORY_ID = :rentalId";
-          let fineResult = await connection.execute(
-            fineQuery,
-            [rentalId],
-            {
-              outFormat: oracledb.OUT_FORMAT_OBJECT,
-            }
-          );
-          console.log(fineResult);
+          let fineResult = await connection.execute(fineQuery, [rentalId], {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          });
 
           if (fineResult.rows.length != 0) {
             fine_starting_date = fineResult.rows[0].FINE_STARTING_DATE;
-            let days = today - f
+            let fee_amount = fineResult.rows[0].FEE_AMOUNT;
+
+            let days = getNumberOfDays(fine_starting_date, today);
+            console.log(days);
+            fee_amount = 20 + days * 2;
             let fineUpdateQuery =
-              "UPDATE FINE_HISTORY SET FEE_AMOUNT =  WHERE RENTAL_HISTORY_ID = :rentalId";
-            let rentUpdateResult = await connection.execute(rentUpdateQuery, [
+              "UPDATE FINE_HISTORY SET FEE_AMOUNT = :fee_amount WHERE RENTAL_HISTORY_ID = :rentalId";
+            let fineUpdateResult = await connection.execute(fineUpdateQuery, [
+              fee_amount,
               rentalId,
             ]);
 
-            console.log(rentUpdateResult);
+            // console.log(fineUpdateResult);
           } else {
             let rentUpdateQuery =
               "UPDATE RENTAL_HISTORY SET RENTAL_STATUS = 2 WHERE RENTAL_HISTORY_ID = :rentalId";
@@ -294,7 +303,7 @@ async function getAllRentalHistoryList(req, resp) {
               rentalId,
             ]);
 
-            console.log(rentUpdateResult);
+            // console.log(rentUpdateResult);
 
             //Get Next Fine Id
             let fine_id;
@@ -309,10 +318,12 @@ async function getAllRentalHistoryList(req, resp) {
             let fineInsertQuery =
               "INSERT INTO FINE_HISTORY (FINE_HISTORY_ID, USER_ID, FINE_STARTING_DATE, FEE_AMOUNT, PAYMENT_STATUS, RENTAL_HISTORY_ID)" +
               " VALUES(:fine_id, :user_id, :today, 20, 0, :rentalId);";
-              fineInsertResult = await connection.execute(
-                fineInsertQuery,
-              [fine_id, user_id, today, rentalId]
-            );
+            fineInsertResult = await connection.execute(fineInsertQuery, [
+              fine_id,
+              user_id,
+              today,
+              rentalId,
+            ]);
 
             console.log(fineInsertResult);
           }
@@ -383,5 +394,5 @@ async function getAllRentalHistoryList(req, resp) {
 module.exports = {
   rentBook,
   returnBook,
-  getAllRentalHistoryList
+  getAllRentalHistoryList,
 };
