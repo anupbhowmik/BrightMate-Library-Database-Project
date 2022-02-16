@@ -2,6 +2,11 @@ const oracledb = require("oracledb");
 const bcrypt = require("bcrypt");
 const server = require("../serverInformation");
 const syRegister = require("../util/syRegister");
+const {
+  v4: uuidv4,
+  parse: uuidParse,
+  stringify: uuidStringify,
+} = require("uuid");
 const dbuser = server.user;
 const dbpassword = server.password;
 const connectionString = server.connectionString;
@@ -68,7 +73,8 @@ async function signUp(req, resp) {
 
       console.log(userInsertResult);
 
-      library_card_num = 1;
+      const library_card_num = uuidv4();
+      console.log(library_card_num);
       today = new Date();
 
       let readerInsertQuery =
@@ -86,6 +92,7 @@ async function signUp(req, resp) {
       responseObj = {
         ResponseCode: 1,
         ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
         Username: user_name,
         UserId: user_id,
         Email: email,
@@ -96,13 +103,18 @@ async function signUp(req, resp) {
     } else {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "FAILURE",
+        ResponseDesc: "USER EXISTS ALREADY WITH THIS EMAIL",
+        ResponseStatus: resp.statusCode,
       };
-      console.log("USER EXISTS ALREADY");
     }
   } catch (err) {
     console.log(err);
-    resp.send(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
   } finally {
     if (connection) {
       try {
@@ -110,7 +122,12 @@ async function signUp(req, resp) {
         console.log("CONNECTION CLOSED");
       } catch (err) {
         console.log("Error closing connection");
-        resp.send(err);
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
       }
       if (userExistsAlready == 0) {
         if (responseObj.ResponseCode == 1) {
@@ -243,77 +260,103 @@ async function addEmployee(req, resp) {
     let gender = req.body.GENDER;
     let job_id = req.body.JOB_ID;
     let user_type_id = 2; //EMPLOYEE
+    let admin_id = req.body.ADMIN_ID;
+    let admin_password = req.body.ADMIN_PASSWORD;
 
-    let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
-    let user_exists = await connection.execute(userCheckQuery, [email], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
-    console.log(user_exists);
+    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
+    let adminCheckResult = await connection.execute(
+      adminCheckQuery,
+      [admin_id],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
+    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
 
-    if (user_exists.rows.length == 0) {
-      //user does not exist
-      console.log("user does not exist");
-      userExistsAlready = false;
+    if (
+      adminTypeId == 3 &&
+      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
+    ) {
+      console.log("GOT ADMIN PERMISSION");
 
-      //Get Next User Id
-      let user_id;
-      await syRegister
-        .getNextId(connection, syRegisterUsers)
-        .then(function (data) {
-          user_id = data;
-        });
+      let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
+      let user_exists = await connection.execute(userCheckQuery, [email], {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      });
+      console.log(user_exists);
 
-      console.log(user_id);
-      console.log(user_password, " ", salt);
-      const hash = bcrypt.hashSync(user_password, salt);
+      if (user_exists.rows.length == 0) {
+        //user does not exist
+        console.log("user does not exist");
+        userExistsAlready = false;
 
-      let userInsertQuery =
-        "INSERT INTO USERS (USER_ID, USER_NAME, EMAIL, PASSWORD_KEY, MOBILE, GENDER, USER_TYPE_ID) VALUES( :user_id, :user_name, :email, :hash, :mobile, :gender, :user_type_id)";
-      let userInsertResult = await connection.execute(userInsertQuery, [
-        user_id,
-        user_name,
-        email,
-        hash,
-        mobile,
-        gender,
-        user_type_id,
-      ]);
+        //Get Next User Id
+        let user_id;
+        await syRegister
+          .getNextId(connection, syRegisterUsers)
+          .then(function (data) {
+            user_id = data;
+          });
 
-      console.log(userInsertResult);
+        console.log(user_id);
+        const hash = bcrypt.hashSync(user_password, salt);
 
-      join_date = new Date();
+        let userInsertQuery =
+          "INSERT INTO USERS (USER_ID, USER_NAME, EMAIL, PASSWORD_KEY, MOBILE, GENDER, USER_TYPE_ID) VALUES( :user_id, :user_name, :email, :hash, :mobile, :gender, :user_type_id)";
+        let userInsertResult = await connection.execute(userInsertQuery, [
+          user_id,
+          user_name,
+          email,
+          hash,
+          mobile,
+          gender,
+          user_type_id,
+        ]);
 
-      let employeeInsertQuery =
-        "INSERT INTO USER_EMPLOYEE (USER_ID, JOIN_DATE, JOB_ID) VALUES( :user_id, :join_date, :job_id)";
-      employeeInsertresult = await connection.execute(employeeInsertQuery, [
-        user_id,
-        join_date,
-        job_id,
-      ]);
+        console.log(userInsertResult);
 
-      console.log(employeeInsertresult);
+        join_date = new Date();
 
-      connection.commit();
+        let employeeInsertQuery =
+          "INSERT INTO USER_EMPLOYEE (USER_ID, JOIN_DATE, JOB_ID) VALUES( :user_id, :join_date, :job_id)";
+        employeeInsertResult = await connection.execute(employeeInsertQuery, [
+          user_id,
+          join_date,
+          job_id,
+        ]);
 
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        ResponseStatus: resp.statusCode,
-        Username: user_name,
-        UserType: 2,
-        UserId: user_id,
-        Email: email,
-        Mobile: mobile,
-        Gender: gender,
-        JobID: job_id,
-      };
+        console.log(employeeInsertResult);
+
+        connection.commit();
+
+        responseObj = {
+          ResponseCode: 1,
+          ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
+          Username: user_name,
+          UserType: 2,
+          UserId: user_id,
+          Email: email,
+          Mobile: mobile,
+          Gender: gender,
+          JobID: job_id,
+        };
+      } else {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "USER EXISTS ALREADY",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
     } else {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "FAILURE",
+        ResponseDesc: "DO NOT HAVE PERMISSION",
         ResponseStatus: resp.statusCode,
       };
-      console.log("USER EXISTS ALREADY");
+      resp.send(responseObj);
     }
   } catch (err) {
     console.log(err);
@@ -344,11 +387,18 @@ async function addEmployee(req, resp) {
         console.log("NOT INSERTED");
         responseObj = {
           ResponseCode: 0,
-          ResponseDesc: "USER EXISTS ALREADY",
+          ResponseDesc: "FAILURE",
           ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
       }
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "SOMETHING WENT WRONG",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
     }
   }
 }
@@ -433,9 +483,139 @@ async function getJobs(req, resp) {
   }
 }
 
+async function getUserInfo(req, resp) {
+  let connection;
+
+  const saltRounds = 5;
+  const salt = bcrypt.genSaltSync(saltRounds);
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let user_id = req.body.USER_ID;
+    // let email = req.body.EMAIL;
+    // let user_password = req.body.USER_PASSWORD;
+
+    let userQuery = "SELECT * FROM USERS WHERE USER_ID = :user_id";
+    let userResult = await connection.execute(userQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    let user = userResult.rows[0];
+
+    let rentalQuery = "SELECT * FROM RENTAL_HISTORY WHERE USER_ID = :user_id";
+    let rentalResult = await connection.execute(rentalQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(rentalResult);
+      let rentalObject = [];
+      if (rentalResult.rows.length != 0) {
+        for (let j = 0; j < rentalResult.rows.length; j++) {
+          let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
+          console.log(rentalId);
+          rentalObject.push({
+            RentalId: rentalId,
+            BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
+            IssueDate: rentalResult.rows[j].ISSUE_DATE,
+            ReturnDate: rentalResult.rows[j].RETURN_DATE,
+            RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
+          });
+        }
+      }
+
+    let fineQuery = "SELECT * FROM FINE_HISTORY WHERE USER_ID = :user_id";
+    let fineResult = await connection.execute(fineQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(fineResult);
+      let fineObject = [];
+      if (fineResult.rows.length != 0) {
+        for (let j = 0; j < fineResult.rows.length; j++) {
+          let fineId = fineResult.rows[j].FINE_HISTORY_ID;
+          console.log(fineId);
+
+          // let issue_date = rentalResult.rows[j].ISSUE_DATE;
+          // let today = new Date();
+          // if(to)
+
+
+          fineObject.push({
+            FineId: fineId,
+            FineStartingDate: fineResult.rows[j].FINE_STARTING_DATE,
+            Fee: fineResult.rows[j].FEE_AMOUNT,
+            FineStatus: fineResult.rows[j].PAYMENT_STATUS,
+            PaymentDate: fineResult.rows[j].PAYMENT_DATE,
+            RentalId: fineResult.rows[j].RENTAL_HISTORY_ID,
+          });
+        }
+      }
+
+      connection.commit();
+
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        Username: user.USER_NAME,
+        UserType: user.USER_TYPE_ID,
+        UserId: user.USER_ID,
+        Email: user.EMAIL,
+        Mobile: user.MOBILE,
+        Gender: user.GENDER,
+        RentalObject: rentalObject,
+        FineObject: fineObject
+      };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "Error closing connection",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        resp.send(responseObj);
+      } else {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "SOMETHING WENT WRONG",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
   addEmployee,
   getJobs,
+  getUserInfo
 };
