@@ -24,13 +24,17 @@ var setTransferData
 
 var isLoggedIn
 var setLoggedIn
-// var isAdmin
+var isAdmin
+var setAdminStatus
+var userInfo
+var setUserInfo
 
 function App() {
     [transferData, setTransferData] = useState(null);
 
     [isLoggedIn, setLoggedIn] = useState(false);
-    // [isAdmin, setAdminStatus] = useState(false)
+    [isAdmin, setAdminStatus] = useState(false);
+    [userInfo, setUserInfo] = useState(null)
 
 
     const [loading, setL] = useState(false);
@@ -88,4 +92,4 @@ function App() {
 
 export default App;
 export {showToast, setLoading};
-export {transferData, setTransferData, isLoggedIn, setLoggedIn}
+export {transferData, setTransferData, isLoggedIn, setLoggedIn, isAdmin, setAdminStatus, userInfo, setUserInfo}

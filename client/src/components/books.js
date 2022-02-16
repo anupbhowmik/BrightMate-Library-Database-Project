@@ -6,7 +6,7 @@ import {
     Card,
     CardActionArea,
     CardActions,
-    CardContent,
+    CardContent, Chip,
     Grid,
     Icon,
     List,
@@ -19,6 +19,7 @@ import {MdOutlineAddTask} from "react-icons/md";
 import {useNavigate} from "react-router";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import Typography from "@mui/material/Typography";
 
 const Books = (props) => {
     var navigate = useNavigate();
@@ -60,42 +61,61 @@ const Books = (props) => {
             <Grid item xs={0} md={2}></Grid>
             <Grid item xs={12} md={8}>
                 <div style={{display: "flex", justifyContent: "center"}}>
-                    <List>
+                    <List >
                         {books.Books.map((book) => (
 
-                            <Card key={book.BookID} elevation={0} sx={{minWidth: 700}}>
+                            <Card onClick={() => showBookDetails(book)} key={book.BookID} elevation={0}
+                                  sx={{minWidth: 700}}>
                                 <CardActionArea>
                                     <CardContent>
 
-                                        <ListItem divider={false}>
 
-                                            <ListItemIcon>
+                                            <ListItemIcon sx={{mb: 1.2}}>
                                                 <Avatar sx={{bgcolor: "#3A7CFF"}}>
                                                     <LibraryBooksIcon/>
                                                 </Avatar>
                                             </ListItemIcon>
 
-                                            <ListItemText
-                                                onClick={() => showBookDetails(book)}
-                                                key={book.BookID}
-                                                primary={book.Title}
-                                                secondary={
-                                                    "Edition " + book.Edition}/>
-                                            <h1>&nbsp;&nbsp;&nbsp;&nbsp;</h1><h4>Available
-                                            copies: {book.CountOfBooks}</h4>
+                                            <b><strong><Typography variant="h6" component="div">
+                                                {book.Title}
+                                            </Typography> </strong></b>
 
-                                        </ListItem>
+
+                                            ISBN: {book.ISBN}<br/>
+
+
+                                        {book.CopyObject.length == 0 ?
+                                            <Chip sx={{mr: 1.5, mt: 1}} label={"No copies available right now"}
+                                                  variant="outlined"/> :
+                                            book.CopyObject.map((singleCopy) => (
+
+                                                <Card elevation={0}>
+
+                                                    <Chip sx={{mr: 1.5, mt: 1, mb: 1}}
+                                                          label={singleCopy.Edition + " Edition"}
+                                                          variant="outlined"/>
+
+                                                    <Typography color={"#3A7CFF"} variant="body1" component="div">
+                                                        {"Copies Available: " + singleCopy.CopyCount}
+                                                    </Typography>
+
+                                                </Card>
+
+
+                                            ))
+                                        }
+
 
                                     </CardContent>
                                 </CardActionArea>
-                                <CardActions>
-                                    <center>
-                                        <Button size="large" color="primary">
-                                            <MdOutlineAddTask/>
-                                            &nbsp;&nbsp;&nbsp; Add to collection
-                                        </Button>
-                                    </center>
-                                </CardActions>
+                                {/*<CardActions>*/}
+                                {/*    <center>*/}
+                                {/*        <Button size="large" color="primary">*/}
+                                {/*            <MdOutlineAddTask/>*/}
+                                {/*            &nbsp;&nbsp;&nbsp; Add to collection*/}
+                                {/*        </Button>*/}
+                                {/*    </center>*/}
+                                {/*</CardActions>*/}
                             </Card>
                         ))}
                     </List>

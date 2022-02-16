@@ -2,7 +2,7 @@ import React from "react";
 import {Button, Grid, TextField} from "@mui/material";
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
-import {setLoading, showToast} from "./App";
+import {setAdminStatus, setLoading, setLoggedIn, setUserInfo, showToast} from "./App";
 
 function Login() {
 
@@ -12,7 +12,15 @@ function Login() {
     });
 
     var [response, setResp] = React.useState({
-        responseCode: null
+        ResponseCode: 0,
+        ResponseDesc: null,
+        ResponseStatus: null,
+        UserId: null,
+        Username: null,
+        Email: null,
+        Mobile: null,
+        Gender: null,
+        UserTypeId: null
     });
 
     const onTextChange = (event) => {
@@ -47,9 +55,11 @@ function Login() {
             .then((response) => setResp(response))
             .then(() => {
                 setLoading(false);
-                if (response.ResponseCode != 0) {
+                if (response.ResponseCode !== 0) {
 
                     showToast(" Logged in successfully");
+                    setLoggedIn(true);
+                    setUserInfo(response);
                 } else {
                     showToast(" Login failed");
                 }
