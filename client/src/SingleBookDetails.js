@@ -4,7 +4,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import {setLoading, showToast, transferData} from "./App";
+import {setLoading, setTransferData, showToast, transferData} from "./App";
 import {
     Avatar, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid,
     List,
@@ -20,6 +20,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import LanguageIcon from '@mui/icons-material/Language';
 import logo from ".//logo.png";
 import CategoryIcon from '@mui/icons-material/Category';
+import axios from "axios";
 
 
 export default function SingleBookDetails() {
@@ -32,8 +33,73 @@ export default function SingleBookDetails() {
         setOpen(false);
         setLoading(true);
 
+        const copy = state.copies;
 
-        setLoading(false)
+
+        console.log("add book coy req: ", "copies ", copy);
+
+
+
+        showToast("Adding book copies...");
+
+        // const requestOptions = {
+        //     method: "POST",
+        //     headers: {"Content-Type": "application/json"},
+        //     body: JSON.stringify({
+        //         BOOK_ID: transferData.BookID,
+        //         COPIES: copy,
+        //         EDITION: edition,
+        //         ADMIN_ID: 3,    // todo: add user ID must
+        //
+        //     }),
+        // };
+        //
+        // fetch("/api/addBookCopies", requestOptions).then(response => {
+        //
+        //     console.log(response)
+        //     if(response.ResponseCode===1){
+        //         // setTransferData({
+        //         //     ...transferData,
+        //         //
+        //         // })
+        //         console.log(transferData)
+        //     }
+        //     console.log(transferData)
+        //
+        //
+        //     setLoading(false);
+        //
+        // });
+
+        setLoading(true)
+
+        axios.post('/api/addBookCopies',{
+            BOOK_ID: transferData.BookID,
+            COPIES: parseInt(copy),
+            EDITION: edition,
+            ADMIN_ID: 3,
+        }).then(res=>{
+
+            if(res.data.ResponseCode===1){
+                console.log(transferData)
+                var arr=[...transferData.CopyObject]
+                arr.map((a,i)=>{
+                    if(a.Edition===edition){
+                        arr[i].CopyCount+=parseInt(copy)
+                    }
+                })
+            }
+            var tmp={...transferData}
+            tmp.CopyObject=arr
+            setTransferData(tmp)
+
+        }).catch(err=>{
+            console.log(err)
+        }).finally(()=>{
+            setLoading(false)
+        })
+
+
 
         state.copies = null;
     }

@@ -14,6 +14,7 @@ import {setLoading, showToast} from "../App";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import MenuItem from "@mui/material/MenuItem";
+import axios from 'axios'
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -98,37 +99,73 @@ const AddBookForm = (props) => {
 
     useEffect(() => {
         // auto call while loading this component
-        fetch("/api/getGenre")
-            .then((res) => res.json())
-            .then((genres) => setGenre(genres))
-            .then(() => {
+        // fetch("/api/getGenre")
+        //     .then((res) => res.json())
+        //     .then((genres) => setGenre(genres))
+        //     .then(() => {
+        //         var arr = []
+        //         genres.GenreList.map(() => {
+        //             arr.push(false)
+        //         })
+        //
+        //
+        //         selectGenre({
+        //             selected: arr
+        //         })
+        //
+        //
+        //     });
+        //
+        // fetch("/api/getAuthors")
+        //     .then((res) => res.json())
+        //     .then((authors) => setAuthors(authors))
+        //     .then(() => {
+        //         var arr = []
+        //         authors.AuthorList.map(() => {
+        //             arr.push(false)
+        //         })
+        //
+        //
+        //         selectAuthor({
+        //             selecAuthors: arr
+        //         })
+        //     });
+
+        axios.get("/api/getGenre").then((res) => {
+            setGenre(res.data)
+            var arr = []
+            res.data.GenreList.map(() => {
+                arr.push(false)
+            })
+
+            console.log("genre ", res.data)
+
+
+            selectGenre({
+                selected: arr
+            })
+
+            axios.get("/api/getAuthors").then((res) => {
+                setAuthors(res.data)
                 var arr = []
-                genres.GenreList.map(() => {
+                res.data.AuthorList.map(() => {
                     arr.push(false)
                 })
-
-
-                selectGenre({
-                    selected: arr
-                })
-
-
-            });
-
-        fetch("/api/getAuthors")
-            .then((res) => res.json())
-            .then((authors) => setAuthors(authors))
-            .then(() => {
-                var arr = []
-                authors.AuthorList.map(() => {
-                    arr.push(false)
-                })
-
 
                 selectAuthor({
                     selecAuthors: arr
                 })
-            });
+                console.log("authors ", res.data)
+
+            }).catch((e)=>{
+                console.log(e)
+            })
+
+        }).catch((e)=>{
+            console.log(e)
+        })
+
+
 
 
     }, []);   // passing an empty array so that useEffect runs only once

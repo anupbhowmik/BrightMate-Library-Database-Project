@@ -64,21 +64,31 @@ const Books = (props) => {
                     <List >
                         {books.Books.map((book) => (
 
-                            <Card onClick={() => showBookDetails(book)} key={book.BookID} elevation={0}
+                            <Card style={{textAlign:'left',marginBottom:'10px'}} onClick={() => showBookDetails(book)} key={book.BookID} elevation={0}
                                   sx={{minWidth: 700}}>
                                 <CardActionArea>
                                     <CardContent>
 
 
-                                            <ListItemIcon sx={{mb: 1.2}}>
-                                                <Avatar sx={{bgcolor: "#3A7CFF"}}>
-                                                    <LibraryBooksIcon/>
-                                                </Avatar>
-                                            </ListItemIcon>
 
-                                            <b><strong><Typography variant="h6" component="div">
-                                                {book.Title}
-                                            </Typography> </strong></b>
+                                        <Grid container padding={1}>
+                                            <Grid sx={1} md={1}>
+                                                <ListItemIcon sx={{mb: 1.2}}>
+                                                    <Avatar sx={{bgcolor: "#3A7CFF"}}>
+                                                        <LibraryBooksIcon/>
+                                                    </Avatar>
+                                                </ListItemIcon>
+                                            </Grid>
+
+                                            <Grid sx={6} md={8}>
+                                                <b><strong><Typography variant="h6" component="div">
+                                                    {book.Title}
+                                                </Typography> </strong></b>
+                                            </Grid>
+                                        </Grid>
+
+
+
 
 
                                             ISBN: {book.ISBN}<br/>

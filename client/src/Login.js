@@ -3,6 +3,12 @@ import {Button, Grid, TextField} from "@mui/material";
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
 import {setAdminStatus, setLoading, setLoggedIn, setUserInfo, showToast} from "./App";
+import axios from "axios";
+
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
+
+const COOKIE_AGE=31536000
 
 function Login() {
 
@@ -39,32 +45,55 @@ function Login() {
 
         console.log("login req: ", "email ", email, "password ", password);
 
-        const requestOptions = {
-            method: "GET",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                EMAIL: email,
-                PASSWORD: password
-            }),
-        };
 
         setLoading(true);
-        showToast("Logging in...");
-        fetch("/api/signIn", requestOptions)
-            .then((res) => res.json())
-            .then((response) => setResp(response))
-            .then(() => {
-                setLoading(false);
-                if (response.ResponseCode !== 0) {
+        axios.post(`/api/signIn`,{
+            EMAIL: email,
+            PASSWORD: password
+        }).then(res=>{
+            setLoading(false);
+            if (res.data.ResponseCode !== 0) {
+                showToast(" Logged in successfully");
+                setLoggedIn(true);
+                cookies.set('auth',JSON.stringify(res.data),{ path: '/', maxAge: COOKIE_AGE })
+                setUserInfo(res.data);
+            } else {
+                showToast(" Login failed");
+            }
+            console.log(res.data)
+        }).catch(err=>{
+            setLoading(false);
+            console.log(err)
+        })
 
-                    showToast(" Logged in successfully");
-                    setLoggedIn(true);
-                    setUserInfo(response);
-                } else {
-                    showToast(" Login failed");
-                }
 
-            })
+        // const requestOptions = {
+        //     method: "POST",
+        //     headers: {"Content-Type": "application/json"},
+        //     body: JSON.stringify({
+        //         EMAIL: email,
+        //         PASSWORD: password
+        //     }),
+        // };
+        //
+        // setLoading(true);
+        // showToast("Logging in...");
+        // fetch("/api/signIn", requestOptions)
+        //     .then((res) => res.json())
+        //     .then((response) => setResp(response))
+        //     .then(() => {
+        //         console.log(response)
+        //         setLoading(false);
+        //         if (response.ResponseCode !== 0) {
+        //
+        //             showToast(" Logged in successfully");
+        //             setLoggedIn(true);
+        //             setUserInfo(response);
+        //         } else {
+        //             showToast(" Login failed");
+        //         }
+        //
+        //     })
     }
 
     return (
