@@ -430,7 +430,7 @@ async function addEmployee(req, resp) {
     } else {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "DO NOT HAVE PERMISSION",
+        ResponseDesc: "ADMIN CREDENTIALS WRONG",
         ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);

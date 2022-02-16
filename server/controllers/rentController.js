@@ -21,58 +21,75 @@ async function rentBook(req, resp) {
     let issue_date = new Date();
     let status = 1;
     let user_id = req.body.USER_ID;
+    let user_password = req.body.USER_PASSWORD;
     let book_id = req.body.BOOK_ID;
     let edition = req.body.EDITION;
+    
+    //CHECKING USER
 
-    //Get Next Rental History Id
-    let rent_id;
-    await syRegister
-      .getNextId(connection, syRegisterRentalHistory)
-      .then(function (data) {
-        rent_id = parseInt(data);
-      });
+    let userCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :user_id";
+    let userCheckResult = await connection.execute(userCheckQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
 
-    console.log(rent_id);
-    console.log(book_id);
-    console.log(edition);
+    if (user_password == userCheckResult.rows[0].PASSWORD_KEY && userCheckResult.rows[0].USER_TYPE_ID == 1) {
+      //Get Next Rental History Id
+      let rent_id;
+      await syRegister
+        .getNextId(connection, syRegisterRentalHistory)
+        .then(function (data) {
+          rent_id = parseInt(data);
+        });
 
-    let copySelectQuery =
-      "SELECT MIN(BOOK_COPY_ID) AS COP_ID FROM BOOK_COPY WHERE BOOK_ID = :book_id AND EDITION = :edition AND STATUS = 1";
-    let copySelectResult = await connection.execute(copySelectQuery, [
-      book_id,
-      edition,
-    ]);
-    console.log(copySelectResult);
-    let copy_id = copySelectResult.rows[0][0];
-    console.log(copy_id);
+      console.log("rent_id = ",rent_id);
+      console.log(book_id);
+      console.log(edition);
 
-    let rentInsertQuery =
-      "INSERT INTO RENTAL_HISTORY (RENTAL_HISTORY_ID, ISSUE_DATE, RENTAL_STATUS, USER_ID, BOOK_COPY_ID) " +
-      "VALUES( :rent_id, :issue_date, :status, :user_id, :copy_id)";
-    let rentInsertResult = await connection.execute(rentInsertQuery, [
-      rent_id,
-      issue_date,
-      status,
-      user_id,
-      copy_id,
-    ]);
+      let copySelectQuery =
+        "SELECT MIN(BOOK_COPY_ID) AS COP_ID FROM BOOK_COPY WHERE BOOK_ID = :book_id AND EDITION = :edition AND STATUS = 1";
+      let copySelectResult = await connection.execute(copySelectQuery, [
+        book_id,
+        edition,
+      ]);
+      console.log(copySelectResult);
+      let copy_id = copySelectResult.rows[0][0];
+      console.log("copy_id = ",copy_id);
 
-    console.log(rentInsertResult);
+      let rentInsertQuery =
+        "INSERT INTO RENTAL_HISTORY (RENTAL_HISTORY_ID, ISSUE_DATE, RENTAL_STATUS, USER_ID, BOOK_COPY_ID) " +
+        "VALUES( :rent_id, :issue_date, :status, :user_id, :copy_id)";
+      let rentInsertResult = await connection.execute(rentInsertQuery, [
+        rent_id,
+        issue_date,
+        status,
+        user_id,
+        copy_id,
+      ]);
 
-    connection.commit();
+      console.log(rentInsertResult);
 
-    responseObj = {
-      ResponseCode: 1,
-      ResponseDesc: "SUCCESS",
-      ResponseStatus: resp.statusCode,
-      RentId: rent_id,
-      BookID: book_id,
-      CopyId: copy_id,
-      Edition: edition,
-      BorrowerID: user_id,
-      IssueDate: issue_date,
-      Status: status,
-    };
+      connection.commit();
+
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        RentId: rent_id,
+        BookID: book_id,
+        CopyId: copy_id,
+        Edition: edition,
+        UserID: user_id,
+        IssueDate: issue_date,
+        Status: status,
+      };
+    }else{
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "PASSWORD NOT MATCHED OR INVALID USER ID",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -136,7 +153,7 @@ async function returnBook(req, resp) {
 
     let employee_password_key = employeeSelectResult.rows[0][0];
     let user_type_id = employeeSelectResult.rows[0][1];
-    
+
     if (employee_password == employee_password_key && user_type_id == 2) {
       let jobSelectQuery =
         "SELECT JOB_ID FROM USER_EMPLOYEE WHERE USER_ID = :employee_id";
@@ -164,7 +181,7 @@ async function returnBook(req, resp) {
           ReturnDate: return_date,
         };
       }
-    }else{
+    } else {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "USER ODES NOT HAVE PERMISSION TO ACCEPT A BOOK",
@@ -173,8 +190,6 @@ async function returnBook(req, resp) {
     }
 
     connection.commit();
-
-    
   } catch (err) {
     console.log(err);
     responseObj = {
