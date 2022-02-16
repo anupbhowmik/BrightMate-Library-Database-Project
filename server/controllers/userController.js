@@ -609,15 +609,12 @@ async function getUserInfo(req, resp) {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
     console.log(fineResult);
+
     let fineObject = [];
     if (fineResult.rows.length != 0) {
       for (let j = 0; j < fineResult.rows.length; j++) {
         let fineId = fineResult.rows[j].FINE_HISTORY_ID;
         console.log(fineId);
-
-        // let issue_date = rentalResult.rows[j].ISSUE_DATE;
-        // let today = new Date();
-        // if(to)
 
         fineObject.push({
           FineId: fineId,
