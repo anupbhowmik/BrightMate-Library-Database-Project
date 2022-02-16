@@ -1,6 +1,6 @@
 import * as React from "react";
 import logo from ".//logo.png";
-import {isLoggedIn, setLoggedIn, setTransferData, setUserInfo, showToast, userInfo} from "../App";
+import {isLoggedIn, setLoggedIn, setTransferData, setUserInfo, showToast, transferData, userInfo} from "../App";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -26,6 +26,9 @@ const pages = [
 const settings = ["Dashboard", "Logout", "Login as Admin"];
 
 const ResponsiveAppBar = () => {
+
+
+
     var navigate = useNavigate();
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -127,7 +130,8 @@ const ResponsiveAppBar = () => {
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
                                     <MdAccountCircle color="#1565C0" size="40"/>
-                                    Welcome, {userInfo.Username}
+
+                                    {/*Welcome, {transferData.Username}*/}
 
                                 </IconButton>
                             </Tooltip>

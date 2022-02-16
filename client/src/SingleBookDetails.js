@@ -4,7 +4,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import {setLoading, setTransferData, showToast, transferData} from "./App";
+import {setLoading, setTransferData, showToast, transferData, userInfo} from "./App";
 import {
     Avatar, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid,
     List,
@@ -39,66 +39,35 @@ export default function SingleBookDetails() {
         console.log("add book coy req: ", "copies ", copy);
 
 
-
         showToast("Adding book copies...");
-
-        // const requestOptions = {
-        //     method: "POST",
-        //     headers: {"Content-Type": "application/json"},
-        //     body: JSON.stringify({
-        //         BOOK_ID: transferData.BookID,
-        //         COPIES: copy,
-        //         EDITION: edition,
-        //         ADMIN_ID: 3,    // todo: add user ID must
-        //
-        //     }),
-        // };
-        //
-        // fetch("/api/addBookCopies", requestOptions).then(response => {
-        //
-        //     console.log(response)
-        //     if(response.ResponseCode===1){
-        //         // setTransferData({
-        //         //     ...transferData,
-        //         //
-        //         // })
-        //         console.log(transferData)
-        //     }
-        //     console.log(transferData)
-        //
-        //
-        //     setLoading(false);
-        //
-        // });
 
         setLoading(true)
 
-        axios.post('/api/addBookCopies',{
+        axios.post('/api/addBookCopies', {
             BOOK_ID: transferData.BookID,
             COPIES: parseInt(copy),
             EDITION: edition,
             ADMIN_ID: 3,
-        }).then(res=>{
+        }).then(res => {
 
-            if(res.data.ResponseCode===1){
+            if (res.data.ResponseCode === 1) {
                 console.log(transferData)
-                var arr=[...transferData.CopyObject]
-                arr.map((a,i)=>{
-                    if(a.Edition===edition){
-                        arr[i].CopyCount+=parseInt(copy)
+                var arr = [...transferData.CopyObject]
+                arr.map((a, i) => {
+                    if (a.Edition === edition) {
+                        arr[i].CopyCount += parseInt(copy)
                     }
                 })
             }
-            var tmp={...transferData}
-            tmp.CopyObject=arr
+            var tmp = {...transferData}
+            tmp.CopyObject = arr
             setTransferData(tmp)
 
-        }).catch(err=>{
+        }).catch(err => {
             console.log(err)
-        }).finally(()=>{
+        }).finally(() => {
             setLoading(false)
         })
-
 
 
         state.copies = null;
@@ -127,7 +96,6 @@ export default function SingleBookDetails() {
 
 
     function collectBook(userID, book, edition) {
-        // todo: fix dummy user ID
 
         console.log("rent book req ", "userID ", userID, "book id ", book.BookID, " edition ", edition);
 
@@ -136,6 +104,7 @@ export default function SingleBookDetails() {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 USER_ID: userID,
+                USER_PASSWORD: userInfo.PasswordKey,
                 BOOK_ID: book.BookID,
                 EDITION: edition,
 
@@ -196,7 +165,7 @@ export default function SingleBookDetails() {
                                     <Card elevation={0}>
 
                                         <Chip
-                                            onClick={() => collectBook(4, transferData, singleCopy.Edition)}
+                                            onClick={() => collectBook(userInfo.UserId, transferData, singleCopy.Edition)}
                                             size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
                                             label={"Collect " + singleCopy.Edition + " Edition"}
                                         />
@@ -204,32 +173,33 @@ export default function SingleBookDetails() {
                                         <Typography sx={{mb: 1.5}} color={"#3A7CFF"} variant="body1" component="div">
                                             {"Copies Available: " + singleCopy.CopyCount}
                                         </Typography>
-                                        <Dialog open={open} onClose={handleClose}>
-                                            <DialogTitle>Add copies</DialogTitle>
-                                            <DialogContent>
-                                                <TextField
-                                                    onChange={onTextChange}
-                                                    required
-                                                    value={state.copies}
-                                                    style={{backgroundColor: "white"}}
-                                                    name="copies"
-                                                    fullWidth
-                                                    id="outlined-basic"
-                                                    label="Number of copies"
-                                                    type="number"
-                                                />
-                                            </DialogContent>
-                                            <DialogActions>
-                                                <Button onClick={handleClose}>Cancel</Button>
-                                                <Button onClick={() => {
-                                                    addCopy(singleCopy.Edition)
-                                                }}>Submit</Button>
-                                            </DialogActions>
-                                        </Dialog>
-                                        <Button sx={{mb: 1.5}} variant="outlined"
-                                                onClick={handleClickOpen}>
-                                            Add copies of {singleCopy.Edition} edition
-                                        </Button><br/>
+                                        {/*for adding book copies in admin site*/}
+                                        {/*<Dialog open={open} onClose={handleClose}>*/}
+                                        {/*    <DialogTitle>Add copies</DialogTitle>*/}
+                                        {/*    <DialogContent>*/}
+                                        {/*        <TextField*/}
+                                        {/*            onChange={onTextChange}*/}
+                                        {/*            required*/}
+                                        {/*            value={state.copies}*/}
+                                        {/*            style={{backgroundColor: "white"}}*/}
+                                        {/*            name="copies"*/}
+                                        {/*            fullWidth*/}
+                                        {/*            id="outlined-basic"*/}
+                                        {/*            label="Number of copies"*/}
+                                        {/*            type="number"*/}
+                                        {/*        />*/}
+                                        {/*    </DialogContent>*/}
+                                        {/*    <DialogActions>*/}
+                                        {/*        <Button onClick={handleClose}>Cancel</Button>*/}
+                                        {/*        <Button onClick={() => {*/}
+                                        {/*            addCopy(singleCopy.Edition)*/}
+                                        {/*        }}>Submit</Button>*/}
+                                        {/*    </DialogActions>*/}
+                                        {/*</Dialog>*/}
+                                        {/*<Button sx={{mb: 1.5}} variant="outlined"*/}
+                                        {/*        onClick={handleClickOpen}>*/}
+                                        {/*    Add copies of {singleCopy.Edition} edition*/}
+                                        {/*</Button><br/>*/}
 
                                     </Card>
 
