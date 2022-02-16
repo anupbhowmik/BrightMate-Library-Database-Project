@@ -16,6 +16,9 @@ import Register from "./Register";
 
 import {Route, Routes} from "react-router-dom";
 
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
+
 var showToast;
 var setLoading;
 
@@ -35,6 +38,14 @@ function App() {
     [isLoggedIn, setLoggedIn] = useState(false);
     [isAdmin, setAdminStatus] = useState(false);
     [userInfo, setUserInfo] = useState(null)
+
+    useEffect(()=>{
+        if(cookies.get('auth')!=undefined && cookies.get('auth')!=null){
+            setLoggedIn(true)
+            setUserInfo(cookies.get('auth'))
+            console.log(cookies.get('auth'))
+        }
+    },[])
 
 
     const [loading, setL] = useState(false);

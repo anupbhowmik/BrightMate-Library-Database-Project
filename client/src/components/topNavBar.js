@@ -1,6 +1,6 @@
 import * as React from "react";
 import logo from ".//logo.png";
-import {isLoggedIn, setTransferData, showToast, userInfo} from "../App";
+import {isLoggedIn, setLoggedIn, setTransferData, setUserInfo, showToast, userInfo} from "../App";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -15,6 +15,9 @@ import MenuItem from "@mui/material/MenuItem";
 
 import {MdAccountCircle} from "react-icons/md";
 import {useNavigate} from 'react-router';
+
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
 
 const pages = [
     {title: "Browse Books", address: "#"},
@@ -39,9 +42,16 @@ const ResponsiveAppBar = () => {
         navigate(address)
     };
 
-    const handleCloseUserMenu = () => {
+    const handleCloseUserMenu = index => {
         setAnchorElUser(null);
+        if(index===1){
+            cookies.remove('auth',{ path: '/' })
+            setLoggedIn(false)
+            setUserInfo(null)
+            showToast('Logged out successfully')
+            navigate('login')
 
+        }
     };
 
     function navigatePage(address) {
@@ -112,12 +122,13 @@ const ResponsiveAppBar = () => {
                             </Button>
                         ))}
                     </Box>
-                    {isLoggedIn ?
+                    {isLoggedIn && userInfo!==null?
                         <Box sx={{flexGrow: 0}}>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
                                     <MdAccountCircle color="#1565C0" size="40"/>
-                                    Welcome, username
+                                    Welcome, {userInfo.Username}
+
                                 </IconButton>
                             </Tooltip>
                             <Menu
@@ -136,8 +147,8 @@ const ResponsiveAppBar = () => {
                                 open={Boolean(anchorElUser)}
                                 onClose={handleCloseUserMenu}
                             >
-                                {settings.map((setting) => (
-                                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                                {settings.map((setting,index) => (
+                                    <MenuItem key={setting} onClick={()=>{handleCloseUserMenu(index)}}>
                                         <Typography textAlign="center">{setting}</Typography>
                                     </MenuItem>
                                 ))}
