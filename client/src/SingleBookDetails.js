@@ -4,7 +4,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import {setLoading, setTransferData, showToast, transferData, userInfo} from "./App";
+import {setLoading, setLoggedIn, setTransferData, setUserInfo, showToast, transferData, userInfo} from "./App";
 import {
     Avatar, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid,
     List,
@@ -21,9 +21,37 @@ import LanguageIcon from '@mui/icons-material/Language';
 import logo from ".//logo.png";
 import CategoryIcon from '@mui/icons-material/Category';
 import axios from "axios";
+import {useEffect} from "react";
 
 
 export default function SingleBookDetails() {
+
+    var [singleBook, setBook] = React.useState(null);
+
+    useEffect(() => {
+        setLoading(true);
+        console.log("book id " , transferData.BookID)
+        axios.post("/api/getBookInfo", {
+            BOOK_ID: transferData.BookID
+        })
+            .then((res) => {
+                setLoading(false);
+                if (res.data.ResponseCode !== 0) {
+                    showToast(" Success");
+                    setBook(res.data)
+
+                } else {
+                    showToast(" Book loading failed");
+                }
+                console.log(res.data)
+
+
+            }).catch((e) => {
+            console.log(e)
+        })
+
+
+    }, []);
 
     var [state, setState] = React.useState({
         copies: null
@@ -97,7 +125,7 @@ export default function SingleBookDetails() {
 
     function collectBook(userID, book, edition) {
 
-        console.log("rent book req ", "userID ", userID, "book id ", book.BookID, " edition ", edition, " pass " , userInfo.PasswordKey);
+        console.log("rent book req ", "userID ", userID, "book id ", book.BookID, " edition ", edition, " pass ", userInfo.PasswordKey);
 
         const requestOptions = {
             method: "POST",

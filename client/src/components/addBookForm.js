@@ -98,38 +98,7 @@ const AddBookForm = (props) => {
 
 
     useEffect(() => {
-        // auto call while loading this component
-        // fetch("/api/getGenre")
-        //     .then((res) => res.json())
-        //     .then((genres) => setGenre(genres))
-        //     .then(() => {
-        //         var arr = []
-        //         genres.GenreList.map(() => {
-        //             arr.push(false)
-        //         })
-        //
-        //
-        //         selectGenre({
-        //             selected: arr
-        //         })
-        //
-        //
-        //     });
-        //
-        // fetch("/api/getAuthors")
-        //     .then((res) => res.json())
-        //     .then((authors) => setAuthors(authors))
-        //     .then(() => {
-        //         var arr = []
-        //         authors.AuthorList.map(() => {
-        //             arr.push(false)
-        //         })
-        //
-        //
-        //         selectAuthor({
-        //             selecAuthors: arr
-        //         })
-        //     });
+
 
         axios.get("/api/getGenre").then((res) => {
             setGenre(res.data)
