@@ -242,7 +242,7 @@ async function getBooks(req, resp) {
       }
 
       copySelectQuery =
-        "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
+        "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY WHERE STATUS = 1 GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
       let copySelectResult = await connection.execute(
         copySelectQuery,
         [book_id],
