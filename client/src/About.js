@@ -1,7 +1,8 @@
 import React from "react";
 import ReactRoundedImage from "react-rounded-image";
 import anup from "./images/Anup.jpg";
-import {Grid} from "@mui/material";
+import fabiha from "./images/fabiha.jpg";
+import {Chip, Grid} from "@mui/material";
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
 
@@ -22,12 +23,12 @@ function About() {
                                     Project Supervisor
                                 </Typography>
                             </Card>
-                            <ReactRoundedImage
-                                image={anup}
-                                imageWidth="120"
-                                imageHeight="120"
-                                roundedSize="0"
-                            />
+                            {/*<ReactRoundedImage*/}
+                            {/*    image={anup}*/}
+                            {/*    imageWidth="120"*/}
+                            {/*    imageHeight="120"*/}
+                            {/*    roundedSize="0"*/}
+                            {/*/>*/}
 
                             <Typography paddingTop={3} variant="h4" component="div">
                                 Dr. Abu Sayed Md. Latiful Hoque
@@ -71,7 +72,8 @@ function About() {
                                 Anup Bhowmik
                             </Typography>
 
-                            <Typography variant="h5" component="div">
+                            <Chip sx={{mb: 1, mt: 1}} label="ID: 1805082" variant="outlined" />
+                            <Typography variant="h6" component="div">
                                 Undergraduate Student
                             </Typography>
 
@@ -95,7 +97,7 @@ function About() {
                                 </Typography>
                             </Card>
                             <ReactRoundedImage
-                                image={anup}
+                                image={fabiha}
                                 imageWidth="120"
                                 imageHeight="120"
                                 roundedSize="0"/>
@@ -104,7 +106,8 @@ function About() {
                                 Fabiha Tasneem
                             </Typography>
 
-                            <Typography variant="h5" component="div">
+                            <Chip sx={{mb: 1, mt: 1}} label="ID: 1805072" variant="outlined" />
+                            <Typography variant="h6" component="div">
                                 Undergraduate Student
                             </Typography>
 

@@ -1,120 +1,126 @@
 import React, {useEffect, useState} from "react";
 import {setLoading, setTransferData, showToast, transferData} from "../App";
 import {
-  Button,
-  Card,
-  CardActionArea,
-  CardActions,
-  CardContent,
-  Grid,
-  Icon,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+    Avatar,
+    Button,
+    Card,
+    CardActionArea,
+    CardActions,
+    CardContent,
+    Grid,
+    Icon,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
 } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import { MdOutlineAddTask } from "react-icons/md";
-import { useNavigate } from "react-router";
+import {MdOutlineAddTask} from "react-icons/md";
+import {useNavigate} from "react-router";
+import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 const Books = (props) => {
-  var navigate = useNavigate();
-  const [books, setBooks] = useState({
-    ResponseCode: 0,
-    ResponseDesc: "",
-    Books: []
-  });
+    var navigate = useNavigate();
+    const [books, setBooks] = useState({
+        ResponseCode: 0,
+        ResponseDesc: "",
+        Books: []
+    });
 
-  function showAllBooks() {
-    setLoading(true);
-    fetch("/api/getbooks")
-      .then((res) => res.json())
-      .then((books) => setBooks(books))
-      .then(() => {
-        setLoading(false);
-        showToast("All Books loaded");
-    
-      });
-  }
+    function showAllBooks() {
+        setLoading(true);
+        fetch("/api/getbooks")
+            .then((res) => res.json())
+            .then((books) => setBooks(books))
+            .then(() => {
+                setLoading(false);
+                showToast("All Books loaded");
 
-  function showBookDetails(singleBook) {
-    navigate("bookdetails")
-      setTransferData(singleBook)
+            });
+    }
 
-    showToast("Showing book id: " + singleBook.BookID)
-  }
+    function showBookDetails(singleBook) {
+        navigate("bookdetails")
+        setTransferData(singleBook)
 
-  useEffect(()=>{
-      console.log("transferred data: ", transferData)
-  }, [transferData])
+        showToast("Showing book id: " + singleBook.BookID)
+    }
 
-  return (
-    <Grid container spacing={1} padding={1}>
-      <Grid item xs={12} md={12}>
-        <h2>All Books</h2>
-      </Grid>
+    useEffect(() => {
+        console.log("transferred data: ", transferData)
+    }, [transferData])
 
-      <Grid item xs={0} md={2}></Grid>
-      <Grid item xs={12} md={8}>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <List >
-            {books.Books.map((book) => (
+    return (
+        <Grid container spacing={1} padding={1}>
+            <Grid item xs={12} md={12}>
+                <h2>All Books</h2>
+            </Grid>
 
-              <Card key={book.BookID} elevation={0} sx={{ minWidth: 700 }}>
-                <CardActionArea>
-                  <CardContent>
+            <Grid item xs={0} md={2}></Grid>
+            <Grid item xs={12} md={8}>
+                <div style={{display: "flex", justifyContent: "center"}}>
+                    <List>
+                        {books.Books.map((book) => (
 
-                    <ListItem divider={false}>
+                            <Card key={book.BookID} elevation={0} sx={{minWidth: 700}}>
+                                <CardActionArea>
+                                    <CardContent>
 
-                      <ListItemIcon>
-                        <MenuBookIcon />
-                      </ListItemIcon>
+                                        <ListItem divider={false}>
 
-                      <ListItemText
-                        onClick={() => showBookDetails(book)}
-                        key={book.BookID}
-                        primary={book.Title}
-                        secondary={
-                          "Edition " + book.Edition } />
-                        <h1>&nbsp;&nbsp;&nbsp;&nbsp;</h1><h4>Available copies: {book.CountOfBooks}</h4>
+                                            <ListItemIcon>
+                                                <Avatar sx={{bgcolor: "#3A7CFF"}}>
+                                                    <LibraryBooksIcon/>
+                                                </Avatar>
+                                            </ListItemIcon>
 
-                    </ListItem>
+                                            <ListItemText
+                                                onClick={() => showBookDetails(book)}
+                                                key={book.BookID}
+                                                primary={book.Title}
+                                                secondary={
+                                                    "Edition " + book.Edition}/>
+                                            <h1>&nbsp;&nbsp;&nbsp;&nbsp;</h1><h4>Available
+                                            copies: {book.CountOfBooks}</h4>
 
-                  </CardContent>
-                </CardActionArea>
-                <CardActions>
-                  <center>
-                    <Button size="large" color="primary">
-                      <MdOutlineAddTask />
-                      &nbsp;&nbsp;&nbsp; Add to collection
+                                        </ListItem>
+
+                                    </CardContent>
+                                </CardActionArea>
+                                <CardActions>
+                                    <center>
+                                        <Button size="large" color="primary">
+                                            <MdOutlineAddTask/>
+                                            &nbsp;&nbsp;&nbsp; Add to collection
+                                        </Button>
+                                    </center>
+                                </CardActions>
+                            </Card>
+                        ))}
+                    </List>
+                </div>
+            </Grid>
+
+            <Grid item xs={0} md={2}></Grid>
+
+            <Grid item xs={0} md={4}></Grid>
+
+            <Grid item xs={12} md={4}>
+                <center>
+                    <Button
+                        onClick={showAllBooks}
+                        variant="contained"
+                        id="showAllBooksBtn"
+                        disableElevation
+                    >
+                        Show All Books
                     </Button>
-                  </center>
-                </CardActions>
-              </Card>
-            ))}
-          </List>
-        </div>
-      </Grid>
-
-      <Grid item xs={0} md={2}></Grid>
-
-      <Grid item xs={0} md={4}></Grid>
-
-      <Grid item xs={12} md={4}>
-        <center>
-          <Button
-            onClick={showAllBooks}
-            variant="contained"
-            id="showAllBooksBtn"
-            disableElevation
-          >
-            Show All Books
-          </Button>
-        </center>
-      </Grid>
-      <Grid item xs={0} md={4}></Grid>
-    </Grid>
-  );
+                </center>
+            </Grid>
+            <Grid item xs={0} md={4}></Grid>
+        </Grid>
+    );
 };
 
 export default Books;

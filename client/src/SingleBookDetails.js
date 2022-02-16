@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import {transferData} from "./App";
 import {
-    Avatar, Grid,
+    Avatar, Chip, Grid,
     List,
     ListItem,
     ListItemIcon,
@@ -19,6 +19,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LanguageIcon from '@mui/icons-material/Language';
 import logo from ".//logo.png";
+import CategoryIcon from '@mui/icons-material/Category';
 
 
 export default function SingleBookDetails() {
@@ -65,22 +66,14 @@ export default function SingleBookDetails() {
                             <Avatar sx={{bgcolor: "#E91E63"}}>
                                 <CreateIcon/>
                             </Avatar>
-                            <List disablePadding>
+                            <List>
                                 {transferData.AuthorObject.map((singleAuthor) => (
-                                    <ListItem divider={false}>
-                                        <ListItemText
-                                            key={singleAuthor.AuthorId}
-                                            primary={singleAuthor.AuthorName}
-                                        />
-                                    </ListItem>
+                                    <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
+                                          variant="outlined"/>
                                 ))}
 
                             </List>
-
-
-
                             <br/>
-
 
                             <Avatar sx={{bgcolor: "#3A7CFF"}}>
                                 <LocalPrintshopIcon/>
@@ -100,6 +93,19 @@ export default function SingleBookDetails() {
                             </Typography>
 
                             <br/>
+
+                            <Avatar sx={{bgcolor: "#50CB88"}}>
+                                <CategoryIcon/>
+                            </Avatar>
+                            <List>
+                                {transferData.GenreObject.map((singleGenre) => (
+                                    <Chip  clickable sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
+                                          variant="outlined"/>
+                                ))}
+
+                            </List>
+                            <br/>
+
                             <Avatar sx={{bgcolor: "#6C63FF"}}>
                                 <DescriptionIcon/>
                             </Avatar>
@@ -109,9 +115,7 @@ export default function SingleBookDetails() {
 
 
                         </CardContent>
-                        <CardActions>
-                            <Button size="small">Learn More</Button>
-                        </CardActions>
+
                     </Card>
                 </div>
             </Grid>
