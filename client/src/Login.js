@@ -6,11 +6,14 @@ import {setAdminStatus, setLoading, setLoggedIn, setUserInfo, showToast} from ".
 import axios from "axios";
 
 import Cookies from 'universal-cookie';
+import {useNavigate} from "react-router";
 const cookies = new Cookies();
 
 const COOKIE_AGE=31536000
 
 function Login() {
+
+    var navigate = useNavigate();
 
     var [state, setState] = React.useState({
         email: null,
@@ -57,6 +60,8 @@ function Login() {
                 setLoggedIn(true);
                 cookies.set('auth',JSON.stringify(res.data),{ path: '/', maxAge: COOKIE_AGE })
                 setUserInfo(res.data);
+                navigate('../')
+
             } else {
                 showToast(" Login failed");
             }
