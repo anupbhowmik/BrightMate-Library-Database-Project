@@ -11,7 +11,7 @@ router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
 router.post("/api/signUp", bodyParser, userController.signUp);
-router.get("/api/signIn", bodyParser, userController.signIn);
+router.post("/api/signIn", bodyParser, userController.signIn);
 router.post("/api/changePassword", bodyParser, userController.changePassword);
 router.post("/api/addEmployee", bodyParser, userController.addEmployee);
 router.get("/api/getJobs", bodyParser, userController.getJobs);
