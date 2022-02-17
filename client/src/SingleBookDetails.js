@@ -37,7 +37,7 @@ export default function SingleBookDetails() {
             .then((res) => {
                 setLoading(false);
                 if (res.data.ResponseCode !== 0) {
-                    showToast(" Success");
+                    showToast(" Showing book details ", res.data.Title);
                     setBook(res.data)
 
                 } else {
@@ -166,12 +166,12 @@ export default function SingleBookDetails() {
                         <CardContent>
 
                             <b><strong><Typography variant="h4" component="div">
-                                {transferData.Title}
+                                {singleBook.Title}
                             </Typography> </strong></b>
                             <br/>
 
                             <Typography sx={{mb: 1.5}} color="text.primary">
-                                ISBN: {transferData.ISBN}
+                                ISBN: {singleBook.ISBN}
                             </Typography>
 
                             <hr color="#E1EBFF"/>
@@ -185,15 +185,15 @@ export default function SingleBookDetails() {
                             </Typography>
                             <br/>
 
-                            {transferData.CopyObject.length === 0 ?
+                            {singleBook.CopyObject.length === 0 ?
                                 <Chip sx={{mr: 1.5}} label={"No copies available right now"}
                                       variant="outlined"/> :
-                                transferData.CopyObject.map((singleCopy) => (
+                                singleBook.CopyObject.map((singleCopy) => (
 
                                     <Card elevation={0}>
 
                                         <Chip
-                                            onClick={() => collectBook(userInfo.UserId, transferData, singleCopy.Edition)}
+                                            onClick={() => collectBook(userInfo.UserId, singleBook, singleCopy.Edition)}
                                             size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
                                             label={"Collect " + singleCopy.Edition + " Edition"}
                                         />
@@ -239,7 +239,7 @@ export default function SingleBookDetails() {
                                 <CreateIcon/>
                             </Avatar>
                             <List>
-                                {transferData.AuthorObject.map((singleAuthor) => (
+                                {singleBook.AuthorObject.map((singleAuthor) => (
                                     <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
                                           variant="outlined"/>
                                 ))}
@@ -252,7 +252,7 @@ export default function SingleBookDetails() {
                             </Avatar>
 
                             <Typography paddingTop={1} variant="body2">
-                                {transferData.Publisher}
+                                {singleBook.Publisher}
                             </Typography>
 
 
@@ -261,7 +261,7 @@ export default function SingleBookDetails() {
                                 <LanguageIcon/>
                             </Avatar>
                             <Typography paddingTop={1} variant="body2">
-                                Language: {transferData.Language}
+                                Language: {singleBook.Language}
                             </Typography>
 
                             <br/>
@@ -270,7 +270,7 @@ export default function SingleBookDetails() {
                                 <CategoryIcon/>
                             </Avatar>
                             <List>
-                                {transferData.GenreObject.map((singleGenre) => (
+                                {singleBook.GenreObject.map((singleGenre) => (
                                     <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
                                           variant="outlined"/>
                                 ))}
@@ -282,7 +282,7 @@ export default function SingleBookDetails() {
                                 <DescriptionIcon/>
                             </Avatar>
                             <Typography paddingTop={1} variant="body2">
-                                {transferData.Description}
+                                {singleBook.Description}
                             </Typography>
 
 
