@@ -664,3 +664,129 @@ const savePublisherInfo = async () => {
     window.alert(responseObj.ResponseDesc);
   }
 };
+
+const rentalHistoryList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const response = await fetch("http://localhost:5000/api/getAllRentalHistoryList", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  let ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  let design = `<div class="row"> 
+  <h2 align="center"> ALL RENTAL HISTORIES </h2> 
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">User ID</th>
+                        <th scope="col">Book Copy ID</th>
+                        <th scope="col">Issue Date</th>
+                        <th scope="col">Return Date</th>
+                        <th scope="col">Rental Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.RentalObject.forEach((element) => {
+    let rStatus = element.RentalStatus;
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td id="">${element.RentalId}</td>
+                        <td>${element.UserId}</td>
+                        <td>${element.BookCopyId}</td>
+                        <td>${element.IssueDate}</td>
+                        <td>${element.ReturnDate}</td>
+                        <td>${element.RentalStatus}</td>`;
+                        if(rStatus == 1 || rStatus == 2){
+                          design += `<td>
+                        <button id="return_${element.RentalId}" value="${element.RentalId}" onclick="returnBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#returnBookModal">Return</button>
+                        </td>`
+                        }if(rStatus == 3){
+                          design += `<td>
+                        <button disabled id="${element.RentalId}" value="${element.RentalId}" class="btn btn-secondary btn-sm m-1">Returned</button>
+                        </td>`
+                        }
+                        design += `</tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+};
+
+const feeList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const response = await fetch("http://localhost:5000/api/getAllFineHistoryList", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  let ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  let design = `<div class="row"> 
+  <h2 align="center"> ALL FINE HISTORIES </h2> 
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">User ID</th>
+                        <th scope="col">Rental History ID</th>
+                        <th scope="col">Fine Starting Date</th>
+                        <th scope="col">Payment Date</th>
+                        <th scope="col">Fee Amount</th>
+                        <th scope="col">Payment Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.FineObject.forEach((element) => {
+    let pStatus = element.PaymentStatus;
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td id="">${element.FineId}</td>
+                        <td>${element.UserId}</td>
+                        <td>${element.RentalId}</td>
+                        <td>${element.FineStartingDate}</td>
+                        <td>${element.PaymentDate}</td>
+                        <td>${element.FeeAmount}</td>
+                        <td>${element.PaymentStatus}</td>`;
+                        if(pStatus == 0){
+                          design += `<td>
+                        <button id="fee_${element.FineId}" value="${element.FineId}" onclick="payFee(this.value)" class="btn btn-warning btn-sm m-1" data-bs-toggle="modal" data-bs-target="#payFeeModal">Pay</button>
+                        </td>`
+                        }if(pStatus == 1){
+                          design += `<td>
+                        <button disabled id="${element.FineId}" value="${element.FineId}" class="btn btn-secondary btn-sm m-1">Paid</button>
+                        </td>`
+                        }
+                        design += `</tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+};
