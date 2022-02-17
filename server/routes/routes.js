@@ -39,7 +39,7 @@ router.post("/api/getMagazineInfo", bodyParser, magazineController.getMagazineIn
 
 router.post("/api/rentBook", bodyParser, rentController.rentBook);
 router.post("/api/returnBook", bodyParser, rentController.returnBook);
-router.post("/api/getAllRentalHistoryList", bodyParser, rentController.getAllRentalHistoryList);
-
+router.get("/api/getAllRentalHistoryList", bodyParser, rentController.getAllRentalHistoryList);
+router.get("/api/getAllFineHistoryList", bodyParser, rentController.getAllFineHistoryList);
 
 module.exports = router;
