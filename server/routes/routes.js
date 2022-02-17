@@ -23,7 +23,9 @@ router.post("/api/addPublisher", bodyParser, generalController.addPublisher);
 router.post("/api/editPublisher", bodyParser, generalController.editPublisher);
 router.get("/api/getGenre", bodyParser, generalController.getGenre);
 router.get("/api/getAuthors", bodyParser, generalController.getAuthors);
+router.post("/api/getAuthorById", bodyParser, generalController.getAuthorById);
 router.get("/api/getPublishers", bodyParser, generalController.getPublishers);
+router.post("/api/getPublisherById", bodyParser, generalController.getPublisherById);
 router.post("/api/search", bodyParser, generalController.search);
 
 router.post("/api/addBook", bodyParser, booksController.addBook);

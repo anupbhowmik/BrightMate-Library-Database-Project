@@ -32,66 +32,47 @@
     <main>
         <div class="d-flex flex-column min-vh-100 flex-shrink-0 p-2 text-white bg-dark" style="width: 230px;">
             <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                <svg class="bi me-2" width="40" height="32">
-                    <use xlink:href="#bootstrap" />
-                </svg>
                 <span class="fs-4">Admin Portal</span>
             </a>
             <hr>
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
                     <a href="#" onclick="home()" class="nav-link active" aria-current="page">
-                        <svg class="bi me-2" width="16" height="16">
-                            <use xlink:href="#home" />
-                        </svg>
                         Home
                     </a>
                 </li>
                 <li>
                     <a href="#" onclick="bookList()" class="nav-link text-white">
-                        <svg class="bi me-2" width="16" height="16">
-                            <use xlink:href="#speedometer2" />
-                        </svg>
                         Books
                     </a>
                 </li>
                 <li>
+                    <a href="#" onclick="magazineList()" class="nav-link text-white">
+                        Magazines
+                    </a>
+                </li>
+                <li>
                     <a href="#" onclick="authorList()" class="nav-link text-white">
-                        <svg class="bi me-2" width="16" height="16">
-                            <use xlink:href="#table" />
-                        </svg>
                         Authors
                     </a>
                 </li>
                 <li>
                     <a href="#" onclick="publisherList()" class="nav-link text-white">
-                        <svg class="bi me-2" width="16" height="16">
-                            <use xlink:href="#table" />
-                        </svg>
                         Publishers
                     </a>
                 </li>
                 <li>
                     <a href="#" onclick="rentalHistoryList()" class="nav-link text-white">
-                        <svg class="bi me-2" width="16" height="16">
-                            <use xlink:href="#grid" />
-                        </svg>
                         Rental History
                     </a>
                 </li>
                 <li>
                     <a href="#" onclick="feeList()" class="nav-link text-white">
-                        <svg class="bi me-2" width="16" height="16">
-                            <use xlink:href="#grid" />
-                        </svg>
                         Dues
                     </a>
                 </li>
                 <li>
                     <a href="#" onclick="employeeList()" class="nav-link text-white">
-                        <svg class="bi me-2" width="16" height="16">
-                            <use xlink:href="#table" />
-                        </svg>
                         Employees
                     </a>
                 </li>
@@ -104,9 +85,9 @@
                     <strong id="admin_name"></strong>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                    <!-- <li><a class="dropdown-item" href="#">New project...</a></li>
+                    <!-- <li><a class="dropdown-item" href="#">New project...</a></li> -->
                     <li><a class="dropdown-item" href="#">Settings</a></li>
-                    <li><a class="dropdown-item" href="#">Profile</a></li> -->
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
@@ -114,14 +95,14 @@
                 </ul>
             </div>
         </div>
-        <div class="p-3" id="mainContents">
+        <div class="p-3" id="mainContents" style="width: 100%;">
         </div>
     </main>
-    <div class="modal lg fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal lg fade" id="editBookModal" tabindex="-1" aria-labelledby="editBookModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Book</h5>
+                    <h5 class="modal-title" id="editBookModalLabel">Edit Book</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -144,7 +125,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="publisher" class="col-form-label">Publisher:</label>
-                                <select onchange="showPublisherList(this.value)" id="publisher" class="form-control" aria-label="Others">
+                                <select onchange="showPublisherList(this.value)" id="publisher" class="form-control"
+                                    aria-label="Others">
                                 </select>
                             </div>
                         </div>
@@ -161,12 +143,13 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <label for="description" class="col-form-label">Description:</label>
-                                <input type="text" class="form-control" id="description">
+                                <input type="textarea" class="form-control" id="description">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <label for="genre" class="col-form-label">Genre:</label>
+                                <input type="hidden" id="genrelistLength" value="">
                                 <div id="genre"></div>
                             </div>
                         </div>
@@ -174,11 +157,111 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button onclick="saveBookInfo()" type="button" data-bs-dismiss="modal" class="btn btn-primary">Save</button>
+                    <button onclick="saveBookInfo()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="modal lg fade" id="editAuthorModal" tabindex="-1" aria-labelledby="editAuthorModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAuthorModalLabel">Edit Author</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" id="authorId" value="">
+                                <label for="authorName" class="col-form-label">Author Name:</label>
+                                <input type="text" class="form-control" id="authorName">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="dateOfBirth" class="col-form-label">Date Of Birth:</label>
+                                <input type="date" class="form-control" id="dateOfBirth">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="dateOfDeath" class="col-form-label">Date Of Death:</label>
+                                <input type="date" class="form-control" id="dateOfDeath">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="bio" class="col-form-label">Bio:</label>
+                                <input type="textarea" class="form-control" id="bio">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="saveAuthorInfo()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal lg fade" id="editPublisherModal" tabindex="-1" aria-labelledby="editPublisherModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPublisherModalLabel">Edit Publisher</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" id="publisherId" value="">
+                                <label for="publisherName" class="col-form-label">Publisher Name:</label>
+                                <input type="text" class="form-control" id="publisherName">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="phone" class="col-form-label">Phone:</label>
+                                <input type="text" class="form-control" id="phone">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="addressLine" class="col-form-label">Address Line:</label>
+                                <input type="text" class="form-control" id="addressLine">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="city" class="col-form-label">City:</label>
+                                <input type="text" class="form-control" id="city">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="postalCode" class="col-form-label">Postal Code:</label>
+                                <input type="text" class="form-control" id="postalCode">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="col-form-label">Country:</label>
+                                <input type="text" class="form-control" id="country">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="savePublisherInfo()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
