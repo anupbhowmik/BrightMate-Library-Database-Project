@@ -629,6 +629,90 @@ async function getAuthors(req, resp) {
   }
 }
 
+async function getPublishers(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    publisherSelectQuery = "SELECT * FROM PUBLISHER ORDER BY PUBLISHER_NAME ASC";
+    let publisherSelectResult = await connection.execute(publisherSelectQuery, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    console.log(publisherSelectResult);
+
+    if (publisherSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND IN DATABASE",
+        ResponseStatus: resp.statusCode,
+      };
+    } else {
+      let publisherObject = [];
+      for (let i = 0; i < publisherSelectResult.rows.length; i++) {
+        let publisherItem = publisherSelectResult.rows[i];
+
+        publisherObject.push({
+          PublisherID: publisherItem.PUBLISHER_ID,
+          PublisherName: publisherItem.PUBLISHER_NAME,
+          Phone: publisherItem.PHONE,
+          AddressLine: publisherItem.ADDRESS_LINE,
+          City: publisherItem.CITY,
+          PostalCode: publisherItem.POSTAL_CODE,
+          Country: publisherItem.COUNTRY,
+        });
+      }
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        PublisherList: publisherObject,
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("FOUND");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT FOUND");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 async function search(req, resp) {
   let connection;
 
@@ -803,5 +887,6 @@ module.exports = {
   editPublisher,
   getGenre,
   getAuthors,
+  getPublishers,
   search,
 };
