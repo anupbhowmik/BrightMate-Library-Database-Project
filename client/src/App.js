@@ -17,6 +17,8 @@ import Register from "./Register";
 import {Route, Routes} from "react-router-dom";
 
 import Cookies from 'universal-cookie';
+import UserDashboard from "./UserDashboard";
+import AllBooks from "./AllBooks";
 const cookies = new Cookies();
 
 var showToast;
@@ -93,6 +95,8 @@ function App() {
                         <Route exact path="/searchresult" element={<SearchResult/>}/>
                         <Route exact path="/login" element={<Login/>}/>
                         <Route exact path="/register" element={<Register/>}/>
+                        <Route exact path="/dashboard" element={<UserDashboard/>}/>
+                        <Route exact path="/allbooks" element={<AllBooks/>}/>
 
                     </Routes>
                 </div>

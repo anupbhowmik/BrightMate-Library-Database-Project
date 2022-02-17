@@ -20,7 +20,7 @@ import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
 const pages = [
-    {title: "Browse Books", address: "#"},
+    {title: "All Books", address: "allbooks"},
     {title: "Categories", address: "#"},
     {title: "About us", address: "about"}];
 const settings = ["Dashboard", "Logout", "Login as Admin"];
@@ -54,6 +54,9 @@ const ResponsiveAppBar = () => {
             showToast('Logged out successfully')
             navigate('login')
 
+        }
+        else  if (index === 0){
+            navigate('dashboard')
         }
     };
 

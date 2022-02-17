@@ -28,31 +28,6 @@ export default function SingleBookDetails() {
 
     var [singleBook, setBook] = React.useState(null);
 
-    useEffect(() => {
-        setLoading(true);
-        console.log("book id " , transferData.BookID)
-        axios.post("/api/getBookInfo", {
-            BOOK_ID: transferData.BookID
-        })
-            .then((res) => {
-                setLoading(false);
-                if (res.data.ResponseCode !== 0) {
-                    showToast(" Showing book details ", res.data.Title);
-                    setBook(res.data)
-
-                } else {
-                    showToast(" Book loading failed");
-                }
-                console.log(res.data)
-
-
-            }).catch((e) => {
-            console.log(e)
-        })
-
-
-    }, []);
-
     var [state, setState] = React.useState({
         copies: null
     });
@@ -144,8 +119,28 @@ export default function SingleBookDetails() {
         fetch("/api/rentBook", requestOptions).then(() => {
             setLoading(false);
             showToast(book.Title + " Added to your collection!");
-            // todo: now refresh the page to show the changed copy count
+
         });
+
+        setLoading(true);
+        console.log("book id ", transferData.BookID)
+        axios.post("/api/getBookInfo", {
+            BOOK_ID: transferData.BookID
+        })
+            .then((res) => {
+                setLoading(false);
+                if (res.data.ResponseCode !== 0) {
+                    setBook(res.data)
+
+                } else {
+                    showToast(" Book loading failed");
+                }
+                console.log(res.data)
+
+
+            }).catch((e) => {
+            console.log(e)
+        })
 
 
     }
@@ -166,12 +161,12 @@ export default function SingleBookDetails() {
                         <CardContent>
 
                             <b><strong><Typography variant="h4" component="div">
-                                {singleBook.Title}
+                                {transferData.Title}
                             </Typography> </strong></b>
                             <br/>
 
                             <Typography sx={{mb: 1.5}} color="text.primary">
-                                ISBN: {singleBook.ISBN}
+                                ISBN: {transferData.ISBN}
                             </Typography>
 
                             <hr color="#E1EBFF"/>
@@ -185,61 +180,114 @@ export default function SingleBookDetails() {
                             </Typography>
                             <br/>
 
-                            {singleBook.CopyObject.length === 0 ?
-                                <Chip sx={{mr: 1.5}} label={"No copies available right now"}
-                                      variant="outlined"/> :
-                                singleBook.CopyObject.map((singleCopy) => (
+                            {singleBook === null ? transferData.CopyObject.length === 0 ?
+                                    <Chip sx={{mr: 1.5}} label={"No copies available right now"}
+                                          variant="outlined"/> :
+                                    transferData.CopyObject.map((singleCopy) => (
 
-                                    <Card elevation={0}>
+                                        <Card elevation={0}>
 
-                                        <Chip
-                                            onClick={() => collectBook(userInfo.UserId, singleBook, singleCopy.Edition)}
-                                            size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
-                                            label={"Collect " + singleCopy.Edition + " Edition"}
-                                        />
+                                            <Chip
+                                                onClick={() => collectBook(userInfo.UserId, transferData, singleCopy.Edition)}
+                                                size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
+                                                label={"Collect " + singleCopy.Edition + " Edition"}
+                                            />
 
-                                        <Typography sx={{mb: 1.5}} color={"#3A7CFF"} variant="body1" component="div">
-                                            {"Copies Available: " + singleCopy.CopyCount}
-                                        </Typography>
-                                        {/*for adding book copies in admin site*/}
-                                        {/*<Dialog open={open} onClose={handleClose}>*/}
-                                        {/*    <DialogTitle>Add copies</DialogTitle>*/}
-                                        {/*    <DialogContent>*/}
-                                        {/*        <TextField*/}
-                                        {/*            onChange={onTextChange}*/}
-                                        {/*            required*/}
-                                        {/*            value={state.copies}*/}
-                                        {/*            style={{backgroundColor: "white"}}*/}
-                                        {/*            name="copies"*/}
-                                        {/*            fullWidth*/}
-                                        {/*            id="outlined-basic"*/}
-                                        {/*            label="Number of copies"*/}
-                                        {/*            type="number"*/}
-                                        {/*        />*/}
-                                        {/*    </DialogContent>*/}
-                                        {/*    <DialogActions>*/}
-                                        {/*        <Button onClick={handleClose}>Cancel</Button>*/}
-                                        {/*        <Button onClick={() => {*/}
-                                        {/*            addCopy(singleCopy.Edition)*/}
-                                        {/*        }}>Submit</Button>*/}
-                                        {/*    </DialogActions>*/}
-                                        {/*</Dialog>*/}
-                                        {/*<Button sx={{mb: 1.5}} variant="outlined"*/}
-                                        {/*        onClick={handleClickOpen}>*/}
-                                        {/*    Add copies of {singleCopy.Edition} edition*/}
-                                        {/*</Button><br/>*/}
+                                            <Typography sx={{mb: 1.5}} color={"#3A7CFF"} variant="body1" component="div">
+                                                {"Copies Available: " + singleCopy.CopyCount}
+                                            </Typography>
+                                            {/*for adding book copies in admin site*/}
+                                            {/*<Dialog open={open} onClose={handleClose}>*/}
+                                            {/*    <DialogTitle>Add copies</DialogTitle>*/}
+                                            {/*    <DialogContent>*/}
+                                            {/*        <TextField*/}
+                                            {/*            onChange={onTextChange}*/}
+                                            {/*            required*/}
+                                            {/*            value={state.copies}*/}
+                                            {/*            style={{backgroundColor: "white"}}*/}
+                                            {/*            name="copies"*/}
+                                            {/*            fullWidth*/}
+                                            {/*            id="outlined-basic"*/}
+                                            {/*            label="Number of copies"*/}
+                                            {/*            type="number"*/}
+                                            {/*        />*/}
+                                            {/*    </DialogContent>*/}
+                                            {/*    <DialogActions>*/}
+                                            {/*        <Button onClick={handleClose}>Cancel</Button>*/}
+                                            {/*        <Button onClick={() => {*/}
+                                            {/*            addCopy(singleCopy.Edition)*/}
+                                            {/*        }}>Submit</Button>*/}
+                                            {/*    </DialogActions>*/}
+                                            {/*</Dialog>*/}
+                                            {/*<Button sx={{mb: 1.5}} variant="outlined"*/}
+                                            {/*        onClick={handleClickOpen}>*/}
+                                            {/*    Add copies of {singleCopy.Edition} edition*/}
+                                            {/*</Button><br/>*/}
 
-                                    </Card>
+                                        </Card>
 
-                                ))
+                                    ))
+                                :
+                                // the book is loaded from api
+                                singleBook.CopyObject.length === 0 ?
+                                    <Chip sx={{mr: 1.5 , mb: 1}} label={"No copies available right now"}
+                                          variant="outlined"/> :
+                                    singleBook.CopyObject.map((singleCopy) => (
+
+                                        <Card elevation={0}>
+
+                                            <Chip
+                                                onClick={() => collectBook(userInfo.UserId, singleBook, singleCopy.Edition)}
+                                                size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
+                                                label={"Collect " + singleCopy.Edition + " Edition"}
+                                            />
+
+                                            <Typography sx={{mb: 1.5}} color={"#3A7CFF"} variant="body1"
+                                                        component="div">
+                                                {"Copies Available: " + singleCopy.CopyCount}
+                                            </Typography>
+                                            {/*for adding book copies in admin site*/}
+                                            {/*<Dialog open={open} onClose={handleClose}>*/}
+                                            {/*    <DialogTitle>Add copies</DialogTitle>*/}
+                                            {/*    <DialogContent>*/}
+                                            {/*        <TextField*/}
+                                            {/*            onChange={onTextChange}*/}
+                                            {/*            required*/}
+                                            {/*            value={state.copies}*/}
+                                            {/*            style={{backgroundColor: "white"}}*/}
+                                            {/*            name="copies"*/}
+                                            {/*            fullWidth*/}
+                                            {/*            id="outlined-basic"*/}
+                                            {/*            label="Number of copies"*/}
+                                            {/*            type="number"*/}
+                                            {/*        />*/}
+                                            {/*    </DialogContent>*/}
+                                            {/*    <DialogActions>*/}
+                                            {/*        <Button onClick={handleClose}>Cancel</Button>*/}
+                                            {/*        <Button onClick={() => {*/}
+                                            {/*            addCopy(singleCopy.Edition)*/}
+                                            {/*        }}>Submit</Button>*/}
+                                            {/*    </DialogActions>*/}
+                                            {/*</Dialog>*/}
+                                            {/*<Button sx={{mb: 1.5}} variant="outlined"*/}
+                                            {/*        onClick={handleClickOpen}>*/}
+                                            {/*    Add copies of {singleCopy.Edition} edition*/}
+                                            {/*</Button><br/>*/}
+
+                                        </Card>
+
+                                    ))
+
+
                             }
 
+
                             <br/>
-                            <Avatar sx={{bgcolor: "#E91E63"}}>
+                            <Avatar sx={{bgcolor: "#E91E63", mt: 1.5}}>
                                 <CreateIcon/>
                             </Avatar>
                             <List>
-                                {singleBook.AuthorObject.map((singleAuthor) => (
+                                {transferData.AuthorObject.map((singleAuthor) => (
                                     <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
                                           variant="outlined"/>
                                 ))}
@@ -252,7 +300,7 @@ export default function SingleBookDetails() {
                             </Avatar>
 
                             <Typography paddingTop={1} variant="body2">
-                                {singleBook.Publisher}
+                                {transferData.Publisher}
                             </Typography>
 
 
@@ -261,7 +309,7 @@ export default function SingleBookDetails() {
                                 <LanguageIcon/>
                             </Avatar>
                             <Typography paddingTop={1} variant="body2">
-                                Language: {singleBook.Language}
+                                Language: {transferData.Language}
                             </Typography>
 
                             <br/>
@@ -270,7 +318,7 @@ export default function SingleBookDetails() {
                                 <CategoryIcon/>
                             </Avatar>
                             <List>
-                                {singleBook.GenreObject.map((singleGenre) => (
+                                {transferData.GenreObject.map((singleGenre) => (
                                     <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
                                           variant="outlined"/>
                                 ))}
@@ -282,7 +330,7 @@ export default function SingleBookDetails() {
                                 <DescriptionIcon/>
                             </Avatar>
                             <Typography paddingTop={1} variant="body2">
-                                {singleBook.Description}
+                                {transferData.Description}
                             </Typography>
 
 

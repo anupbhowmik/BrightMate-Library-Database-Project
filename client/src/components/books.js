@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {setLoading, setTransferData, showToast, transferData} from "../App";
+import {setLoading, setTransferData, showToast, transferData, userInfo} from "../App";
 import {
     Avatar,
     Button,
@@ -20,9 +20,18 @@ import {useNavigate} from "react-router";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import Typography from "@mui/material/Typography";
+import axios from "axios";
 
 const Books = (props) => {
+
+    var [isLoaded, setLoaded] = useState(false)
+    useEffect(() => {
+        setLoaded(false)
+
+    }, []);
+
     var navigate = useNavigate();
+
     const [books, setBooks] = useState({
         ResponseCode: 0,
         ResponseDesc: "",
@@ -37,12 +46,13 @@ const Books = (props) => {
             .then(() => {
                 setLoading(false);
                 showToast("All Books loaded");
+                setLoaded(true)
 
             });
     }
 
     function showBookDetails(singleBook) {
-        navigate("bookdetails")
+        navigate("../bookdetails")
         setTransferData(singleBook)
 
         showToast("Showing book id: " + singleBook.BookID)
@@ -69,8 +79,6 @@ const Books = (props) => {
                                 <CardActionArea>
                                     <CardContent>
 
-
-
                                         <Grid container padding={1}>
                                             <Grid sx={1} md={1}>
                                                 <ListItemIcon sx={{mb: 1.2}}>
@@ -87,12 +95,7 @@ const Books = (props) => {
                                             </Grid>
                                         </Grid>
 
-
-
-
-
                                             ISBN: {book.ISBN}<br/>
-
 
                                         {book.CopyObject.length == 0 ?
                                             <Chip sx={{mr: 1.5, mt: 1}} label={"No copies available right now"}
@@ -142,9 +145,9 @@ const Books = (props) => {
                         onClick={showAllBooks}
                         variant="contained"
                         id="showAllBooksBtn"
-                        disableElevation
-                    >
-                        Show All Books
+                        disableElevation>
+                        {isLoaded ? <div>Refresh list</div> : <div>Show All Books</div> }
+
                     </Button>
                 </center>
             </Grid>
