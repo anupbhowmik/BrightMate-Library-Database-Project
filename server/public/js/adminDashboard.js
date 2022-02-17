@@ -52,7 +52,17 @@ const bookList = async () => {
   let ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  let design = `<table class="table" style="font-size:smaller">
+  let design = `<div class="row"> 
+  <h2 align="center"> BOOKS </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="openAddNewBookModal()" data-bs-toggle="modal" data-bs-target="#addNewBookModal"> Add A New Book</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
                     <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -93,7 +103,9 @@ const bookList = async () => {
                         <td>${element.Publisher}</td>
                         <td>${element.ISBN}</td>
                         <td>${genre}</td>
-                        <td>${copyCount}</td>
+                        <td>${copyCount}<br>
+                        <button id="copies_${element.BookID}" value="${element.BookID}" onclick="openBookCopyModal(this.value)" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addBookCopiesModal">Add</button>
+                        </td>
                         <td>${element.YearOfPublication}</td>
                         <td>${element.Language}</td>
                         <td>
@@ -130,9 +142,8 @@ const editBook = async (bookId) => {
   ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  //Get Publishers from API
-  showPublishers();
-  showGenre();
+  showPublishers("publisher");
+  showGenre("genre");
 
   let authors = "";
   for (let i = 0; i < ResponseObj.AuthorObject.length; i++) {
@@ -148,7 +159,70 @@ const editBook = async (bookId) => {
   $("#isbn").val(ResponseObj.ISBN);
 };
 
-const showPublishers = async () => {
+const openAddNewBookModal = async () => {
+  await showPublishers("new_publisher");
+  await showAuthors();
+  await showGenre("new_genre");
+};
+
+const addNewBook = async () => {
+  let BOOK_TITLE = $("#new_title").val();
+  let YEAR = $("#new_year").val();
+  let ISBN = $("#new_isbn").val();
+  let DESCRIPTION = $("#new_description").val();
+  let LANGUAGE = $("#new_language").val();
+  let PUBLISHER_ID = $("#new_publisher").val();
+  let AUTHOR_ID = [];
+  var markedCheckbox = document.getElementsByName("new_authorCheckbox");
+  for (var checkbox of markedCheckbox) {
+    if (checkbox.checked) AUTHOR_ID.push(checkbox.value);
+  }
+  let GENRE = [];
+  var markedCheckbox2 = document.getElementsByName("new_genreCheckbox");
+  for (var checkbox2 of markedCheckbox2) {
+    if (checkbox2.checked) GENRE.push(checkbox2.value);
+  }
+
+  if(BOOK_TITLE != "" && YEAR != "" && ISBN != "" && LANGUAGE != "" && PUBLISHER_ID != "" && AUTHOR_ID.length != 0 && GENRE.length != 0){
+
+  let bookObj = {
+    BOOK_TITLE: BOOK_TITLE,
+    YEAR: YEAR,
+    DESCRIPTION: DESCRIPTION,
+    LANGUAGE: LANGUAGE,
+    PUBLISHER_ID: PUBLISHER_ID,
+    GENRE: GENRE,
+    ISBN: ISBN,
+    AUTHOR_ID: AUTHOR_ID,
+  };
+
+  console.log(bookObj);
+
+  bookObj = JSON.stringify(bookObj);
+
+  const responseBook = await fetch("http://localhost:5000/api/addBook", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: bookObj,
+  });
+
+  responseObj = await responseBook.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    bookList();
+  } else {
+    window.alert(responseObj.ResponseDesc);
+  }
+}else {
+  window.alert("Empty Field");
+}
+};
+
+const showPublishers = async (docId) => {
   const responseDepartments = await fetch(
     "http://localhost:5000/api/getPublishers",
     {
@@ -160,42 +234,57 @@ const showPublishers = async () => {
   );
   ResponseObj = await responseDepartments.json();
 
-  console.log(ResponseObj);
-
   let pubDesign = "";
 
   ResponseObj.PublisherList.forEach((pub) => {
     pubDesign += `<option value="${pub.PublisherID}">${pub.PublisherName}</option>`;
   });
 
-  document.getElementById("publisher").innerHTML = pubDesign;
+  document.getElementById(docId).innerHTML = pubDesign;
 };
 
-const showGenre = async () => {
-  const responseDepartments = await fetch(
-    "http://localhost:5000/api/getGenre",
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  ResponseObj = await responseDepartments.json();
+const showAuthors = async () => {
+  const responseAuthors = await fetch("http://localhost:5000/api/getAuthors", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  ResponseObj = await responseAuthors.json();
+
+  let authorDesign = "";
+  ResponseObj.AuthorList.forEach((author) => {
+    authorDesign += `<div class="form-check">
+    <input class="form-check-input" type="checkbox" value="${author.AuthorID}" id="new_author_${author.AuthorID}" name="new_authorCheckbox">
+    <label class="form-check-label" for="new_author_${author.AuthorID}">
+    ${author.AuthorName}
+    </label>
+    </div>`;
+  });
+  document.getElementById("new_authors").innerHTML = authorDesign;
+};
+
+const showGenre = async (docId) => {
+  const responseGenre = await fetch("http://localhost:5000/api/getGenre", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  ResponseObj = await responseGenre.json();
 
   console.log(ResponseObj);
 
   let genreDesign = "";
   ResponseObj.GenreList.forEach((genre) => {
     genreDesign += `<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="genre_${genre.GenreID}" name="genreCheckbox">
-    <label class="form-check-label" for="genre_${genre.GenreID}">
+    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="new_genre_${genre.GenreID}" name="new_genreCheckbox">
+    <label class="form-check-label" for="new_genre_${genre.GenreID}">
     ${genre.GenreName}
     </label>
     </div>`;
   });
-  $("#genrelistLength").val(ResponseObj.GenreList.length);
-  document.getElementById("genre").innerHTML = genreDesign;
+  document.getElementById(docId).innerHTML = genreDesign;
 };
 
 const saveBookInfo = async () => {
@@ -264,6 +353,50 @@ const deleteBook = async (bookId) => {
   bookList();
 };
 
+const openBookCopyModal = async (bookId) => {
+  $("#c_book_id").val(bookId);
+};
+
+const addBookCopies = async (bookId) => {
+  let BOOK_ID = $("#c_book_id").val();
+  let COPIES = $("#copies").val();
+  let EDITION = $("#edition").val();
+
+  if (COPIES != null && EDITION != null) {
+    let bookObj = {
+      BOOK_ID: BOOK_ID,
+      COPIES: COPIES,
+      EDITION: EDITION,
+    };
+
+    console.log(bookObj);
+    bookObj = JSON.stringify(bookObj);
+
+    const responseBook = await fetch(
+      "http://localhost:5000/api/addBookCopies",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: bookObj,
+      }
+    );
+
+    responseObj = await responseBook.json();
+    console.log(responseObj);
+
+    if (responseObj.ResponseCode == 1) {
+      window.alert(responseObj.ResponseDesc);
+      bookList();
+    } else {
+      window.alert(responseObj.ResponseDesc);
+    }
+  } else {
+    window.alert("Field empty");
+  }
+};
+
 const authorList = async () => {
   const MainContent = document.getElementById("mainContents");
 
@@ -276,7 +409,17 @@ const authorList = async () => {
   let ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  let design = `<table class="table" style="font-size:smaller">
+  let design = `<div class="row"> 
+  <h2 align="center"> AUTHORS </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="addNewAuthor()" data-bs-toggle="modal" data-bs-target="#addNewAuthorModal"> Add A New Author</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
                     <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -332,13 +475,13 @@ const editAuthor = async (authorId) => {
   console.log(ResponseObj);
 
   let dateOfBirth = ResponseObj.DateOfBirth;
-  if(dateOfBirth != null){
-    dateOfBirth = dateOfBirth.split('T');
+  if (dateOfBirth != null) {
+    dateOfBirth = dateOfBirth.split("T");
     dateOfBirth = dateOfBirth[0];
   }
   let dateOfDeath = ResponseObj.DateOfDeath;
-  if(dateOfBirth != null){
-    dateOfDeath = dateOfDeath.split('T');
+  if (dateOfBirth != null) {
+    dateOfDeath = dateOfDeath.split("T");
     dateOfDeath = dateOfDeath[0];
   }
 
@@ -361,7 +504,7 @@ const saveAuthorInfo = async () => {
     AUTHOR_NAME: AUTHOR_NAME,
     DATE_OF_BIRTH: DATE_OF_BIRTH,
     DATE_OF_DEATH: DATE_OF_DEATH,
-    BIO: BIO
+    BIO: BIO,
   };
 
   console.log(authorObj);
@@ -399,7 +542,17 @@ const publisherList = async () => {
   let ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  let design = `<table class="table" style="font-size:smaller">
+  let design = `<div class="row"> 
+  <h2 align="center"> PUBLISHERS </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="addNewPublisher()" data-bs-toggle="modal" data-bs-target="#addNewPublisherModal"> Add A New Publisher</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
                     <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -483,20 +636,23 @@ const savePublisherInfo = async () => {
     ADDRESS_LINE: ADDRESS_LINE,
     CITY: CITY,
     POSTAL_CODE: POSTAL_CODE,
-    COUNTRY: COUNTRY
+    COUNTRY: COUNTRY,
   };
 
   console.log(publisherObj);
 
   publisherObj = JSON.stringify(publisherObj);
 
-  const responsePublisher = await fetch("http://localhost:5000/api/editPublisher", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: publisherObj,
-  });
+  const responsePublisher = await fetch(
+    "http://localhost:5000/api/editPublisher",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: publisherObj,
+    }
+  );
 
   responseObj = await responsePublisher.json();
   console.log(responseObj);
