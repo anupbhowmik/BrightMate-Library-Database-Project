@@ -28,6 +28,17 @@ const Books = (props) => {
     useEffect(() => {
         setLoaded(false)
 
+        setLoading(true);
+        fetch("/api/getbooks")
+            .then((res) => res.json())
+            .then((books) => setBooks(books))
+            .then(() => {
+                setLoading(false);
+                showToast("All Books loaded");
+                setLoaded(true)
+
+            });
+
     }, []);
 
     var navigate = useNavigate();
@@ -96,6 +107,14 @@ const Books = (props) => {
                                         </Grid>
 
                                             ISBN: {book.ISBN}<br/>
+
+                                        <List>
+                                            {book.AuthorObject.map((singleAuthor) => (
+                                                <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
+                                                      />
+                                            ))}
+
+                                        </List>
 
                                         {book.CopyObject.length == 0 ?
                                             <Chip sx={{mr: 1.5, mt: 1}} label={"No copies available right now"}
