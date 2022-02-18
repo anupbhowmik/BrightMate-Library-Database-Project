@@ -239,6 +239,102 @@ async function signIn(req, resp) {
   }
 }
 
+async function adminSignIn(req, resp) {
+  let connection;
+  let userExistsAlready = 0;
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    email = req.body.EMAIL;
+    userPassword = req.body.PASSWORD;
+
+    let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
+    let userInfo = await connection.execute(userCheckQuery, [email], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(userInfo);
+    if (userInfo.rows.length == 0) {
+      //user does not exist
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "USER DOES NOT EXIST",
+        ResponseStatus: resp.statusCode,
+      };
+    } else {
+      let passwordKey = userInfo.rows[0].PASSWORD_KEY;
+      let user_id = userInfo.rows[0].USER_ID;
+      let user_name = userInfo.rows[0].USER_NAME;
+      let email = userInfo.rows[0].EMAIL;
+      let mobile = userInfo.rows[0].MOBILE;
+      let gender = userInfo.rows[0].GENDER;
+      let user_type_id = userInfo.rows[0].USER_TYPE_ID;
+
+      //let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
+      if (userPassword == passwordKey && user_type_id == 3) {
+        responseObj = {
+          ResponseCode: 1,
+          ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
+          UserId: user_id,
+          Username: user_name,
+          Email: email,
+          PasswordKey: passwordKey,
+          Mobile: mobile,
+          Gender: gender,
+          UserTypeId: user_type_id,
+        };
+      } else {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "PASSWORD INCORRECT",
+          ResponseStatus: resp.statusCode,
+        };
+      }
+    }
+    //connection.commit();
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (userExistsAlready == 1) {
+        if (responseObj.ResponseCode == 1) {
+          console.log("USER LOGGED IN SUUCCESSFULLY");
+          resp.send(responseObj);
+        } else {
+          console.log("NOT LOGGED IN");
+          resp.send(responseObj);
+        }
+      } else {
+        console.log("NOT LOGGED IN");
+        resp.send(responseObj);
+      }
+    }
+  }
+}
+
 async function changePassword(req, resp) {
   let connection;
   const saltRounds = 5;
@@ -694,6 +790,7 @@ async function getUserInfo(req, resp) {
 module.exports = {
   signUp,
   signIn,
+  adminSignIn,
   changePassword,
   addEmployee,
   getJobs,

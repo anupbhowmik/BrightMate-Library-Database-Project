@@ -12,6 +12,7 @@ router.use(express.urlencoded({ extended: true }));
 
 router.post("/api/signUp", bodyParser, userController.signUp);
 router.post("/api/signIn", bodyParser, userController.signIn);
+router.post("/api/adminSignIn", bodyParser, userController.adminSignIn);
 router.post("/api/changePassword", bodyParser, userController.changePassword);
 router.post("/api/addEmployee", bodyParser, userController.addEmployee);
 router.get("/api/getJobs", bodyParser, userController.getJobs);
