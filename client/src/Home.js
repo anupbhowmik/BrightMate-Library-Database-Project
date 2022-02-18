@@ -20,7 +20,7 @@ function Home() {
             </Carousel>
 
             <Books/>
-            {/*<AddBookForm/>*/}
+            <AddBookForm/>
         </div>
     )
 }

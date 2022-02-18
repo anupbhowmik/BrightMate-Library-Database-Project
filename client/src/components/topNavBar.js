@@ -21,7 +21,7 @@ const cookies = new Cookies();
 
 const pages = [
     {title: "All Books", address: "allbooks"},
-    {title: "Categories", address: "#"},
+    // {title: "Categories", address: "#"},
     {title: "About us", address: "about"}];
 const settings = ["Dashboard", "Logout", "Login as Admin"];
 
