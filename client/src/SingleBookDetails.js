@@ -26,11 +26,39 @@ import {useEffect} from "react";
 
 export default function SingleBookDetails() {
 
-    var [singleBook, setBook] = React.useState(null);
+    var [singleBook, setBook] = React.useState({
+        CopyObject: [],
+        GenreObject: [],
+        AuthorObject: [],
+    });
 
     var [state, setState] = React.useState({
         copies: null
     });
+
+    useEffect(() => {
+
+        setLoading(true);
+        console.log("book id ", transferData.BookID)
+
+        axios.post("/api/getBookInfo", {
+            BOOK_ID: transferData.BookID
+        }).then((res) => {
+            setLoading(false);
+            if (res.data.ResponseCode !== 0) {
+                setBook(res.data)
+
+            } else {
+                showToast(" Book loading failed");
+            }
+            console.log(res.data)
+
+
+        }).catch((e) => {
+            console.log(e)
+        })
+
+    }, []);
 
     function addCopy(edition) {
         setOpen(false);
@@ -126,8 +154,7 @@ export default function SingleBookDetails() {
         console.log("book id ", transferData.BookID)
         axios.post("/api/getBookInfo", {
             BOOK_ID: transferData.BookID
-        })
-            .then((res) => {
+        }).then((res) => {
                 setLoading(false);
                 if (res.data.ResponseCode !== 0) {
                     setBook(res.data)

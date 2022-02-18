@@ -11,6 +11,7 @@ import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 
 function UserDashboard() {
 
+    var issueDate = "1"
     var [userDetails, setUserDetails] = useState(
         {
             ResponseCode: 0,
@@ -100,7 +101,7 @@ function UserDashboard() {
                                 {userInfo.Username}
                             </Typography>
 
-                            <Chip sx={{mb: 1, mt: 1}} label="ID: 1805082" variant="outlined"/>
+                            <Chip sx={{mb: 1, mt: 1}} label={"Library card: " + userDetails.LibraryCardNumber} variant="outlined"/>
 
                             <Typography variant="h6" component="div">
                                 E-mail: {userInfo.Email}
@@ -110,88 +111,100 @@ function UserDashboard() {
                         </Card>
                     </center>
                 </Grid>
-
-
-
                 <Grid item xs={1} md={2}></Grid>
 
-                <Grid item xs={12} md={12}>
-                    <h2>Rental History</h2>
-                </Grid>
 
-                <Grid item xs={1} md={2}></Grid>
-                <Grid item xs={12} md={8}>
-                    <div style={{display: "flex", justifyContent: "center"}}>
 
-                        <List fullwidth>
-                            {userDetails.RentalObject?.map((book) => (
 
-                                <Card style={{textAlign: 'left', marginBottom: '10px'}} key={book.BookCopyId}
-                                      elevation={0}
-                                      sx={{minWidth: 700}}>
-                                    <CardActionArea>
-                                        <CardContent>
+                <Grid container padding={1}>
+                    <Grid item xs={0} md={1}></Grid>
+                    <Grid sx={6} md={5}>
 
-                                            <Grid container padding={1}>
-                                                <Grid sx={1} md={1}>
-                                                    <ListItemIcon sx={{mb: 1.2}}>
-                                                        <Avatar sx={{bgcolor: "#3A7CFF"}}>
-                                                            <LibraryBooksIcon/>
-                                                        </Avatar>
-                                                    </ListItemIcon>
+                        <Grid  item xs={12} md={12}>
+                            <h2 align="center">Rental History</h2>
+                        </Grid>
+
+                        <Grid item xs={1} md={2}></Grid>
+                        <Grid item xs={12} md={8}>
+                            <div style={{display: "flex", justifyContent: "center"}}>
+
+                                <List aria-colcount={2} fullwidth>
+                                    {userDetails.RentalObject?.map((rentalObject) => (
+
+                                        <Card style={{textAlign: 'left', marginBottom: '10px'}} key={rentalObject.BookObject[0].BookID}
+                                              elevation={0}
+                                              sx={{minWidth: 700}}>
+
+                                            <CardContent>
+
+                                                <Grid container padding={1}>
+                                                    <Grid sx={1} md={1}>
+                                                        <ListItemIcon sx={{mb: 1.2}}>
+                                                            <Avatar sx={{bgcolor: "#3A7CFF"}}>
+                                                                <LibraryBooksIcon/>
+                                                            </Avatar>
+                                                        </ListItemIcon>
+                                                    </Grid>
+
+                                                    <Grid sx={6} md={8}>
+                                                        <b><strong><Typography variant="h6" component="div">
+                                                            {rentalObject.BookObject[0].Title}
+                                                        </Typography> </strong></b>
+                                                    </Grid>
                                                 </Grid>
 
-                                                <Grid sx={6} md={8}>
-                                                    <b><strong><Typography variant="h6" component="div">
-                                                        {book.BookTitle}
-                                                    </Typography> </strong></b>
-                                                </Grid>
-                                            </Grid>
+                                                <List>
+                                                    {rentalObject.BookObject[0].AuthorObject.map((singleAuthor) => (
+                                                        <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
+                                                        />
+                                                    ))}
+
+                                                </List>
+
+                                                <Typography variant="body1" component="div">
+                                                    {/*{issueDate = rentalObject.IssueDate.split("T")}*/}
+                                                    {"Issue Date: " + rentalObject.IssueDate}
+                                                </Typography>
+
+                                                {rentalObject.RentalStatus === 1? <Chip variant="outlined" color="primary" sx={{mr: 1.5, mt: 1 }} label="Pending Return"/> : <div> </div>}
+                                                {rentalObject.RentalStatus === 2? <Chip color="error" sx={{mr: 1.5, mt: 1 }} label="Overdue"/>  : <div> </div>}
+                                                {rentalObject.RentalStatus === 3? <Chip variant="outlined" color="success" sx={{mr: 1.5, mt: 1 }} label= {"Returned on" + rentalObject.ReturnDate}/>  : <div> </div>}
 
 
-                                            {/*<List>*/}
-                                            {/*    {book.AuthorObject.map((singleAuthor) => (*/}
-                                            {/*        <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}*/}
-                                            {/*        />*/}
-                                            {/*    ))}*/}
-
-                                            {/*</List>*/}
+                                            </CardContent>
 
 
-                                        </CardContent>
-                                    </CardActionArea>
-                                    {/*<CardActions>*/}
-                                    {/*    <center>*/}
-                                    {/*        <Button size="large" color="primary">*/}
-                                    {/*            <MdOutlineAddTask/>*/}
-                                    {/*            &nbsp;&nbsp;&nbsp; Add to collection*/}
-                                    {/*        </Button>*/}
-                                    {/*    </center>*/}
-                                    {/*</CardActions>*/}
-                                </Card>
-                            ))}
-                        </List>
-                    </div>
+                                        </Card>
+                                    ))}
+                                </List>
+                            </div>
+                        </Grid>
+
+                        <Grid item xs={1} md={2}></Grid>
+
+                        <Grid item xs={0} md={4}></Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <center>
+                                <Button
+                                    onClick={showRentalHistory}
+                                    variant="contained"
+                                    id="showRentalHistoryBtn"
+                                    disableElevation>
+                                    {isLoaded ? <div>Refresh Rental list</div> : <div>Show Rental History</div>}
+
+                                </Button>
+                            </center>
+                        </Grid>
+                        <Grid item xs={0} md={4}></Grid>
+
+                    </Grid>
+
+                    <Grid item xs={0} md={1}></Grid>
+
+                    <Grid sx={6} md={5}></Grid>
+
                 </Grid>
-
-                <Grid item xs={1} md={2}></Grid>
-
-                <Grid item xs={0} md={4}></Grid>
-
-                <Grid item xs={12} md={4}>
-                    <center>
-                        <Button
-                            onClick={showRentalHistory}
-                            variant="contained"
-                            id="showRentalHistoryBtn"
-                            disableElevation>
-                            {isLoaded ? <div>Refresh Rental list</div> : <div>Show Rental History</div>}
-
-                        </Button>
-                    </center>
-                </Grid>
-                <Grid item xs={0} md={4}></Grid>
-
 
             </Grid>
         </div>
