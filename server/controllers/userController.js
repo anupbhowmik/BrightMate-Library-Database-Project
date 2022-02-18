@@ -680,6 +680,12 @@ async function getUserInfo(req, resp) {
     });
     let user = userResult.rows[0];
 
+    let readerQuery = "SELECT * FROM USER_READERS WHERE USER_ID = :user_id";
+    let readerResult = await connection.execute(readerQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    let reader = readerResult.rows[0];
+
     let rentalQuery = "SELECT * FROM RENTAL_HISTORY WHERE USER_ID = :user_id";
     let rentalResult = await connection.execute(rentalQuery, [user_id], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -690,16 +696,110 @@ async function getUserInfo(req, resp) {
         let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
         let bookCopyId = rentalResult.rows[j].BOOK_COPY_ID;
 
-        let bookTitleQuery = "SELECT b.BOOK_TITLE FROM BOOKS b, BOOK_COPY bc WHERE bc.BOOK_COPY_ID = :bookCopyId AND b.BOOK_ID = bc.BOOK_ID";
-    let bookTitleResult = await connection.execute(bookTitleQuery, [bookCopyId], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
-      let bookTitle = bookTitleResult.rows[0].BOOK_TITLE;
-      
+        let bookInfoQuery =
+          "SELECT * FROM BOOKS b, BOOK_COPY bc WHERE bc.BOOK_COPY_ID = :bookCopyId AND b.BOOK_ID = bc.BOOK_ID";
+        let bookInfoResult = await connection.execute(
+          bookInfoQuery,
+          [bookCopyId],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        let bookInfo = bookInfoResult.rows[0];
+        let book_id = bookInfo.BOOK_ID;
+
+        authorSelectQuery =
+          "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
+        let authorSelectResult = await connection.execute(
+          authorSelectQuery,
+          [book_id],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        let authorObject = [];
+        if (authorSelectResult.rows.length != 0) {
+          for (let j = 0; j < authorSelectResult.rows.length; j++) {
+            let authorId = authorSelectResult.rows[j].AUTHOR_ID;
+            let authorQuery =
+              "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
+            authorNameResult = await connection.execute(
+              authorQuery,
+              [authorId],
+              {
+                outFormat: oracledb.OUT_FORMAT_OBJECT,
+              }
+            );
+            let authorName = authorNameResult.rows[0].AUTHOR_NAME;
+            authorObject.push({
+              AuthorId: authorId,
+              AuthorName: authorName,
+            });
+          }
+        }
+
+        let publisherId = bookInfo.PUBLISHER_ID;
+        let publisherName;
+        if (publisherId != undefined) {
+          let publisherQuery =
+            "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
+          publisherName = await connection.execute(
+            publisherQuery,
+            [publisherId],
+            {
+              outFormat: oracledb.OUT_FORMAT_OBJECT,
+            }
+          );
+          publisherName = publisherName.rows[0].PUBLISHER_NAME;
+        }
+
+        genreSelectQuery = "SELECT * FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
+        let genreSelectResult = await connection.execute(
+          genreSelectQuery,
+          [book_id],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        let genreObject = [];
+        if (genreSelectResult.rows.length != 0) {
+          for (let j = 0; j < genreSelectResult.rows.length; j++) {
+            let genreId = genreSelectResult.rows[j].GENRE_ID;
+            let genreQuery =
+              "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
+            genreNameResult = await connection.execute(genreQuery, [genreId], {
+              outFormat: oracledb.OUT_FORMAT_OBJECT,
+            });
+            let genreName = genreNameResult.rows[0].GENRE_NAME;
+            genreObject.push({
+              GenreId: genreId,
+              GenreName: genreName,
+            });
+          }
+        }
+
+        let bookObject = [];
+        bookObject.push({
+          BookID: bookInfo.BOOK_ID,
+          Title: bookInfo.BOOK_TITLE,
+          YearOfPublication: bookInfo.YEAR_OF_PUBLICATION,
+          Description: bookInfo.DESCRIPTION,
+          Language: bookInfo.LANGUAGE,
+          Publisher: bookInfo.PUBLISHER_ID,
+          ISBN: bookInfo.ISBN,
+          Edition: bookInfo.EDITION,
+          AuthorObject: authorObject,
+          GenreObject: genreObject,
+          PublisherName: publisherName,
+        });
+
         rentalObject.push({
           RentalId: rentalId,
           BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
-          BookTitle : bookTitle,
+          BookObject: bookObject,
           IssueDate: rentalResult.rows[j].ISSUE_DATE,
           ReturnDate: rentalResult.rows[j].RETURN_DATE,
           RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
@@ -741,6 +841,8 @@ async function getUserInfo(req, resp) {
       PasswordKey: user.PASSWORD_KEY,
       Mobile: user.MOBILE,
       Gender: user.GENDER,
+      LibraryCardNumber: reader.LIBRARY_CARD_NUMBER,
+      MembershipTakenDate: reader.MEMBERSHIP_TAKEN_DATE,
       RentalObject: rentalObject,
       FineObject: fineObject,
     };
