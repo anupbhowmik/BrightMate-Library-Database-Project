@@ -414,7 +414,7 @@ const authorList = async () => {
   </div> 
   <div class="row">
   <p align="center">
-  <button style="width:50%;" class="btn btn-info" onclick="addNewAuthor()" data-bs-toggle="modal" data-bs-target="#addNewAuthorModal"> Add A New Author</button>
+  <button style="width:50%;" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewAuthorModal"> Add A New Author</button>
   </p>
   </div> 
   <hr>`;
@@ -435,12 +435,24 @@ const authorList = async () => {
 
   let count = 1;
   ResponseObj.AuthorList.forEach((element) => {
+    let dateOfBirth = element.DateOfBirth;
+    if (dateOfBirth != null) {
+      dateOfBirth = dateOfBirth.split("T");
+      dateOfBirth = dateOfBirth[0];
+    }
+
+    let dateOfDeath = element.DateOfDeath;
+    if (dateOfDeath != null) {
+      dateOfDeath = dateOfDeath.split("T");
+      dateOfDeath = dateOfDeath[0];
+    }
+
     design += `<tr>
                         <th scope="row">${count}</th>
                         <td id="">${element.AuthorID}</td>
                         <td>${element.AuthorName}</td>
-                        <td>${element.DateOfBirth}</td>
-                        <td>${element.DateOfDeath}</td>
+                        <td>${dateOfBirth}</td>
+                        <td>${dateOfDeath}</td>
                         <td>${element.Bio}</td>
                         <td>
                         <button id="edit_${element.AuthorID}" value="${element.AuthorID}" onclick="editAuthor(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editAuthorModal">Edit</button>
@@ -530,6 +542,41 @@ const saveAuthorInfo = async () => {
   }
 };
 
+const addNewAuthor = async () => {
+  let AUTHOR_NAME = $("#new_authorName").val();
+  let DATE_OF_BIRTH = $("#new_dateOfBirth").val();
+  let DATE_OF_DEATH = $("#new_dateOfDeath").val();
+  let BIO = $("#new_bio").val();
+
+  let authorObj = {
+    AUTHOR_NAME: AUTHOR_NAME,
+    DATE_OF_BIRTH: DATE_OF_BIRTH,
+    DATE_OF_DEATH: DATE_OF_DEATH,
+    BIO: BIO,
+  };
+
+  console.log(authorObj);
+  authorObj = JSON.stringify(authorObj);
+
+  const responseAuthor = await fetch("http://localhost:5000/api/addAuthor", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: authorObj,
+  });
+
+  responseObj = await responseAuthor.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    authorList();
+  } else {
+    window.alert(responseObj.ResponseDesc);
+  }
+};
+
 const publisherList = async () => {
   const MainContent = document.getElementById("mainContents");
 
@@ -547,7 +594,7 @@ const publisherList = async () => {
   </div> 
   <div class="row">
   <p align="center">
-  <button style="width:50%;" class="btn btn-info" onclick="addNewPublisher()" data-bs-toggle="modal" data-bs-target="#addNewPublisherModal"> Add A New Publisher</button>
+  <button style="width:50%;" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewPublisherModal"> Add A New Publisher</button>
   </p>
   </div> 
   <hr>`;
@@ -660,6 +707,45 @@ const savePublisherInfo = async () => {
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
     publisherList();
+  } else {
+    window.alert(responseObj.ResponseDesc);
+  }
+};
+
+const addNewPublisher = async () => {
+  let PUBLISHER_NAME = $("#new_publisherName").val();
+  let PHONE = $("#new_phone").val();
+  let ADDRESS_LINE = $("#new_addressLine").val();
+  let CITY = $("#new_city").val();
+  let POSTAL_CODE = $("#new_postalCode").val();
+  let COUNTRY = $("#new_country").val();
+
+  let publisherObj = {
+    PUBLISHER_NAME: PUBLISHER_NAME,
+    PHONE: PHONE,
+    ADDRESS_LINE: ADDRESS_LINE,
+    CITY: CITY,
+    POSTAL_CODE: POSTAL_CODE,
+    COUNTRY: COUNTRY,
+  };
+
+  console.log(publisherObj);
+  publisherObj = JSON.stringify(publisherObj);
+
+  const responsePublisher = await fetch("http://localhost:5000/api/addPublisher", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: publisherObj,
+  });
+
+  responseObj = await responsePublisher.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    authorList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
