@@ -159,104 +159,6 @@
         </div>
     </div>
 
-    <div class="modal lg fade" id="editAuthorModal" tabindex="-1" aria-labelledby="editAuthorModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editAuthorModalLabel">Edit Author</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <input type="hidden" id="authorId" value="">
-                                <label for="authorName" class="col-form-label">Author Name:</label>
-                                <input type="text" class="form-control" id="authorName">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="dateOfBirth" class="col-form-label">Date Of Birth:</label>
-                                <input type="date" class="form-control" id="dateOfBirth">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="dateOfDeath" class="col-form-label">Date Of Death:</label>
-                                <input type="date" class="form-control" id="dateOfDeath">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label for="bio" class="col-form-label">Bio:</label>
-                                <input type="textarea" class="form-control" id="bio">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button onclick="saveAuthorInfo()" type="button" data-bs-dismiss="modal"
-                        class="btn btn-primary">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal lg fade" id="editPublisherModal" tabindex="-1" aria-labelledby="editPublisherModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editPublisherModalLabel">Edit Publisher</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <input type="hidden" id="publisherId" value="">
-                                <label for="publisherName" class="col-form-label">Publisher Name:</label>
-                                <input type="text" class="form-control" id="publisherName">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label for="phone" class="col-form-label">Phone:</label>
-                                <input type="text" class="form-control" id="phone">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="addressLine" class="col-form-label">Address Line:</label>
-                                <input type="text" class="form-control" id="addressLine">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="city" class="col-form-label">City:</label>
-                                <input type="text" class="form-control" id="city">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="postalCode" class="col-form-label">Postal Code:</label>
-                                <input type="text" class="form-control" id="postalCode">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="country" class="col-form-label">Country:</label>
-                                <input type="text" class="form-control" id="country">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button onclick="savePublisherInfo()" type="button" data-bs-dismiss="modal"
-                        class="btn btn-primary">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="modal lg fade" id="addNewBookModal" tabindex="-1" aria-labelledby="addNewBookModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -348,6 +250,200 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button onclick="addBookCopies()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal lg fade" id="editAuthorModal" tabindex="-1" aria-labelledby="editAuthorModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAuthorModalLabel">Edit Author</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" id="authorId" value="">
+                                <label for="authorName" class="col-form-label">Author Name:</label>
+                                <input type="text" class="form-control" id="authorName">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="dateOfBirth" class="col-form-label">Date Of Birth:</label>
+                                <input type="date" class="form-control" id="dateOfBirth">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="dateOfDeath" class="col-form-label">Date Of Death:</label>
+                                <input type="date" class="form-control" id="dateOfDeath">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="bio" class="col-form-label">Bio:</label>
+                                <input type="textarea" class="form-control" id="bio">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="saveAuthorInfo()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal lg fade" id="addNewAuthorModal" tabindex="-1" aria-labelledby="addNewAuthorModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNewAuthorModalLabel">Add A New Author</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="new_authorName" class="col-form-label">Author Name:</label>
+                                <input type="text" class="form-control" id="new_authorName">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="new_dateOfBirth" class="col-form-label">Date Of Birth:</label>
+                                <input type="date" class="form-control" id="new_dateOfBirth">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="new_dateOfDeath" class="col-form-label">Date Of Death:</label>
+                                <input type="date" class="form-control" id="new_dateOfDeath">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="new_bio" class="col-form-label">Bio:</label>
+                                <input type="textarea" class="form-control" id="new_bio">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="addNewAuthor()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal lg fade" id="editPublisherModal" tabindex="-1" aria-labelledby="editPublisherModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPublisherModalLabel">Edit Publisher</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" id="publisherId" value="">
+                                <label for="publisherName" class="col-form-label">Publisher Name:</label>
+                                <input type="text" class="form-control" id="publisherName">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="phone" class="col-form-label">Phone:</label>
+                                <input type="text" class="form-control" id="phone">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="addressLine" class="col-form-label">Address Line:</label>
+                                <input type="text" class="form-control" id="addressLine">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="city" class="col-form-label">City:</label>
+                                <input type="text" class="form-control" id="city">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="postalCode" class="col-form-label">Postal Code:</label>
+                                <input type="text" class="form-control" id="postalCode">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="col-form-label">Country:</label>
+                                <input type="text" class="form-control" id="country">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="savePublisherInfo()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal lg fade" id="addNewPublisherModal" tabindex="-1" aria-labelledby="addNewPublisherModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNewPublisherModalLabel">Add A New Publisher</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="new_publisherName" class="col-form-label">Publisher Name:</label>
+                                <input type="text" class="form-control" id="new_publisherName">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="new_phone" class="col-form-label">Phone:</label>
+                                <input type="text" class="form-control" id="new_phone">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="new_addressLine" class="col-form-label">Address Line:</label>
+                                <input type="text" class="form-control" id="new_addressLine">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="new_city" class="col-form-label">City:</label>
+                                <input type="text" class="form-control" id="new_city">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="new_postalCode" class="col-form-label">Postal Code:</label>
+                                <input type="text" class="form-control" id="new_postalCode">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="new_country" class="col-form-label">Country:</label>
+                                <input type="text" class="form-control" id="new_country">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="addNewPublisher()" type="button" data-bs-dismiss="modal"
                         class="btn btn-primary">Save</button>
                 </div>
             </div>

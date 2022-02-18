@@ -232,7 +232,7 @@ async function addPublisher(req, resp) {
       PublisherName: publisher_name,
       PublisherId: publisher_id,
       Phone: phone,
-      Address: address,
+      AddressLine: addressLine,
     };
   } catch (err) {
     console.log(err);
