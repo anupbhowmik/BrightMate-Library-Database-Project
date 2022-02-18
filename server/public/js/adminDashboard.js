@@ -52,7 +52,17 @@ const bookList = async () => {
   let ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  let design = `<table class="table" style="font-size:smaller">
+  let design = `<div class="row"> 
+  <h2 align="center"> BOOKS </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="openAddNewBookModal()" data-bs-toggle="modal" data-bs-target="#addNewBookModal"> Add A New Book</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
                     <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -93,11 +103,13 @@ const bookList = async () => {
                         <td>${element.Publisher}</td>
                         <td>${element.ISBN}</td>
                         <td>${genre}</td>
-                        <td>${copyCount}</td>
+                        <td>${copyCount}<br>
+                        <button id="copies_${element.BookID}" value="${element.BookID}" onclick="openBookCopyModal(this.value)" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addBookCopiesModal">Add</button>
+                        </td>
                         <td>${element.YearOfPublication}</td>
                         <td>${element.Language}</td>
                         <td>
-                        <button id="edit_${element.BookID}" value="${element.BookID}" onclick="editBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editModal">Edit</button>
+                        <button id="edit_${element.BookID}" value="${element.BookID}" onclick="editBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editBookModal">Edit</button>
                         <button id="delete_${element.BookID}" value="${element.BookID}" onclick="deleteBook(this.value)" class="btn btn-danger btn-sm">Delete</button>
                         </td>
                     </tr>`;
@@ -108,348 +120,6 @@ const bookList = async () => {
   design += `</tbody>
                 </table>`;
   MainContent.innerHTML = design;
-};
-
-const employeeList = async () => {
-  const MainContent = document.getElementById("mainContents");
-
-  const response = await fetch("http://localhost:3000/api/getAllEmployees", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  RequestObj = await response.json();
-  console.log(RequestObj);
-
-  let design = `<table class="table" style="font-size:larger">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Employee ID</th>
-                        <th scope="col">Full Name</th>
-                        <th scope="col">Username</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Phone Number</th>
-                        <th scope="col">Hire Date</th>
-                        <th scope="col">Full Location</th>
-                        <th scope="col">Service Desc</th>
-                        <th scope="col">Department Name</th>
-                        <th scope="col">Job Title</th>
-                        <th scope="col">Shift</th>
-                        <th scope="col">Total Request Accepted</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>`;
-
-  let count = 1;
-  RequestObj.ResponseData.forEach((element) => {
-    design += `<tr>
-                        <th scope="row">${count}</th>
-                        <td>${element.MEMBER_ID}</td>
-                        <td>${element.USER_FULLNAME}</td>
-                        <td>${element.USER_NAME}</td>
-                        <td>${element.EMAIL}</td>
-                        <td>${element.PHONE_NUMBER}</td>
-                        <td>${element.HIRE_DATE}</td>
-                        <td>${element.FULL_LOCATION}</td>
-                        <td>${element.SERVICE_DESC}</td>
-                        <td>${element.DEPARTMENT_NAME}</td>
-                        <td>${element.JOB_TITLE}</td>
-                        <td>${element.SHIFT_DESC}</td>
-                        <td>${element.REQ_COUNT}</td>
-                        <td>
-                        <button id="employee_id_${element.MEMBER_ID}" value="${element.MEMBER_ID}" onclick="editEmployee(this.value, 1)" class="btn btn-info m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit Info</button>
-                        <button id="employee_id_${element.MEMBER_ID}" value="${element.MEMBER_ID}" onclick="actionEmployee(this.value, 0)" class="btn btn-danger">Unapprove</button>
-                        </td>
-                    </tr>`;
-
-    count++;
-  });
-
-  design += `</tbody>
-                </table>`;
-  MainContent.innerHTML = design;
-};
-
-const unapprovedEmployeeList = async () => {
-  const MainContent = document.getElementById("mainContents");
-
-  const response = await fetch(
-    "http://localhost:3000/api/getAllUnapprovedEmployees",
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  RequestObj = await response.json();
-  console.log(RequestObj);
-
-  let design = "";
-
-  if (RequestObj.ResponseCode) {
-    design = `<table class="table" style="font-size:larger">
-                      <thead>
-                      <tr>
-                          <th scope="col">#</th>
-                          <th scope="col">Employee ID</th>
-                          <th scope="col">Full Name</th>
-                          <th scope="col">Username</th>
-                          <th scope="col">Email</th>
-                          <th scope="col">Phone Number</th>
-                          <th scope="col">Registration Date</th>
-                          <th scope="col">Full Location</th>
-                          <th scope="col">Service Desc</th>
-                          <th scope="col">Department Name</th>
-                          <th scope="col">Job Title</th>
-                          <th scope="col">Shift</th>
-                          <th scope="col">Action</th>
-                      </tr>
-                      </thead>
-                      <tbody>`;
-
-    let count = 1;
-    RequestObj.ResponseData.forEach((element) => {
-      design += `<tr>
-                          <th scope="row">${count}</th>
-                          <td>${element.MEMBER_ID}</td>
-                          <td>${element.USER_FULLNAME}</td>
-                          <td>${element.USER_NAME}</td>
-                          <td>${element.EMAIL}</td>
-                          <td>${element.PHONE_NUMBER}</td>
-                          <td>${element.REGISTRATION_DATE}</td>
-                          <td>${element.FULL_LOCATION}</td>
-                          <td>${element.SERVICE_DESC}</td>
-                          <td>${element.DEPARTMENT_NAME}</td>
-                          <td>${element.JOB_TITLE}</td>
-                          <td>${element.SHIFT_DESC}</td>
-                          <td><button id="employee_id_${element.MEMBER_ID}" value="${element.MEMBER_ID}" onclick="actionEmployee(this.value, 1)" class="btn btn-info">Approve</button></td>
-                      </tr>`;
-
-      count++;
-    });
-
-    design += `</tbody>
-                  </table>`;
-  } else {
-    design = "No Data Found";
-  }
-
-  MainContent.innerHTML = design;
-};
-
-const customerCareList = async () => {
-  const MainContent = document.getElementById("mainContents");
-
-  const response = await fetch(
-    "http://localhost:3000/api/getAllCustomerCares",
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  RequestObj = await response.json();
-  console.log(RequestObj);
-
-  let design = "";
-
-  if (RequestObj.ResponseCode) {
-    design = `<table class="table" style="font-size:larger">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Employee ID</th>
-                        <th scope="col">Full Name</th>
-                        <th scope="col">Username</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Phone Number</th>
-                        <th scope="col">Hire Date</th>
-                        <th scope="col">Full Location</th>
-                        <th scope="col">Service Desc</th>
-                        <th scope="col">Department Name</th>
-                        <th scope="col">Job Title</th>
-                        <th scope="col">Shift</th>
-                    </tr>
-                    </thead>
-                    <tbody>`;
-
-    let count = 1;
-    RequestObj.ResponseData.forEach((element) => {
-      design += `<tr>
-                        <th scope="row">${count}</th>
-                        <td>${element.MEMBER_ID}</td>
-                        <td>${element.USER_FULLNAME}</td>
-                        <td>${element.USER_NAME}</td>
-                        <td>${element.EMAIL}</td>
-                        <td>${element.PHONE_NUMBER}</td>
-                        <td>${element.HIRE_DATE}</td>
-                        <td>${element.FULL_LOCATION}</td>
-                        <td>${element.SERVICE_DESC}</td>
-                        <td>${element.DEPARTMENT_NAME}</td>
-                        <td>${element.JOB_TITLE}</td>
-                        <td>${element.SHIFT_DESC}</td>
-                    </tr>`;
-
-      count++;
-    });
-
-    design += `</tbody>
-                </table>`;
-  } else {
-    design = "No Data Found";
-  }
-  MainContent.innerHTML = design;
-};
-
-const vehicleList = async () => {
-  const MainContent = document.getElementById("mainContents");
-
-  const response = await fetch("http://localhost:3000/api/getAllVehicle", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  RequestObj = await response.json();
-  console.log(RequestObj);
-
-  let design = "";
-
-  if (RequestObj.ResponseCode) {
-    design = `<table class="table" style="font-size:larger">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Vehicle ID</th>
-                        <th scope="col">Driver Member ID</th>
-                        <th scope="col">Driver Name</th>
-                        <th scope="col">Driver Phone Number</th>
-                        <th scope="col">Driver Email</th>
-                        <th scope="col">Driver Hire Date</th>
-                        <th scope="col">Service Desc</th>
-                        <th scope="col">Department Name</th>
-                        <th scope="col">Shift</th>
-                        <th scope="col">Request Accepted</th>
-                    </tr>
-                    </thead>
-                    <tbody>`;
-
-    let count = 1;
-    RequestObj.ResponseData.forEach((element) => {
-      design += `<tr>
-                        <th scope="row">${count}</th>
-                        <td>${element.VEHICLE_ID}</td>
-                        <td>${element.MEMBER_ID}</td>
-                        <td>${element.DRIVER_NAME}</td>
-                        <td>${element.PHONE_NUMBER}</td>
-                        <td>${element.EMAIL}</td>
-                        <td>${element.HIRE_DATE}</td>
-                        <td>${element.SERVICE_DESC}</td>
-                        <td>${element.DEPARTMENT_NAME}</td>
-                        <td>${element.SHIFT_DESC}</td>
-                        <td>${element.REQ_COUNT}</td>
-                    </tr>`;
-
-      count++;
-    });
-
-    design += `</tbody>
-                </table>`;
-  } else {
-    design = "No Data Found";
-  }
-  MainContent.innerHTML = design;
-};
-
-const serviceDetails = async () => {
-  const MainContent = document.getElementById("mainContents");
-
-  const response = await fetch("http://localhost:3000/api/getServices", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  RequestObj = await response.json();
-  console.log(RequestObj);
-
-  let design = `<h4> Services </h4>`;
-  let selectDesign = ``;
-  design += `<table class="table" style="font-size:larger">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Service ID</th>
-                        <th scope="col">Description</th>
-                    </tr>
-                    </thead>
-                    <tbody>`;
-
-  let count = 1;
-
-  RequestObj.forEach((element) => {
-    design += `<tr>
-                      <th scope="row">${count}</th>
-                      <td>${element.SERVICE_ID}</td>
-                      <td>${element.DESCRIPTION}</td>
-                  </tr>`;
-    selectDesign += `<option value="${element.SERVICE_ID}">${element.DESCRIPTION}</option>`;
-    count++;
-  });
-
-  design += `</tbody>
-                </table>`;
-
-  design += "<hr> <h5> Select a Service to see Departments</h5>";
-  design += `<select onchange="showDeptTable(this.value)" id="service_name_2" class="form-control" aria-label="Default select example"></select> <hr> <div id="deptTable"></div>`;
-
-  MainContent.innerHTML = design;
-  document.getElementById("service_name_2").innerHTML = selectDesign;
-};
-
-const actionEmployee = async (empId, status) => {
-  console.log(empId);
-
-  let emplpyeeObj = {
-    employee_id: empId,
-    approval_status: status,
-  };
-  emplpyeeObj = JSON.stringify(emplpyeeObj);
-  console.log(emplpyeeObj);
-
-  const response = await fetch(
-    "http://localhost:3000/api/updateEmployeeStatus",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: emplpyeeObj,
-    }
-  );
-  RequestObj = await response.json();
-  console.log(RequestObj);
-
-  if (RequestObj.ResponseCode == 1) {
-    window.alert(RequestObj.ResponseText);
-
-    if (status) {
-      unapprovedEmployeeList();
-    } else {
-      employeeList();
-    }
-  } else if (RequestObj.ResponseCode == -1) {
-    window.alert(RequestObj.ResponseText);
-    window.alert(RequestObj.ErrorMessage);
-  } else {
-    window.alert(RequestObj.ResponseText);
-  }
 };
 
 const editBook = async (bookId) => {
@@ -472,9 +142,8 @@ const editBook = async (bookId) => {
   ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  //Get Publishers from API
-  showPublishers();
-  showGenre();
+  showPublishers("publisher");
+  showGenre("genre");
 
   let authors = "";
   for (let i = 0; i < ResponseObj.AuthorObject.length; i++) {
@@ -484,14 +153,76 @@ const editBook = async (bookId) => {
   $("#book_id").val(ResponseObj.BookID);
   $("#title").val(ResponseObj.Title);
   $("#authors").val(authors);
-  $("#genre").val();
   $("#year").val(ResponseObj.YearOfPublication);
   $("#description").val(ResponseObj.Description);
   $("#language").val(ResponseObj.Language);
   $("#isbn").val(ResponseObj.ISBN);
 };
 
-const showPublishers = async () => {
+const openAddNewBookModal = async () => {
+  await showPublishers("new_publisher");
+  await showAuthors();
+  await showGenre("new_genre");
+};
+
+const addNewBook = async () => {
+  let BOOK_TITLE = $("#new_title").val();
+  let YEAR = $("#new_year").val();
+  let ISBN = $("#new_isbn").val();
+  let DESCRIPTION = $("#new_description").val();
+  let LANGUAGE = $("#new_language").val();
+  let PUBLISHER_ID = $("#new_publisher").val();
+  let AUTHOR_ID = [];
+  var markedCheckbox = document.getElementsByName("new_authorCheckbox");
+  for (var checkbox of markedCheckbox) {
+    if (checkbox.checked) AUTHOR_ID.push(checkbox.value);
+  }
+  let GENRE = [];
+  var markedCheckbox2 = document.getElementsByName("new_genreCheckbox");
+  for (var checkbox2 of markedCheckbox2) {
+    if (checkbox2.checked) GENRE.push(checkbox2.value);
+  }
+
+  if(BOOK_TITLE != "" && YEAR != "" && ISBN != "" && LANGUAGE != "" && PUBLISHER_ID != "" && AUTHOR_ID.length != 0 && GENRE.length != 0){
+
+  let bookObj = {
+    BOOK_TITLE: BOOK_TITLE,
+    YEAR: YEAR,
+    DESCRIPTION: DESCRIPTION,
+    LANGUAGE: LANGUAGE,
+    PUBLISHER_ID: PUBLISHER_ID,
+    GENRE: GENRE,
+    ISBN: ISBN,
+    AUTHOR_ID: AUTHOR_ID,
+  };
+
+  console.log(bookObj);
+
+  bookObj = JSON.stringify(bookObj);
+
+  const responseBook = await fetch("http://localhost:5000/api/addBook", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: bookObj,
+  });
+
+  responseObj = await responseBook.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    bookList();
+  } else {
+    window.alert(responseObj.ResponseDesc);
+  }
+}else {
+  window.alert("Empty Field");
+}
+};
+
+const showPublishers = async (docId) => {
   const responseDepartments = await fetch(
     "http://localhost:5000/api/getPublishers",
     {
@@ -503,104 +234,57 @@ const showPublishers = async () => {
   );
   ResponseObj = await responseDepartments.json();
 
-  console.log(ResponseObj);
-
   let pubDesign = "";
 
   ResponseObj.PublisherList.forEach((pub) => {
     pubDesign += `<option value="${pub.PublisherID}">${pub.PublisherName}</option>`;
   });
 
-  document.getElementById("publisher").innerHTML = pubDesign;
+  document.getElementById(docId).innerHTML = pubDesign;
 };
 
-const showGenre = async () => {
-  const responseDepartments = await fetch(
-    "http://localhost:5000/api/getGenre",
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  ResponseObj = await responseDepartments.json();
-
-  console.log(ResponseObj);
-
-  let genreDesign = "";
-
-  ResponseObj.GenreList.forEach((genre) => {
-    genreDesign += `<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="genre_${genre.GenreID}">
-    <label class="form-check-label" for="genre_${genre.GenreID}">
-    ${genre.GenreName}
-    </label>
-  </div>`;
-  });
-
-  document.getElementById("genre").innerHTML = genreDesign;
-};
-
-const showJob = async (dept_id, job_id) => {
-  console.log(dept_id);
-
-  let departmentObj = {
-    department_id: dept_id,
-  };
-
-  departmentObj = JSON.stringify(departmentObj);
-
-  const responseJobs = await fetch(
-    "http://localhost:3000/api/getDepartmentJobs",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: departmentObj,
-    }
-  );
-  JobObj = await responseJobs.json();
-
-  console.log(JobObj);
-
-  let jobDesign = "";
-
-  JobObj.forEach((job) => {
-    if (job_id == job.JOB_ID) {
-      jobDesign += `<option selected value="${job.JOB_ID}">${job.JOB_TITLE}</option>`;
-    } else {
-      jobDesign += `<option value="${job.JOB_ID}">${job.JOB_TITLE}</option>`;
-    }
-  });
-
-  document.getElementById("job_title").innerHTML = jobDesign;
-};
-
-const showShift = async (shift_id) => {
-  console.log(shift_id);
-
-  const responseShift = await fetch("http://localhost:3000/api/getShifts", {
+const showAuthors = async () => {
+  const responseAuthors = await fetch("http://localhost:5000/api/getAuthors", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   });
-  ShiftObj = await responseShift.json();
-  console.log(ShiftObj);
+  ResponseObj = await responseAuthors.json();
 
-  let shiftDesign = "";
-
-  ShiftObj.forEach((shift) => {
-    if (shift_id == shift.SHIFT_ID) {
-      shiftDesign += `<option selected value="${shift.SHIFT_ID}">${shift.DESCRIPTION}</option>`;
-    } else {
-      shiftDesign += `<option value="${shift.SHIFT_ID}">${shift.DESCRIPTION}</option>`;
-    }
+  let authorDesign = "";
+  ResponseObj.AuthorList.forEach((author) => {
+    authorDesign += `<div class="form-check">
+    <input class="form-check-input" type="checkbox" value="${author.AuthorID}" id="new_author_${author.AuthorID}" name="new_authorCheckbox">
+    <label class="form-check-label" for="new_author_${author.AuthorID}">
+    ${author.AuthorName}
+    </label>
+    </div>`;
   });
+  document.getElementById("new_authors").innerHTML = authorDesign;
+};
 
-  document.getElementById("shift").innerHTML = shiftDesign;
+const showGenre = async (docId) => {
+  const responseGenre = await fetch("http://localhost:5000/api/getGenre", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  ResponseObj = await responseGenre.json();
+
+  console.log(ResponseObj);
+
+  let genreDesign = "";
+  ResponseObj.GenreList.forEach((genre) => {
+    genreDesign += `<div class="form-check">
+    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="new_genre_${genre.GenreID}" name="new_genreCheckbox">
+    <label class="form-check-label" for="new_genre_${genre.GenreID}">
+    ${genre.GenreName}
+    </label>
+    </div>`;
+  });
+  document.getElementById(docId).innerHTML = genreDesign;
 };
 
 const saveBookInfo = async () => {
@@ -609,7 +293,11 @@ const saveBookInfo = async () => {
   let DESCRIPTION = $("#description").val();
   let LANGUAGE = $("#language").val();
   let PUBLISHER_ID = $("#publisher").val();
-  let GENRE = $("#genre").val();
+  let GENRE = [];
+  var markedCheckbox = document.getElementsByName("genreCheckbox");
+  for (var checkbox of markedCheckbox) {
+    if (checkbox.checked) GENRE.push(checkbox.value);
+  }
 
   let bookObj = {
     BOOK_ID: BOOK_ID,
@@ -618,15 +306,13 @@ const saveBookInfo = async () => {
     LANGUAGE: LANGUAGE,
     PUBLISHER_ID: PUBLISHER_ID,
     GENRE: GENRE,
-    ADMIN_ID: sessionStorage.getItem("adminId"),
-    ADMIN_PASSWORD: sessionStorage.getItem("adminPassword"),
   };
 
   console.log(bookObj);
 
   bookObj = JSON.stringify(bookObj);
 
-  const responseEmployee = await fetch("http://localhost:5000/api/editBook", {
+  const responseBook = await fetch("http://localhost:5000/api/editBook", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -634,137 +320,473 @@ const saveBookInfo = async () => {
     body: bookObj,
   });
 
-  responseObj = await responseEmployee.json();
+  responseObj = await responseBook.json();
   console.log(responseObj);
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    employeeList();
+    bookList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
 };
 
-const showDeptTable = async (service_id) => {
-  console.log(service_id);
+const deleteBook = async (bookId) => {
+  console.log(bookId);
 
-  let serviceObj = {
-    service_id: service_id,
+  //Get Book Info from API
+  let bookObj = {
+    BOOK_ID: bookId,
   };
+  bookObj = JSON.stringify(bookObj);
+  console.log(bookObj);
 
-  serviceObj = JSON.stringify(serviceObj);
-
-  const responseDepartments = await fetch(
-    "http://localhost:3000/api/getServiceDepartments",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: serviceObj,
-    }
-  );
-  DepartmentObj = await responseDepartments.json();
-
-  console.log(DepartmentObj);
-
-  let design = `<h4> Departments </h4>`;
-  let selectDesign = ``;
-
-  design += `<table class="table" style="font-size:larger">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Department ID</th>
-                        <th scope="col">Department Name</th>
-                        <th scope="col">Location</th>
-                    </tr>
-                    </thead>
-                    <tbody>`;
-
-  let count = 1;
-
-  DepartmentObj.forEach((element) => {
-    design += `<tr>
-                      <th scope="row">${count}</th>
-                      <td>${element.DEPARTMENT_ID}</td>
-                      <td>${element.DEPARTMENT_NAME}</td>
-                      <td>${
-                        element.BLOCK +
-                        ", " +
-                        element.STREET +
-                        ", " +
-                        element.HOUSE_NO
-                      }</td>
-                  </tr>`;
-
-    selectDesign += `<option value="${element.DEPARTMENT_ID}">${element.DEPARTMENT_NAME}</option>`;
-    count++;
+  const response = await fetch("http://localhost:5000/api/deleteBook", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: bookObj,
   });
-
-  design += `</tbody>
-                </table>`;
-
-  design += "<hr> <h5> Select a Department to see Jobs</h5>";
-  design += `<select onchange="showJobsTable(this.value)" id="dept_name_2" class="form-control" aria-label="Default select example"></select> <hr> <div id="jobsTable"></div>`;
-
-  document.getElementById("deptTable").innerHTML = design;
-  document.getElementById("dept_name_2").innerHTML = selectDesign;
+  ResponseObj = await response.json();
+  window.alert(responseObj.ResponseDesc);
+  bookList();
 };
 
-const showJobsTable = async (department_id) => {
-  console.log(department_id);
+const openBookCopyModal = async (bookId) => {
+  $("#c_book_id").val(bookId);
+};
 
-  let departmentObj = {
-    department_id: department_id,
-  };
+const addBookCopies = async (bookId) => {
+  let BOOK_ID = $("#c_book_id").val();
+  let COPIES = $("#copies").val();
+  let EDITION = $("#edition").val();
 
-  departmentObj = JSON.stringify(departmentObj);
+  if (COPIES != null && EDITION != null) {
+    let bookObj = {
+      BOOK_ID: BOOK_ID,
+      COPIES: COPIES,
+      EDITION: EDITION,
+    };
 
-  const responseJobs = await fetch(
-    "http://localhost:3000/api/getDepartmentJobs",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: departmentObj,
+    console.log(bookObj);
+    bookObj = JSON.stringify(bookObj);
+
+    const responseBook = await fetch(
+      "http://localhost:5000/api/addBookCopies",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: bookObj,
+      }
+    );
+
+    responseObj = await responseBook.json();
+    console.log(responseObj);
+
+    if (responseObj.ResponseCode == 1) {
+      window.alert(responseObj.ResponseDesc);
+      bookList();
+    } else {
+      window.alert(responseObj.ResponseDesc);
     }
-  );
-  JobsObj = await responseJobs.json();
+  } else {
+    window.alert("Field empty");
+  }
+};
 
-  console.log(JobsObj);
+const authorList = async () => {
+  const MainContent = document.getElementById("mainContents");
 
-  let design = `<h4> Jobs </h4>`;
-  let selectDesign = ``;
+  const response = await fetch("http://localhost:5000/api/getAuthors", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  let ResponseObj = await response.json();
+  console.log(ResponseObj);
 
-  design += `<table class="table" style="font-size:larger">
+  let design = `<div class="row"> 
+  <h2 align="center"> AUTHORS </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="addNewAuthor()" data-bs-toggle="modal" data-bs-target="#addNewAuthorModal"> Add A New Author</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
                     <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Job ID</th>
-                        <th scope="col">Job Title</th>
-                        <th scope="col">Salary</th>
+                        <th scope="col">Author ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Date Of Birth</th>
+                        <th scope="col">Date Of Death</th>
+                        <th scope="col">Bio</th>
+                        <th scope="col">Action</th>
                     </tr>
                     </thead>
                     <tbody>`;
 
   let count = 1;
-
-  JobsObj.forEach((element) => {
+  ResponseObj.AuthorList.forEach((element) => {
     design += `<tr>
-                      <th scope="row">${count}</th>
-                      <td>${element.JOB_ID}</td>
-                      <td>${element.JOB_TITLE}</td>
-                      <td>${element.SALARY}</td>
-                  </tr>`;
+                        <th scope="row">${count}</th>
+                        <td id="">${element.AuthorID}</td>
+                        <td>${element.AuthorName}</td>
+                        <td>${element.DateOfBirth}</td>
+                        <td>${element.DateOfDeath}</td>
+                        <td>${element.Bio}</td>
+                        <td>
+                        <button id="edit_${element.AuthorID}" value="${element.AuthorID}" onclick="editAuthor(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editAuthorModal">Edit</button>
+                        </td>
+                    </tr>`;
 
-    selectDesign += `<option value="${element.JOB_ID}">${element.JOB_TITLE}</option>`;
     count++;
   });
 
   design += `</tbody>
                 </table>`;
+  MainContent.innerHTML = design;
+};
 
-  document.getElementById("jobsTable").innerHTML = design;
+const editAuthor = async (authorId) => {
+  console.log(authorId);
+
+  let authorObj = {
+    AUTHOR_ID: authorId,
+  };
+  authorObj = JSON.stringify(authorObj);
+  console.log(authorObj);
+
+  const response = await fetch("http://localhost:5000/api/getAuthorById", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: authorObj,
+  });
+  ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  let dateOfBirth = ResponseObj.DateOfBirth;
+  if (dateOfBirth != null) {
+    dateOfBirth = dateOfBirth.split("T");
+    dateOfBirth = dateOfBirth[0];
+  }
+  let dateOfDeath = ResponseObj.DateOfDeath;
+  if (dateOfBirth != null) {
+    dateOfDeath = dateOfDeath.split("T");
+    dateOfDeath = dateOfDeath[0];
+  }
+
+  $("#authorId").val(ResponseObj.AuthorID);
+  $("#authorName").val(ResponseObj.AuthorName);
+  document.getElementById("dateOfBirth").value = dateOfBirth;
+  document.getElementById("dateOfDeath").value = dateOfDeath;
+  $("#bio").val(ResponseObj.Bio);
+};
+
+const saveAuthorInfo = async () => {
+  let AUTHOR_ID = $("#authorId").val();
+  let AUTHOR_NAME = $("#authorName").val();
+  let DATE_OF_BIRTH = $("#dateOfBirth").val();
+  let DATE_OF_DEATH = $("#dateOfDeath").val();
+  let BIO = $("#bio").val();
+
+  let authorObj = {
+    AUTHOR_ID: AUTHOR_ID,
+    AUTHOR_NAME: AUTHOR_NAME,
+    DATE_OF_BIRTH: DATE_OF_BIRTH,
+    DATE_OF_DEATH: DATE_OF_DEATH,
+    BIO: BIO,
+  };
+
+  console.log(authorObj);
+
+  authorObj = JSON.stringify(authorObj);
+
+  const responseAuthor = await fetch("http://localhost:5000/api/editAuthor", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: authorObj,
+  });
+
+  responseObj = await responseAuthor.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    authorList();
+  } else {
+    window.alert(responseObj.ResponseDesc);
+  }
+};
+
+const publisherList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const response = await fetch("http://localhost:5000/api/getPublishers", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  let ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  let design = `<div class="row"> 
+  <h2 align="center"> PUBLISHERS </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="addNewPublisher()" data-bs-toggle="modal" data-bs-target="#addNewPublisherModal"> Add A New Publisher</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Publisher ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Address Line</th>
+                        <th scope="col">City</th>
+                        <th scope="col">Postal Code</th>
+                        <th scope="col">Country</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.PublisherList.forEach((element) => {
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td id="">${element.PublisherID}</td>
+                        <td>${element.PublisherName}</td>
+                        <td>${element.Phone}</td>
+                        <td>${element.AddressLine}</td>
+                        <td>${element.City}</td>
+                        <td>${element.PostalCode}</td>
+                        <td>${element.Country}</td>
+                        <td>
+                        <button id="edit_${element.PublisherID}" value="${element.PublisherID}" onclick="editPublisher(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editPublisherModal">Edit</button>
+                        </td>
+                    </tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+};
+
+const editPublisher = async (publisherId) => {
+  console.log(publisherId);
+
+  let publisherObj = {
+    PUBLISHER_ID: publisherId,
+  };
+  publisherObj = JSON.stringify(publisherObj);
+  console.log(publisherObj);
+
+  const response = await fetch("http://localhost:5000/api/getPublisherById", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: publisherObj,
+  });
+  ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  $("#publisherId").val(ResponseObj.PublisherID);
+  $("#publisherName").val(ResponseObj.PublisherName);
+  $("#phone").val(ResponseObj.Phone);
+  $("#addressLine").val(ResponseObj.AddressLine);
+  $("#city").val(ResponseObj.City);
+  $("#postalCode").val(ResponseObj.PostalCode);
+  $("#country").val(ResponseObj.Country);
+};
+
+const savePublisherInfo = async () => {
+  let PUBLISHER_ID = $("#publisherId").val();
+  let PUBLISHER_NAME = $("#publisherName").val();
+  let PHONE = $("#phone").val();
+  let ADDRESS_LINE = $("#addressLine").val();
+  let CITY = $("#city").val();
+  let POSTAL_CODE = $("#postalCode").val();
+  let COUNTRY = $("#country").val();
+
+  let publisherObj = {
+    PUBLISHER_ID: PUBLISHER_ID,
+    PUBLISHER_NAME: PUBLISHER_NAME,
+    PHONE: PHONE,
+    ADDRESS_LINE: ADDRESS_LINE,
+    CITY: CITY,
+    POSTAL_CODE: POSTAL_CODE,
+    COUNTRY: COUNTRY,
+  };
+
+  console.log(publisherObj);
+
+  publisherObj = JSON.stringify(publisherObj);
+
+  const responsePublisher = await fetch(
+    "http://localhost:5000/api/editPublisher",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: publisherObj,
+    }
+  );
+
+  responseObj = await responsePublisher.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    publisherList();
+  } else {
+    window.alert(responseObj.ResponseDesc);
+  }
+};
+
+const rentalHistoryList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const response = await fetch("http://localhost:5000/api/getAllRentalHistoryList", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  let ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  let design = `<div class="row"> 
+  <h2 align="center"> ALL RENTAL HISTORIES </h2> 
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">User ID</th>
+                        <th scope="col">Book Copy ID</th>
+                        <th scope="col">Issue Date</th>
+                        <th scope="col">Return Date</th>
+                        <th scope="col">Rental Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.RentalObject.forEach((element) => {
+    let rStatus = element.RentalStatus;
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td id="">${element.RentalId}</td>
+                        <td>${element.UserId}</td>
+                        <td>${element.BookCopyId}</td>
+                        <td>${element.IssueDate}</td>
+                        <td>${element.ReturnDate}</td>
+                        <td>${element.RentalStatus}</td>`;
+                        if(rStatus == 1 || rStatus == 2){
+                          design += `<td>
+                        <button id="return_${element.RentalId}" value="${element.RentalId}" onclick="returnBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#returnBookModal">Return</button>
+                        </td>`
+                        }if(rStatus == 3){
+                          design += `<td>
+                        <button disabled id="${element.RentalId}" value="${element.RentalId}" class="btn btn-secondary btn-sm m-1">Returned</button>
+                        </td>`
+                        }
+                        design += `</tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+};
+
+const feeList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const response = await fetch("http://localhost:5000/api/getAllFineHistoryList", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  let ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  let design = `<div class="row"> 
+  <h2 align="center"> ALL FINE HISTORIES </h2> 
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">User ID</th>
+                        <th scope="col">Rental History ID</th>
+                        <th scope="col">Fine Starting Date</th>
+                        <th scope="col">Payment Date</th>
+                        <th scope="col">Fee Amount</th>
+                        <th scope="col">Payment Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.FineObject.forEach((element) => {
+    let pStatus = element.PaymentStatus;
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td id="">${element.FineId}</td>
+                        <td>${element.UserId}</td>
+                        <td>${element.RentalId}</td>
+                        <td>${element.FineStartingDate}</td>
+                        <td>${element.PaymentDate}</td>
+                        <td>${element.FeeAmount}</td>
+                        <td>${element.PaymentStatus}</td>`;
+                        if(pStatus == 0){
+                          design += `<td>
+                        <button id="fee_${element.FineId}" value="${element.FineId}" onclick="payFee(this.value)" class="btn btn-warning btn-sm m-1" data-bs-toggle="modal" data-bs-target="#payFeeModal">Pay</button>
+                        </td>`
+                        }if(pStatus == 1){
+                          design += `<td>
+                        <button disabled id="${element.FineId}" value="${element.FineId}" class="btn btn-secondary btn-sm m-1">Paid</button>
+                        </td>`
+                        }
+                        design += `</tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
 };

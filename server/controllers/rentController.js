@@ -380,7 +380,6 @@ async function getAllRentalHistoryList(req, resp) {
           today.getDate()
         );
         const diff = Math.floor((utc2 - utc1) / _MS_PER_DAY);
-        console.log("diff = ", diff);
 
         if (diff >= 14) {
           let fineQuery =
@@ -403,7 +402,6 @@ async function getAllRentalHistoryList(req, resp) {
               today.getDate()
             );
             const days = Math.floor((utc4 - utc3) / _MS_PER_DAY);
-            console.log("days = ", days);
 
             let fee_amount = 20 + days * 2;
             let fineUpdateQuery =
@@ -413,15 +411,12 @@ async function getAllRentalHistoryList(req, resp) {
               rentalId,
             ]);
 
-            console.log(fineUpdateResult);
           } else {
             let rentUpdateQuery =
               "UPDATE RENTAL_HISTORY SET RENTAL_STATUS = 2 WHERE RENTAL_HISTORY_ID = :rentalId"; //2 means overdue
             let rentUpdateResult = await connection.execute(rentUpdateQuery, [
               rentalId,
             ]);
-
-            console.log(rentUpdateResult);
 
             //Get Next Fine Id
             let fine_id;
@@ -430,8 +425,6 @@ async function getAllRentalHistoryList(req, resp) {
               .then(function (data) {
                 fine_id = data;
               });
-
-            console.log("fine_id = ", fine_id);
 
             let fine_starting_date = issue_date + 14;
 
@@ -446,7 +439,7 @@ async function getAllRentalHistoryList(req, resp) {
               today.getDate()
             );
             const diff2 = Math.floor((utc2 - utc1) / _MS_PER_DAY);
-            console.log("diff2 = ", diff2);
+            
             let fee_amount = 20 + diff2 * 2;
             let payment_status = 0;
             let fineInsertQuery =
@@ -460,8 +453,6 @@ async function getAllRentalHistoryList(req, resp) {
               payment_status,
               rentalId,
             ]);
-
-            console.log(fineInsertResult);
           }
         }
 

@@ -588,15 +588,22 @@ async function getUserInfo(req, resp) {
     let rentalResult = await connection.execute(rentalQuery, [user_id], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
-    console.log(rentalResult);
     let rentalObject = [];
     if (rentalResult.rows.length != 0) {
       for (let j = 0; j < rentalResult.rows.length; j++) {
         let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
-        console.log(rentalId);
+        let bookCopyId = rentalResult.rows[j].BOOK_COPY_ID;
+
+        let bookTitleQuery = "SELECT b.BOOK_TITLE FROM BOOKS b, BOOK_COPY bc WHERE bc.BOOK_COPY_ID = :bookCopyId AND b.BOOK_ID = bc.BOOK_ID";
+    let bookTitleResult = await connection.execute(bookTitleQuery, [bookCopyId], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+      let bookTitle = bookTitleResult.rows[0].BOOK_TITLE;
+      
         rentalObject.push({
           RentalId: rentalId,
           BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
+          BookTitle : bookTitle,
           IssueDate: rentalResult.rows[j].ISSUE_DATE,
           ReturnDate: rentalResult.rows[j].RETURN_DATE,
           RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
@@ -608,13 +615,11 @@ async function getUserInfo(req, resp) {
     let fineResult = await connection.execute(fineQuery, [user_id], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
-    console.log(fineResult);
 
     let fineObject = [];
     if (fineResult.rows.length != 0) {
       for (let j = 0; j < fineResult.rows.length; j++) {
         let fineId = fineResult.rows[j].FINE_HISTORY_ID;
-        console.log(fineId);
 
         fineObject.push({
           FineId: fineId,

@@ -30,67 +30,39 @@ async function addAuthor(req, resp) {
     }
     let bio = req.body.BIO;
 
-    //CHECKING ADMIN
-    let admin_id = req.body.ADMIN_ID;
-    let admin_password = req.body.ADMIN_PASSWORD;
+    //Get Next Author Id
+    let author_id;
+    await syRegister
+      .getNextId(connection, syRegisterAuthors)
+      .then(function (data) {
+        author_id = parseInt(data);
+      });
 
-    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
-    let adminCheckResult = await connection.execute(
-      adminCheckQuery,
-      [admin_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
-    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
+    console.log(author_id);
 
-    if (
-      adminTypeId == 3 &&
-      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
-    ) {
-      console.log("GOT ADMIN PERMISSION");
-      //Get Next Author Id
-      let author_id;
-      await syRegister
-        .getNextId(connection, syRegisterAuthors)
-        .then(function (data) {
-          author_id = parseInt(data);
-        });
+    let authorInsertQuery =
+      "INSERT INTO AUTHOR (AUTHOR_ID, AUTHOR_NAME, DATE_OF_BIRTH, DATE_OF_DEATH, BIO) VALUES( :author_id, :author_name, :dateOfBirth, :dateOfDeath, :bio)";
+    let authorInsertResult = await connection.execute(authorInsertQuery, [
+      author_id,
+      author_name,
+      dateOfBirth,
+      dateOfDeath,
+      bio,
+    ]);
 
-      console.log(author_id);
+    console.log(authorInsertResult);
 
-      let authorInsertQuery =
-        "INSERT INTO AUTHOR (AUTHOR_ID, AUTHOR_NAME, DATE_OF_BIRTH, DATE_OF_DEATH, BIO) VALUES( :author_id, :author_name, :dateOfBirth, :dateOfDeath, :bio)";
-      let authorInsertResult = await connection.execute(authorInsertQuery, [
-        author_id,
-        author_name,
-        dateOfBirth,
-        dateOfDeath,
-        bio,
-      ]);
+    connection.commit();
 
-      console.log(authorInsertResult);
-
-      connection.commit();
-
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        AuthorName: author_name,
-        AuthorId: author_id,
-        DateOfBirth: dateOfBirth,
-        DateOfDeath: dateOfDeath,
-        Bio: bio,
-      };
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "ADMIN CREDENTIALS WRONG",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      AuthorName: author_name,
+      AuthorId: author_id,
+      DateOfBirth: dateOfBirth,
+      DateOfDeath: dateOfDeath,
+      Bio: bio,
+    };
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -151,55 +123,27 @@ async function editAuthor(req, resp) {
       dateOfDeath = new Date(dateOfDeath);
     }
     let bio = req.body.BIO;
-    //CHECKING ADMIN
-    let admin_id = req.body.ADMIN_ID;
-    let admin_password = req.body.ADMIN_PASSWORD;
 
-    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
-    let adminCheckResult = await connection.execute(
-      adminCheckQuery,
-      [admin_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
-    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
+    let authorEditQuery =
+      "UPDATE AUTHOR SET AUTHOR_NAME = :author_name, DATE_OF_BIRTH = :dateOfBirth, DATE_OF_DEATH = :dateOfDeath, BIO = :bio WHERE AUTHOR_ID = :author_id";
+    let authorEditResult = await connection.execute(authorEditQuery, [
+      author_name,
+      dateOfBirth,
+      dateOfDeath,
+      bio,
+      author_id,
+    ]);
 
-    if (
-      adminTypeId == 3 &&
-      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
-    ) {
-      console.log("GOT ADMIN PERMISSION");
+    console.log(authorEditResult);
 
-      authorEditQuery =
-        "UPDATE AUTHOR SET AUTHOR_NAME = :author_name, DATE_OF_BIRTH = :dateOfBirth, DATE_OF_DEATH = :dateOfDeath, BIO = :bio WHERE AUTHOR_ID = :author_id";
-      let authorEditResult = await connection.execute(authorEditQuery, [
-        author_name,
-        dateOfBirth,
-        dateOfDeath,
-        bio,
-        author_id,
-      ]);
+    connection.commit();
 
-      console.log(authorEditResult);
-
-      connection.commit();
-
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        ResponseStatus: resp.statusCode,
-        AuthorId: author_id,
-      };
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "ADMIN CREDENTIALS WRONG",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      AuthorId: author_id,
+    };
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -254,72 +198,42 @@ async function addPublisher(req, resp) {
     let city = req.body.CITY;
     let postalCode = req.body.POSTAL_CODE;
     let country = req.body.COUNTRY;
-    //CHECKING ADMIN
-    let admin_id = req.body.ADMIN_ID;
-    let admin_password = req.body.ADMIN_PASSWORD;
 
-    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
-    let adminCheckResult = await connection.execute(
-      adminCheckQuery,
-      [admin_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
-    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
+    //Get Next Publisher Id
+    let publisher_id;
+    await syRegister
+      .getNextId(connection, syRegisterPublishers)
+      .then(function (data) {
+        publisher_id = parseInt(data);
+      });
 
-    if (
-      adminTypeId == 3 &&
-      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
-    ) {
-      console.log("GOT ADMIN PERMISSION");
-      //Get Next Publisher Id
-      let publisher_id;
-      await syRegister
-        .getNextId(connection, syRegisterPublishers)
-        .then(function (data) {
-          publisher_id = parseInt(data);
-        });
+    console.log(publisher_id);
 
-      console.log(publisher_id);
+    let publisherInsertQuery =
+      "INSERT INTO PUBLISHER (PUBLISHER_ID, PUBLISHER_NAME, PHONE, ADDRESS_LINE, CITY, POSTAL_CODE, COUNTRY) VALUES( :publisher_id, :publisher_name, :phone, :addressLine, :city, :postalCode, :country)";
+    let publisherInsertResult = await connection.execute(publisherInsertQuery, [
+      publisher_id,
+      publisher_name,
+      phone,
+      addressLine,
+      city,
+      postalCode,
+      country,
+    ]);
 
-      let publisherInsertQuery =
-        "INSERT INTO PUBLISHER (PUBLISHER_ID, PUBLISHER_NAME, PHONE, ADDRESS_LINE, CITY, POSTAL_CODE, COUNTRY) VALUES( :publisher_id, :publisher_name, :phone, :addressLine, :city, :postalCode, :country)";
-      let publisherInsertResult = await connection.execute(
-        publisherInsertQuery,
-        [
-          publisher_id,
-          publisher_name,
-          phone,
-          addressLine,
-          city,
-          postalCode,
-          country,
-        ]
-      );
+    console.log(publisherInsertResult);
 
-      console.log(publisherInsertResult);
+    connection.commit();
 
-      connection.commit();
-
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        ResponseStatus: resp.statusCode,
-        PublisherName: publisher_name,
-        PublisherId: publisher_id,
-        Phone: phone,
-        Address: address,
-      };
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "ADMIN CREDENTIALS WRONG",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      PublisherName: publisher_name,
+      PublisherId: publisher_id,
+      Phone: phone,
+      Address: address,
+    };
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -377,61 +291,28 @@ async function editPublisher(req, resp) {
     let postalCode = req.body.POSTAL_CODE;
     let country = req.body.COUNTRY;
 
-    //CHECKING ADMIN
-    let admin_id = req.body.ADMIN_ID;
-    let admin_password = req.body.ADMIN_PASSWORD;
+    let publisherEditQuery =
+      "UPDATE PUBLISHER SET PUBLISHER_NAME = :publisher_name, PHONE = :phone, ADDRESS_LINE = :addressLine, CITY = :city, POSTAL_CODE = :postalCode, COUNTRY = :country WHERE PUBLISHER_ID = :publisher_id";
+    let publisherEditResult = await connection.execute(publisherEditQuery, [
+      publisher_name,
+      phone,
+      addressLine,
+      city,
+      postalCode,
+      country,
+      publisher_id,
+    ]);
 
-    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
-    let adminCheckResult = await connection.execute(
-      adminCheckQuery,
-      [admin_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
-    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
+    console.log(publisherEditResult);
 
-    if (
-      adminTypeId == 3 &&
-      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
-    ) {
-      console.log("GOT ADMIN PERMISSION");
-      
+    connection.commit();
 
-      let publisherEditQuery =
-        "UPDATE PUBLISHER SET PUBLISHER_NAME = :publisher_name, PHONE = :phone, ADDRESS_LINE = :addressLine, CITY = :city, POSTAL_CODE = :postalCode, COUNTRY = :country WHERE PUBLISHER_ID = :publisher_id";
-      let publisherEditResult = await connection.execute(
-        publisherEditQuery,
-        [
-          publisher_name,
-          phone,
-          addressLine,
-          city,
-          postalCode,
-          country,
-          publisher_id
-        ]
-      );
-
-      console.log(publisherEditResult);
-
-      connection.commit();
-
-      responseObj = {
-        ResponseCode: 1,
-        ResponseDesc: "SUCCESS",
-        ResponseStatus: resp.statusCode,
-        PublisherId: publisher_id
-      };
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "ADMIN CREDENTIALS WRONG",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      PublisherId: publisher_id,
+    };
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -563,8 +444,6 @@ async function getAuthors(req, resp) {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
 
-    console.log(authorSelectResult);
-
     if (authorSelectResult.rows.length === 0) {
       responseObj = {
         ResponseCode: 0,
@@ -640,12 +519,15 @@ async function getPublishers(req, resp) {
     });
     console.log("DATABASE CONNECTED");
 
-    publisherSelectQuery = "SELECT * FROM PUBLISHER ORDER BY PUBLISHER_NAME ASC";
-    let publisherSelectResult = await connection.execute(publisherSelectQuery, [], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
-
-    console.log(publisherSelectResult);
+    publisherSelectQuery =
+      "SELECT * FROM PUBLISHER ORDER BY PUBLISHER_NAME ASC";
+    let publisherSelectResult = await connection.execute(
+      publisherSelectQuery,
+      [],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
 
     if (publisherSelectResult.rows.length === 0) {
       responseObj = {
@@ -880,6 +762,166 @@ async function search(req, resp) {
   }
 }
 
+async function getAuthorById(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let authorId = req.body.AUTHOR_ID;
+
+    authorSelectQuery =
+      "SELECT * FROM AUTHOR WHERE AUTHOR_ID = :authorId ORDER BY AUTHOR_NAME ASC";
+    let authorSelectResult = await connection.execute(
+      authorSelectQuery,
+      [authorId],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+
+    if (authorSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND IN DATABASE",
+        ResponseStatus: resp.statusCode,
+      };
+    } else {
+      let authorItem = authorSelectResult.rows[0];
+
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        AuthorID: authorItem.AUTHOR_ID,
+        AuthorName: authorItem.AUTHOR_NAME,
+        DateOfBirth: authorItem.DATE_OF_BIRTH,
+        DateOfDeath: authorItem.DATE_OF_DEATH,
+        Bio: authorItem.BIO,
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        resp.send(responseObj);
+      }
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
+async function getPublisherById(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let publisherId = req.body.PUBLISHER_ID;
+
+    publisherSelectQuery =
+      "SELECT * FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId ORDER BY PUBLISHER_NAME ASC";
+    let publisherSelectResult = await connection.execute(
+      publisherSelectQuery,
+      [publisherId],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+
+    if (publisherSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND IN DATABASE",
+        ResponseStatus: resp.statusCode,
+      };
+    } else {
+      let publisherItem = publisherSelectResult.rows[0];
+
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        PublisherID: publisherItem.PUBLISHER_ID,
+        PublisherName: publisherItem.PUBLISHER_NAME,
+        Phone: publisherItem.PHONE,
+        AddressLine: publisherItem.ADDRESS_LINE,
+        City: publisherItem.CITY,
+        PostalCode: publisherItem.POSTAL_CODE,
+        Country: publisherItem.COUNTRY,
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        resp.send(responseObj);
+      }
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   addAuthor,
   editAuthor,
@@ -888,5 +930,7 @@ module.exports = {
   getGenre,
   getAuthors,
   getPublishers,
+  getAuthorById,
+  getPublisherById,
   search,
 };

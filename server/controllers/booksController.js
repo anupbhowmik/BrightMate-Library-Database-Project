@@ -165,8 +165,6 @@ async function getBooks(req, resp) {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
 
-    console.log(bookSelectResult);
-
     let bookObject = [];
     for (let i = 0; i < bookSelectResult.rows.length; i++) {
       let bookItem = bookSelectResult.rows[i];
@@ -183,7 +181,6 @@ async function getBooks(req, resp) {
         }
       );
 
-      console.log(authorSelectResult);
       let authorObject = [];
       if (authorSelectResult.rows.length != 0) {
         for (let j = 0; j < authorSelectResult.rows.length; j++) {
@@ -223,7 +220,6 @@ async function getBooks(req, resp) {
         }
       );
 
-      console.log(genreSelectResult);
       let genreObject = [];
       if (genreSelectResult.rows.length != 0) {
         for (let j = 0; j < genreSelectResult.rows.length; j++) {
@@ -251,7 +247,6 @@ async function getBooks(req, resp) {
         }
       );
 
-      console.log(copySelectResult);
       let copyObject = [];
       if (copySelectResult.rows.length != 0) {
         for (let k = 0; k < copySelectResult.rows.length; k++) {
@@ -345,9 +340,7 @@ async function getBookInfo(req, resp) {
       }
     );
 
-    console.log(bookSelectResult);
     let bookItem = bookSelectResult.rows[0];
-    console.log(bookItem);
     authorSelectQuery = "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
     let authorSelectResult = await connection.execute(
       authorSelectQuery,
@@ -357,7 +350,6 @@ async function getBookInfo(req, resp) {
       }
     );
 
-    console.log(authorSelectResult);
     let authorObject = [];
     if (authorSelectResult.rows.length != 0) {
       for (let j = 0; j < authorSelectResult.rows.length; j++) {
@@ -395,7 +387,6 @@ async function getBookInfo(req, resp) {
       }
     );
 
-    console.log(genreSelectResult);
     let genreObject = [];
     if (genreSelectResult.rows.length != 0) {
       for (let j = 0; j < genreSelectResult.rows.length; j++) {
@@ -423,7 +414,6 @@ async function getBookInfo(req, resp) {
       }
     );
 
-    console.log(copySelectResult);
     let copyObject = [];
     if (copySelectResult.rows.length != 0) {
       for (let k = 0; k < copySelectResult.rows.length; k++) {
@@ -513,7 +503,6 @@ async function getCopyInfo(req, resp) {
       }
     );
 
-    console.log(copySelectResult);
     let book_id = copySelectResult.rows[0].BOOK_ID;
 
     bookSelectQuery = "SELECT * FROM BOOKS b WHERE BOOK_ID = :book_id";
@@ -525,7 +514,6 @@ async function getCopyInfo(req, resp) {
       }
     );
 
-    console.log(bookSelectResult);
     let bookItem = bookSelectResult.rows[0];
 
     authorSelectQuery = "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
@@ -537,7 +525,6 @@ async function getCopyInfo(req, resp) {
       }
     );
 
-    console.log(authorSelectResult);
     let authorObject = [];
     if (authorSelectResult.rows.length != 0) {
       for (let j = 0; j < authorSelectResult.rows.length; j++) {
@@ -575,7 +562,6 @@ async function getCopyInfo(req, resp) {
       }
     );
 
-    console.log(genreSelectResult);
     let genreObject = [];
     if (genreSelectResult.rows.length != 0) {
       for (let j = 0; j < genreSelectResult.rows.length; j++) {
@@ -603,7 +589,6 @@ async function getCopyInfo(req, resp) {
       }
     );
 
-    console.log(copySelectResult);
     let copyObject = [];
     if (copySelectResult.rows.length != 0) {
       for (let k = 0; k < copySelectResult.rows.length; k++) {
@@ -782,31 +767,25 @@ async function editBook(req, resp) {
     let yearOfPublication = req.body.YEAR;
     let book_description = req.body.DESCRIPTION;
     let language = req.body.LANGUAGE;
-    let isbn = req.body.ISBN;
     let publisher_id = req.body.PUBLISHER_ID;
     let genreArr = req.body.GENRE;
-    let available_copies = req.body.AVAILABLE_COPIES;
+
+    console.log(genreArr);
 
     let bookEditQuery =
-      "UPDATE BOOKS SET YEAR_OF_PUBLICATION = :yearOfPublication, DESCRIPTION = :book_description, LANGUAGE = :language, PUBLISHER_ID = :publisher_id, ISBN = :isbn, AVAILABLE_COPIES = :available_copies WHERE BOOK_ID = :book_id";
+      "UPDATE BOOKS SET YEAR_OF_PUBLICATION = :yearOfPublication, DESCRIPTION = :book_description, LANGUAGE = :language, PUBLISHER_ID = :publisher_id WHERE BOOK_ID = :book_id";
     let bookEditResult = await connection.execute(bookEditQuery, [
       yearOfPublication,
       book_description,
       language,
       publisher_id,
-      isbn,
-      available_copies,
       book_id,
     ]);
-
-    console.log(bookEditResult);
 
     let genreDeleteQuery = "DELETE FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
     let genreDeleteResult = await connection.execute(genreDeleteQuery, [
       book_id,
     ]);
-
-    console.log(genreDeleteResult);
 
     for (let i = 0; i < genreArr.length; i++) {
       genre_id = genreArr[i];
@@ -816,8 +795,6 @@ async function editBook(req, resp) {
         book_id,
         genre_id,
       ]);
-
-      console.log(genreInsertResult);
     }
 
     connection.commit();
@@ -851,14 +828,12 @@ async function editBook(req, resp) {
         resp.send(responseObj);
       }
       if (responseObj.ResponseCode == 1) {
-        console.log("INSERTED");
         resp.send(responseObj);
       }
     } else {
-      console.log("NOT INSERTED");
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "NOT INSERTED",
+        ResponseDesc: "FAILURE",
         ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
@@ -916,14 +891,12 @@ async function deleteBook(req, resp) {
         resp.send(responseObj);
       }
       if (responseObj.ResponseCode == 1) {
-        console.log("INSERTED");
         resp.send(responseObj);
       }
     } else {
-      console.log("NOT INSERTED");
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "NOT INSERTED",
+        ResponseDesc: "FAILURE",
         ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
