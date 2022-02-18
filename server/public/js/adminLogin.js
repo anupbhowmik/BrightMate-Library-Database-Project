@@ -14,7 +14,7 @@ const loginAdmin = async() => {
         window.alert("Password field empty");
         return;
     }else{
-        response = await fetch('http://localhost:5000/api/signIn',{
+        response = await fetch('http://localhost:5000/api/adminSignIn',{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

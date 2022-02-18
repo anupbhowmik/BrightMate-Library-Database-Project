@@ -239,6 +239,102 @@ async function signIn(req, resp) {
   }
 }
 
+async function adminSignIn(req, resp) {
+  let connection;
+  let userExistsAlready = 0;
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    email = req.body.EMAIL;
+    userPassword = req.body.PASSWORD;
+
+    let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
+    let userInfo = await connection.execute(userCheckQuery, [email], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(userInfo);
+    if (userInfo.rows.length == 0) {
+      //user does not exist
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "USER DOES NOT EXIST",
+        ResponseStatus: resp.statusCode,
+      };
+    } else {
+      let passwordKey = userInfo.rows[0].PASSWORD_KEY;
+      let user_id = userInfo.rows[0].USER_ID;
+      let user_name = userInfo.rows[0].USER_NAME;
+      let email = userInfo.rows[0].EMAIL;
+      let mobile = userInfo.rows[0].MOBILE;
+      let gender = userInfo.rows[0].GENDER;
+      let user_type_id = userInfo.rows[0].USER_TYPE_ID;
+
+      //let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
+      if (userPassword == passwordKey && user_type_id == 3) {
+        responseObj = {
+          ResponseCode: 1,
+          ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
+          UserId: user_id,
+          Username: user_name,
+          Email: email,
+          PasswordKey: passwordKey,
+          Mobile: mobile,
+          Gender: gender,
+          UserTypeId: user_type_id,
+        };
+      } else {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "PASSWORD INCORRECT",
+          ResponseStatus: resp.statusCode,
+        };
+      }
+    }
+    //connection.commit();
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (userExistsAlready == 1) {
+        if (responseObj.ResponseCode == 1) {
+          console.log("USER LOGGED IN SUUCCESSFULLY");
+          resp.send(responseObj);
+        } else {
+          console.log("NOT LOGGED IN");
+          resp.send(responseObj);
+        }
+      } else {
+        console.log("NOT LOGGED IN");
+        resp.send(responseObj);
+      }
+    }
+  }
+}
+
 async function changePassword(req, resp) {
   let connection;
   const saltRounds = 5;
@@ -584,6 +680,12 @@ async function getUserInfo(req, resp) {
     });
     let user = userResult.rows[0];
 
+    let readerQuery = "SELECT * FROM USER_READERS WHERE USER_ID = :user_id";
+    let readerResult = await connection.execute(readerQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    let reader = readerResult.rows[0];
+
     let rentalQuery = "SELECT * FROM RENTAL_HISTORY WHERE USER_ID = :user_id";
     let rentalResult = await connection.execute(rentalQuery, [user_id], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -594,16 +696,110 @@ async function getUserInfo(req, resp) {
         let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
         let bookCopyId = rentalResult.rows[j].BOOK_COPY_ID;
 
-        let bookTitleQuery = "SELECT b.BOOK_TITLE FROM BOOKS b, BOOK_COPY bc WHERE bc.BOOK_COPY_ID = :bookCopyId AND b.BOOK_ID = bc.BOOK_ID";
-    let bookTitleResult = await connection.execute(bookTitleQuery, [bookCopyId], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
-      let bookTitle = bookTitleResult.rows[0].BOOK_TITLE;
-      
+        let bookInfoQuery =
+          "SELECT * FROM BOOKS b, BOOK_COPY bc WHERE bc.BOOK_COPY_ID = :bookCopyId AND b.BOOK_ID = bc.BOOK_ID";
+        let bookInfoResult = await connection.execute(
+          bookInfoQuery,
+          [bookCopyId],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        let bookInfo = bookInfoResult.rows[0];
+        let book_id = bookInfo.BOOK_ID;
+
+        authorSelectQuery =
+          "SELECT * FROM BOOKS_AUTHORS WHERE BOOK_ID = :book_id";
+        let authorSelectResult = await connection.execute(
+          authorSelectQuery,
+          [book_id],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        let authorObject = [];
+        if (authorSelectResult.rows.length != 0) {
+          for (let j = 0; j < authorSelectResult.rows.length; j++) {
+            let authorId = authorSelectResult.rows[j].AUTHOR_ID;
+            let authorQuery =
+              "SELECT AUTHOR_NAME FROM AUTHOR WHERE AUTHOR_ID = :authorId";
+            authorNameResult = await connection.execute(
+              authorQuery,
+              [authorId],
+              {
+                outFormat: oracledb.OUT_FORMAT_OBJECT,
+              }
+            );
+            let authorName = authorNameResult.rows[0].AUTHOR_NAME;
+            authorObject.push({
+              AuthorId: authorId,
+              AuthorName: authorName,
+            });
+          }
+        }
+
+        let publisherId = bookInfo.PUBLISHER_ID;
+        let publisherName;
+        if (publisherId != undefined) {
+          let publisherQuery =
+            "SELECT PUBLISHER_NAME FROM PUBLISHER WHERE PUBLISHER_ID = :publisherId";
+          publisherName = await connection.execute(
+            publisherQuery,
+            [publisherId],
+            {
+              outFormat: oracledb.OUT_FORMAT_OBJECT,
+            }
+          );
+          publisherName = publisherName.rows[0].PUBLISHER_NAME;
+        }
+
+        genreSelectQuery = "SELECT * FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
+        let genreSelectResult = await connection.execute(
+          genreSelectQuery,
+          [book_id],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        let genreObject = [];
+        if (genreSelectResult.rows.length != 0) {
+          for (let j = 0; j < genreSelectResult.rows.length; j++) {
+            let genreId = genreSelectResult.rows[j].GENRE_ID;
+            let genreQuery =
+              "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
+            genreNameResult = await connection.execute(genreQuery, [genreId], {
+              outFormat: oracledb.OUT_FORMAT_OBJECT,
+            });
+            let genreName = genreNameResult.rows[0].GENRE_NAME;
+            genreObject.push({
+              GenreId: genreId,
+              GenreName: genreName,
+            });
+          }
+        }
+
+        let bookObject = [];
+        bookObject.push({
+          BookID: bookInfo.BOOK_ID,
+          Title: bookInfo.BOOK_TITLE,
+          YearOfPublication: bookInfo.YEAR_OF_PUBLICATION,
+          Description: bookInfo.DESCRIPTION,
+          Language: bookInfo.LANGUAGE,
+          Publisher: bookInfo.PUBLISHER_ID,
+          ISBN: bookInfo.ISBN,
+          Edition: bookInfo.EDITION,
+          AuthorObject: authorObject,
+          GenreObject: genreObject,
+          PublisherName: publisherName,
+        });
+
         rentalObject.push({
           RentalId: rentalId,
           BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
-          BookTitle : bookTitle,
+          BookObject: bookObject,
           IssueDate: rentalResult.rows[j].ISSUE_DATE,
           ReturnDate: rentalResult.rows[j].RETURN_DATE,
           RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
@@ -645,6 +841,8 @@ async function getUserInfo(req, resp) {
       PasswordKey: user.PASSWORD_KEY,
       Mobile: user.MOBILE,
       Gender: user.GENDER,
+      LibraryCardNumber: reader.LIBRARY_CARD_NUMBER,
+      MembershipTakenDate: reader.MEMBERSHIP_TAKEN_DATE,
       RentalObject: rentalObject,
       FineObject: fineObject,
     };
@@ -694,6 +892,7 @@ async function getUserInfo(req, resp) {
 module.exports = {
   signUp,
   signIn,
+  adminSignIn,
   changePassword,
   addEmployee,
   getJobs,
