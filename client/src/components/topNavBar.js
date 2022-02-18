@@ -23,7 +23,7 @@ const pages = [
     {title: "All Books", address: "allbooks"},
     // {title: "Categories", address: "#"},
     {title: "About us", address: "about"}];
-const settings = ["Dashboard", "Logout", "Login as Admin"];
+const settings = ["Dashboard", "Logout"];
 
 const ResponsiveAppBar = () => {
 
@@ -156,6 +156,7 @@ const ResponsiveAppBar = () => {
                             >
                                 {settings.map((setting,index) => (
                                     <MenuItem key={setting} onClick={()=>{handleCloseUserMenu(index)}}>
+
                                         <Typography textAlign="center">{setting}</Typography>
                                     </MenuItem>
                                 ))}

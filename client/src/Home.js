@@ -19,8 +19,8 @@ function Home() {
                 <img src= {slide4}/>
             </Carousel>
 
-            <Books/>
-            <AddBookForm/>
+            {/*<Books/>*/}
+            {/*<AddBookForm/>*/}
         </div>
     )
 }
