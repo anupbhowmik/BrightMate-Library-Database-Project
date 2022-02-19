@@ -16,6 +16,7 @@ router.post("/api/adminSignIn", bodyParser, userController.adminSignIn);
 router.post("/api/changePassword", bodyParser, userController.changePassword);
 router.post("/api/addEmployee", bodyParser, userController.addEmployee);
 router.get("/api/getJobs", bodyParser, userController.getJobs);
+router.get("/api/getEmployees", bodyParser, userController.getEmployees);
 router.post("/api/getUserInfo", bodyParser, userController.getUserInfo);
 
 router.post("/api/addAuthor", bodyParser, generalController.addAuthor);

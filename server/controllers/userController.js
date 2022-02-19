@@ -889,6 +889,131 @@ async function getUserInfo(req, resp) {
   }
 }
 
+async function getEmployees(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    employeeSelectQuery = "SELECT * FROM USERS WHERE USER_TYPE_ID = 2";
+    let employeeSelectResult = await connection.execute(
+      employeeSelectQuery,
+      [],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+
+    console.log(employeeSelectResult);
+
+    if (employeeSelectResult.rows.length === 0) {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NO DATA FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+    } else {
+      let employeeObject = [];
+      for (let i = 0; i < employeeSelectResult.rows.length; i++) {
+        let employeeItem = employeeSelectResult.rows[i];
+
+        let employeeID = employeeItem.USER_ID,
+          empSelectQuery =
+            "SELECT * FROM USER_EMPLOYEE WHERE USER_ID = :employeeID";
+        let empSelectResult = await connection.execute(
+          empSelectQuery,
+          [employeeID],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        let empItem = empSelectResult.rows[0];
+        let jobId = empItem.JOB_ID;
+
+        jobSelectQuery = "SELECT * FROM JOBS WHERE JOB_ID = :jobId";
+        let jobSelectResult = await connection.execute(
+          jobSelectQuery,
+          [jobId],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+
+        let jobItem = jobSelectResult.rows[0];
+        let joinDate = empItem.JOIN_DATE;
+        joinDate = joinDate.split(' ');
+        joinDate = joinDate[0];
+
+        let endDate = empItem.END_DATE;
+        if(empItem.END_DATE != null){
+          endDate = endDate.split(' ');
+          endDate = endDate[0];
+        }
+
+        employeeObject.push({
+          EmployeeID: employeeItem.USER_ID,
+          EmployeeName: employeeItem.USER_NAME,
+          Email: employeeItem.EMAIL,
+          Phone: employeeItem.MOBILE,
+          Gender: employeeItem.GENDER,
+          JobId: empItem.JOB_ID,
+          JobTitle: jobItem.JOB_TITLE,
+          Salary: jobItem.SALARY,
+          JoinDate: joinDate,
+          EndDate: endDate,
+        });
+      }
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        Employees: employeeObject,
+      };
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("FOUND");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT FOUND");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
@@ -896,5 +1021,6 @@ module.exports = {
   changePassword,
   addEmployee,
   getJobs,
+  getEmployees,
   getUserInfo,
 };

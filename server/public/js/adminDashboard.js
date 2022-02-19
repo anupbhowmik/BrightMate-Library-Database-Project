@@ -849,13 +849,25 @@ const feeList = async () => {
   let count = 1;
   ResponseObj.FineObject.forEach((element) => {
     let pStatus = element.PaymentStatus;
+    let fineStartingDate = element.FineStartingDate;
+    if (fineStartingDate != null) {
+      fineStartingDate = fineStartingDate.split("T");
+      fineStartingDate = fineStartingDate[0];
+    }
+
+    let paymentDate = element.PaymentDate;
+    if (paymentDate != null) {
+      paymentDate = paymentDate.split("T");
+      paymentDate = paymentDate[0];
+    }
+
     design += `<tr>
                         <th scope="row">${count}</th>
                         <td id="">${element.FineId}</td>
                         <td>${element.UserId}</td>
                         <td>${element.RentalId}</td>
-                        <td>${element.FineStartingDate}</td>
-                        <td>${element.PaymentDate}</td>
+                        <td>${fineStartingDate}</td>
+                        <td>${paymentDate}</td>
                         <td>${element.FeeAmount}</td>
                         <td>${element.PaymentStatus}</td>`;
                         if(pStatus == 0){
@@ -868,6 +880,68 @@ const feeList = async () => {
                         </td>`
                         }
                         design += `</tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+};
+
+const employeeList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const response = await fetch("http://localhost:5000/api/getEmployees", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  let ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  let design = `<div class="row"> 
+  <h2 align="center"> EMPLOYEES </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewEmployeeModal"> Add A New Employee</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Employee ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Gender</th>
+                        <th scope="col">Job</th>
+                        <th scope="col">Salary</th>
+                        <th scope="col">Join Date</th>
+                        <th scope="col">End Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.Employees.forEach((element) => {
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td id="">${element.EmployeeID}</td>
+                        <td>${element.EmployeeName}</td>
+                        <td>${element.Email}</td>
+                        <td>${element.Phone}</td>
+                        <td>${element.Gender}</td>
+                        <td>${element.JobTitle}</td>
+                        <td>${element.Salary}</td>
+                        <td>${element.JoinDate}</td>
+                        <td>${element.EndDate}</td>
+                    </tr>`;
 
     count++;
   });
