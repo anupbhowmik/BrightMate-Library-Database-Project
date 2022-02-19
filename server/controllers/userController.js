@@ -274,8 +274,8 @@ async function adminSignIn(req, resp) {
       let gender = userInfo.rows[0].GENDER;
       let user_type_id = userInfo.rows[0].USER_TYPE_ID;
 
-      //let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
-      if (userPassword == passwordKey && user_type_id == 3) {
+      let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
+      if (passwordCorrect && user_type_id == 3) {
         responseObj = {
           ResponseCode: 1,
           ResponseDesc: "SUCCESS",
@@ -349,31 +349,48 @@ async function changePassword(req, resp) {
     console.log("DATABASE CONNECTED");
 
     let user_id = req.body.USER_ID;
-    let email = req.body.EMAIL;
-    let user_password = req.body.PASSWORD;
+    let old_password = req.body.OLD_PASSWORD;
+    let new_password = req.body.NEW_PASSWORD;
 
-    const hash = bcrypt.hashSync(user_password, salt);
+    let userCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :user_id";
+    let userInfo = await connection.execute(userCheckQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(userInfo);
+    let passwordKey = userInfo.rows[0].PASSWORD_KEY;
+    let passwordCorrect = bcrypt.compareSync(old_password, passwordKey);
 
-    let setPasswordQuery =
-      "UPDATE USERS SET PASSWORD_KEY = :hash WHERE EMAIL = :email";
-    let setPasswordResult = await connection.execute(
-      setPasswordQuery,
-      [hash, email],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-    console.log(setPasswordResult);
+    if (passwordCorrect) {
 
-    connection.commit();
+      const hash = bcrypt.hashSync(new_password, salt);
 
-    responseObj = {
-      ResponseCode: 1,
-      ResponseDesc: "SUCCESS",
-      ResponseStatus: resp.statusCode,
-      UserId: user_id,
-      PasswordKey: hash,
-    };
+      let setPasswordQuery =
+        "UPDATE USERS SET PASSWORD_KEY = :hash WHERE USER_ID = :user_id";
+      let setPasswordResult = await connection.execute(
+        setPasswordQuery,
+        [hash, user_id],
+        {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        }
+      );
+
+      connection.commit();
+
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        UserId: user_id,
+        PasswordKey: hash,
+      };
+    }else{
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "PASSWORD INCORRECT",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -947,12 +964,12 @@ async function getEmployees(req, resp) {
 
         let jobItem = jobSelectResult.rows[0];
         let joinDate = empItem.JOIN_DATE;
-        joinDate = joinDate.split(' ');
+        joinDate = joinDate.split(" ");
         joinDate = joinDate[0];
 
         let endDate = empItem.END_DATE;
-        if(empItem.END_DATE != null){
-          endDate = endDate.split(' ');
+        if (empItem.END_DATE != null) {
+          endDate = endDate.split(" ");
           endDate = endDate[0];
         }
 
