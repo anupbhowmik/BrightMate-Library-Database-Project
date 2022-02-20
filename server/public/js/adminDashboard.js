@@ -213,7 +213,7 @@ const addNewBook = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    bookList();
+    window.location.reload();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -325,7 +325,7 @@ const saveBookInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    bookList();
+    window.location.reload();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -349,8 +349,12 @@ const deleteBook = async (bookId) => {
     body: bookObj,
   });
   ResponseObj = await response.json();
-  window.alert(responseObj.ResponseDesc);
-  bookList();
+  if (ResponseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    window.location.reload();
+  } else {
+    window.alert(ResponseObj.ResponseDesc);
+  }
 };
 
 const openBookCopyModal = async (bookId) => {
@@ -388,7 +392,7 @@ const addBookCopies = async (bookId) => {
 
     if (responseObj.ResponseCode == 1) {
       window.alert(responseObj.ResponseDesc);
-      bookList();
+      window.location.reload();
     } else {
       window.alert(responseObj.ResponseDesc);
     }
@@ -536,7 +540,7 @@ const saveAuthorInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    authorList();
+    window.location.reload();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -571,7 +575,7 @@ const addNewAuthor = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    authorList();
+    window.location.reload();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -706,7 +710,7 @@ const savePublisherInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    publisherList();
+    window.location.reload();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -745,7 +749,7 @@ const addNewPublisher = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    authorList();
+    window.location.reload();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -949,4 +953,43 @@ const employeeList = async () => {
   design += `</tbody>
                 </table>`;
   MainContent.innerHTML = design;
+};
+
+const addEmployee = async () => {
+  let USER_NAME = $("#employee_name").val();
+  let EMAIL = $("#employee_email").val();
+  let PASSWORD = $("#employee_password").val();
+  let MOBILE = $("#employee_mobile").val();
+  let GENDER = $("#employee_gender").val();
+  let JOB_ID = $("#employee_job_id").val();
+
+  let employeeObj = {
+    USER_NAME: USER_NAME,
+    EMAIL: EMAIL,
+    PASSWORD: PASSWORD,
+    MOBILE: MOBILE,
+    GENDER: GENDER,
+    JOB_ID: JOB_ID
+  };
+
+  console.log(employeeObj);
+  employeeObj = JSON.stringify(employeeObj);
+
+  const responsePublisher = await fetch("http://localhost:5000/api/addEmployee", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: employeeObj,
+  });
+
+  responseObj = await responsePublisher.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    window.location.reload();
+  } else {
+    window.alert(responseObj.ResponseDesc);
+  }
 };
