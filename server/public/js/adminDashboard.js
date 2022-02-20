@@ -229,8 +229,125 @@ const addNewBook = async () => {
   }
 };
 
+const magazineList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const response = await fetch("http://localhost:5000/api/getMagazines", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  let ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  let design = `<div class="row"> 
+  <h2 align="center"> MAGAZINES </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="openAddNewMagazineModal()" data-bs-toggle="modal" data-bs-target="#addNewMagazineModal"> Add A New Magazine</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Magazine ID</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Publisher</th>
+                        <th scope="col">Genre</th>
+                        <th scope="col">Language</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.Magazines.forEach((element) => {
+    let genre = "";
+    for (let i = 0; i < element.Genre.length; i++) {
+      genre = genre + element.Genre[i].GenreName + ", ";
+    }
+
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td id="">${element.MagazineID}</td>
+                        <td>${element.MagazineTitle}</td>
+                        <td>${element.Publisher}</td>
+                        <td>${genre}</td>
+                        <td>${element.Language}</td>
+                        <td>
+                        <button id="edit_${element.MagazineID}" value="${element.MagazineID}" onclick="editMagazine(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editMagazineModal">Edit</button>
+                        </td>
+                    </tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+};
+
+const openAddNewMagazineModal = async () => {
+  await showPublishers("new_mag_publisher");
+  await showGenre("new_mag_genre");
+};
+
+const addNewMagazine = async () => {
+  let TITLE = $("#new_mag_title").val();
+  let LANGUAGE = $("#new_mag_language").val();
+  let PUBLISHER_ID = $("#new_mag_publisher").val();
+  let GENRE = [];
+  var markedCheckbox2 = document.getElementsByName("new_genreCheckbox");
+  for (var checkbox2 of markedCheckbox2) {
+    if (checkbox2.checked) GENRE.push(checkbox2.value);
+  }
+
+  if (
+    TITLE != "" &&
+    LANGUAGE != "" &&
+    PUBLISHER_ID != "" &&
+    GENRE.length != 0
+  ) {
+    let magObj = {
+      TITLE: TITLE,
+      LANGUAGE: LANGUAGE,
+      PUBLISHER_ID: PUBLISHER_ID,
+      GENRE: GENRE,
+    };
+
+    console.log(magObj);
+
+    magObj = JSON.stringify(magObj);
+
+    const responseMagazine = await fetch("http://localhost:5000/api/addMagazine", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: magObj,
+    });
+
+    responseObj = await responseMagazine.json();
+    console.log(responseObj);
+
+    if (responseObj.ResponseCode == 1) {
+      window.alert(responseObj.ResponseDesc);
+      window.location.reload();
+    } else {
+      window.alert(responseObj.ResponseDesc);
+    }
+  } else {
+    window.alert("Empty Field");
+  }
+};
+
 const showPublishers = async (docId) => {
-  const responseDepartments = await fetch(
+  const responsePublishers = await fetch(
     "http://localhost:5000/api/getPublishers",
     {
       method: "GET",
@@ -239,7 +356,7 @@ const showPublishers = async (docId) => {
       },
     }
   );
-  ResponseObj = await responseDepartments.json();
+  ResponseObj = await responsePublishers.json();
 
   let pubDesign = "";
 
