@@ -610,8 +610,6 @@ async function getJobs(req, resp) {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
 
-    console.log(jobSelectResult);
-
     if (jobSelectResult.rows.length === 0) {
       responseObj = {
         ResponseCode: 0,
@@ -926,8 +924,6 @@ async function getEmployees(req, resp) {
         outFormat: oracledb.OUT_FORMAT_OBJECT,
       }
     );
-
-    console.log(employeeSelectResult);
 
     if (employeeSelectResult.rows.length === 0) {
       responseObj = {

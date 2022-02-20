@@ -80,12 +80,6 @@
                     <strong id="admin_name"></strong>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                    <!-- <li><a class="dropdown-item" href="#">New project...</a></li> -->
-                    <li><a class="dropdown-item" href="#">Settings</a></li>
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
                     <li><a onclick="logout()" class="dropdown-item" href="#">Sign out</a></li>
                 </ul>
             </div>
@@ -444,6 +438,77 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button onclick="addNewPublisher()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal lg fade" id="addNewEmployeeModal" tabindex="-1" aria-labelledby="addNewEmployeeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNewEmployeeModalLabel">Add A New Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="new_employee_name" class="col-form-label">Employee Name:</label>
+                                <input type="text" class="form-control" id="new_employee_name">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="new_employee_mobile" class="col-form-label">Mobile:</label>
+                                <input type="text" class="form-control" id="new_employee_mobile">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="new_employee_email" class="col-form-label">Email:</label>
+                                <input type="text" class="form-control" id="new_employee_email">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="new_employee_password" class="col-form-label">Password:</label>
+                                <input type="password" class="form-control" id="new_employee_password">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="new_employee_gender" class="col-form-label">Gender:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioGender"
+                                        id="flexRadioMale" value = "Male">
+                                    <label class="form-check-label" for="flexRadioMale">
+                                        Male
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioGender"
+                                        id="flexRadioFemale" value = "Female">
+                                    <label class="form-check-label" for="flexRadioFemale">
+                                        Female
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioGender"
+                                        id="flexRadioOther" value = "Rather Not Say">
+                                    <label class="form-check-label" for="flexRadioOther">
+                                        Rather Not Say
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="new_employee_jobList" class="col-form-label">Job Position:</label>
+                                <div id="new_employee_jobList"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="addNewEmployee()" type="button" data-bs-dismiss="modal"
                         class="btn btn-primary">Save</button>
                 </div>
             </div>

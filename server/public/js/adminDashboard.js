@@ -183,43 +183,50 @@ const addNewBook = async () => {
     if (checkbox2.checked) GENRE.push(checkbox2.value);
   }
 
-  if(BOOK_TITLE != "" && YEAR != "" && ISBN != "" && LANGUAGE != "" && PUBLISHER_ID != "" && AUTHOR_ID.length != 0 && GENRE.length != 0){
+  if (
+    BOOK_TITLE != "" &&
+    YEAR != "" &&
+    ISBN != "" &&
+    LANGUAGE != "" &&
+    PUBLISHER_ID != "" &&
+    AUTHOR_ID.length != 0 &&
+    GENRE.length != 0
+  ) {
+    let bookObj = {
+      BOOK_TITLE: BOOK_TITLE,
+      YEAR: YEAR,
+      DESCRIPTION: DESCRIPTION,
+      LANGUAGE: LANGUAGE,
+      PUBLISHER_ID: PUBLISHER_ID,
+      GENRE: GENRE,
+      ISBN: ISBN,
+      AUTHOR_ID: AUTHOR_ID,
+    };
 
-  let bookObj = {
-    BOOK_TITLE: BOOK_TITLE,
-    YEAR: YEAR,
-    DESCRIPTION: DESCRIPTION,
-    LANGUAGE: LANGUAGE,
-    PUBLISHER_ID: PUBLISHER_ID,
-    GENRE: GENRE,
-    ISBN: ISBN,
-    AUTHOR_ID: AUTHOR_ID,
-  };
+    console.log(bookObj);
 
-  console.log(bookObj);
+    bookObj = JSON.stringify(bookObj);
 
-  bookObj = JSON.stringify(bookObj);
+    const responseBook = await fetch("http://localhost:5000/api/addBook", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: bookObj,
+    });
 
-  const responseBook = await fetch("http://localhost:5000/api/addBook", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: bookObj,
-  });
+    responseObj = await responseBook.json();
+    console.log(responseObj);
 
-  responseObj = await responseBook.json();
-  console.log(responseObj);
-
-  if (responseObj.ResponseCode == 1) {
-    window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    if (responseObj.ResponseCode == 1) {
+      window.alert(responseObj.ResponseDesc);
+      window.location.reload();
+    } else {
+      window.alert(responseObj.ResponseDesc);
+    }
   } else {
-    window.alert(responseObj.ResponseDesc);
+    window.alert("Empty Field");
   }
-}else {
-  window.alert("Empty Field");
-}
 };
 
 const showPublishers = async (docId) => {
@@ -736,13 +743,16 @@ const addNewPublisher = async () => {
   console.log(publisherObj);
   publisherObj = JSON.stringify(publisherObj);
 
-  const responsePublisher = await fetch("http://localhost:5000/api/addPublisher", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: publisherObj,
-  });
+  const responsePublisher = await fetch(
+    "http://localhost:5000/api/addPublisher",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: publisherObj,
+    }
+  );
 
   responseObj = await responsePublisher.json();
   console.log(responseObj);
@@ -758,12 +768,15 @@ const addNewPublisher = async () => {
 const rentalHistoryList = async () => {
   const MainContent = document.getElementById("mainContents");
 
-  const response = await fetch("http://localhost:5000/api/getAllRentalHistoryList", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const response = await fetch(
+    "http://localhost:5000/api/getAllRentalHistoryList",
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   let ResponseObj = await response.json();
   console.log(ResponseObj);
 
@@ -791,13 +804,13 @@ const rentalHistoryList = async () => {
   ResponseObj.RentalObject.forEach((element) => {
     let rStatus = element.RentalStatus;
     let stat = "";
-    if(rStatus == 1){
+    if (rStatus == 1) {
       stat = "Borrowed";
-    }else if(rStatus == 2){
+    } else if (rStatus == 2) {
       stat = "Overdue";
-    }else if(rStatus == 3){
+    } else if (rStatus == 3) {
       stat = "Due Cleared";
-    }else if(rStatus == 4){
+    } else if (rStatus == 4) {
       stat = "Returned";
     }
     design += `<tr>
@@ -808,20 +821,20 @@ const rentalHistoryList = async () => {
                         <td>${element.IssueDate}</td>
                         <td>${element.ReturnDate}</td>
                         <td>${stat}</td>`;
-                        if(rStatus == 1 || rStatus == 3){
-                          design += `<td>
+    if (rStatus == 1 || rStatus == 3) {
+      design += `<td>
                         <button id="return_${element.RentalId}" value="${element.RentalId}" onclick="returnBook(this.value)" class="btn btn-info btn-sm m-1">Return</button>
-                        </td>`
-                        }else if(rStatus == 2){
-                          design += `<td>
+                        </td>`;
+    } else if (rStatus == 2) {
+      design += `<td>
                         <button disabled id="return_${element.RentalId}" value="${element.RentalId}" class="btn btn-warning btn-sm m-1">Clear Due First</button>
-                        </td>`
-                        }else if(rStatus == 4){
-                          design += `<td>
+                        </td>`;
+    } else if (rStatus == 4) {
+      design += `<td>
                         <button disabled id="${element.RentalId}" value="${element.RentalId}" class="btn btn-secondary btn-sm m-1">Returned</button>
-                        </td>`
-                        }
-                        design += `</tr>`;
+                        </td>`;
+    }
+    design += `</tr>`;
 
     count++;
   });
@@ -834,12 +847,15 @@ const rentalHistoryList = async () => {
 const feeList = async () => {
   const MainContent = document.getElementById("mainContents");
 
-  const response = await fetch("http://localhost:5000/api/getAllFineHistoryList", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const response = await fetch(
+    "http://localhost:5000/api/getAllFineHistoryList",
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   let ResponseObj = await response.json();
   console.log(ResponseObj);
 
@@ -888,16 +904,17 @@ const feeList = async () => {
                         <td>${paymentDate}</td>
                         <td>${element.FeeAmount}</td>
                         <td>${element.PaymentStatus}</td>`;
-                        if(pStatus == 0){
-                          design += `<td>
+    if (pStatus == 0) {
+      design += `<td>
                         <button id="fee_${element.RentalId}" value="${element.RentalId}" onclick="clearDue(this.value)" class="btn btn-warning btn-sm m-1" data-bs-toggle="modal" data-bs-target="#payFeeModal">Clear Due</button>
-                        </td>`
-                        }if(pStatus == 1){
-                          design += `<td>
+                        </td>`;
+    }
+    if (pStatus == 1) {
+      design += `<td>
                         <button disabled id="${element.FineId}" value="${element.FineId}" class="btn btn-success btn-sm m-1">Paid</button>
-                        </td>`
-                        }
-                        design += `</tr>`;
+                        </td>`;
+    }
+    design += `</tr>`;
 
     count++;
   });
@@ -924,7 +941,7 @@ const employeeList = async () => {
   </div> 
   <div class="row">
   <p align="center">
-  <button style="width:50%;" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewEmployeeModal"> Add A New Employee</button>
+  <button style="width:50%;" onclick="opeNewEmployeeModal()" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewEmployeeModal"> Add A New Employee</button>
   </p>
   </div> 
   <hr>`;
@@ -969,13 +986,56 @@ const employeeList = async () => {
   MainContent.innerHTML = design;
 };
 
-const addEmployee = async () => {
-  let USER_NAME = $("#employee_name").val();
-  let EMAIL = $("#employee_email").val();
-  let PASSWORD = $("#employee_password").val();
-  let MOBILE = $("#employee_mobile").val();
-  let GENDER = $("#employee_gender").val();
-  let JOB_ID = $("#employee_job_id").val();
+const opeNewEmployeeModal = async () => {
+  showJobs();
+};
+
+const showJobs = async () => {
+  const responseJobs = await fetch("http://localhost:5000/api/getJobs", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  ResponseObj = await responseJobs.json();
+
+  console.log(ResponseObj);
+
+  let jobDesign = "";
+  ResponseObj.Jobs.forEach((job) => {
+    jobDesign += `<div class="form-check">
+    <input class="form-check-input" type="radio" name="new_employee_job"
+    value="${job.JobID}" id="job_${job.JobID}">
+    <label class="form-check-label" for="job_${job.JobID}">
+    ${job.JobTitle}
+    </label>
+    </div>`;
+  });
+  document.getElementById("new_employee_jobList").innerHTML = jobDesign;
+};
+
+const addNewEmployee = async () => {
+  let USER_NAME = $("#new_employee_name").val();
+  let EMAIL = $("#new_employee_email").val();
+  let PASSWORD = $("#new_employee_password").val();
+  let MOBILE = $("#new_employee_mobile").val();
+  
+  let GENDER;
+  if (document.getElementById("flexRadioMale").checked) {
+    GENDER = "Male";
+  } else if (document.getElementById("flexRadioFemale").checked) {
+    GENDER = "Female";
+  } else if (document.getElementById("flexRadioOther").checked) {
+    GENDER = "Rather Not Say";
+  }
+
+  let JOB_ID;
+  let job = document.getElementsByName('new_employee_job');
+  for(var i = 0; i < job.length; i++){
+    if(job[i].checked){
+      JOB_ID = job[i].value;
+    }
+  }
 
   let employeeObj = {
     USER_NAME: USER_NAME,
@@ -983,19 +1043,22 @@ const addEmployee = async () => {
     PASSWORD: PASSWORD,
     MOBILE: MOBILE,
     GENDER: GENDER,
-    JOB_ID: JOB_ID
+    JOB_ID: JOB_ID,
   };
 
   console.log(employeeObj);
   employeeObj = JSON.stringify(employeeObj);
 
-  const responsePublisher = await fetch("http://localhost:5000/api/addEmployee", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: employeeObj,
-  });
+  const responsePublisher = await fetch(
+    "http://localhost:5000/api/addEmployee",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: employeeObj,
+    }
+  );
 
   responseObj = await responsePublisher.json();
   console.log(responseObj);
@@ -1009,7 +1072,6 @@ const addEmployee = async () => {
 };
 
 const returnBook = async (rentId) => {
-
   let returnObj = {
     RENT_ID: rentId,
   };
