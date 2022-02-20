@@ -1,6 +1,6 @@
 import React from "react";
 import Books from "./components/books";
-import AddBookForm from "./components/addBookForm";
+import SearchBookForm from "./components/searchBookForm";
 import Carousel from "nuka-carousel";
 
 import slide1 from "./slide1.jpg"
@@ -20,7 +20,7 @@ function Home() {
             </Carousel>
 
             {/*<Books/>*/}
-            {/*<AddBookForm/>*/}
+            <SearchBookForm/>
         </div>
     )
 }

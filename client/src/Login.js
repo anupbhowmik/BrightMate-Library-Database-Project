@@ -151,6 +151,7 @@ function Login() {
                                     fullWidth
                                     id="outlined-basic"
                                     label="Password"
+                                    type="password"
                                     variant="outlined"/>
                             </Grid>
 

@@ -22,11 +22,15 @@ import logo from ".//logo.png";
 import CategoryIcon from '@mui/icons-material/Category';
 import axios from "axios";
 import {useEffect} from "react";
+import Cookies from "universal-cookie";
 
+const cookies  = new Cookies()
+const COOKIE_AGE=31536000
 
 export default function SingleBookDetails() {
 
     var [singleBook, setBook] = React.useState({
+
         CopyObject: [],
         GenreObject: [],
         AuthorObject: [],

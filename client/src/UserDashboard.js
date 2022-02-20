@@ -9,9 +9,18 @@ import {setLoading, showToast, transferData, userInfo} from "./App";
 import axios from "axios";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 
+
+
 function UserDashboard() {
 
-    var issueDate = "1"
+    function dateFix (dateStr){
+        var issueDate = dateStr.split("T")
+        var issueTime = issueDate[1].split(".")
+        console.log("in arrow func")
+        return (
+            <div> Issue Date: {issueDate[0]}    |    Time: {issueTime[0]} </div>)
+    }
+
     var [userDetails, setUserDetails] = useState(
         {
             ResponseCode: 0,
@@ -162,13 +171,15 @@ function UserDashboard() {
                                                 </List>
 
                                                 <Typography variant="body1" component="div">
-                                                    {/*{issueDate = rentalObject.IssueDate.split("T")}*/}
-                                                    {"Issue Date: " + rentalObject.IssueDate}
+
+                                                    {dateFix(rentalObject.IssueDate)}
+
                                                 </Typography>
+
 
                                                 {rentalObject.RentalStatus === 1? <Chip variant="outlined" color="primary" sx={{mr: 1.5, mt: 1 }} label="Pending Return"/> : <div> </div>}
                                                 {rentalObject.RentalStatus === 2? <Chip color="error" sx={{mr: 1.5, mt: 1 }} label="Overdue"/>  : <div> </div>}
-                                                {rentalObject.RentalStatus === 3? <Chip variant="outlined" color="success" sx={{mr: 1.5, mt: 1 }} label= {"Returned on" + rentalObject.ReturnDate}/>  : <div> </div>}
+                                                {rentalObject.RentalStatus === 3? <Chip variant="outlined" color="success" sx={{mr: 1.5, mt: 1 }} label= {"Returned on" + dateFix(rentalObject.ReturnDate)}/>  : <div> </div>}
 
 
                                             </CardContent>

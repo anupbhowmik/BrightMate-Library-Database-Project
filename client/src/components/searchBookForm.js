@@ -1,13 +1,13 @@
 import React, {useEffect} from "react";
 import {
     Button, CardActionArea,
-    Checkbox,
+    Checkbox, Divider,
     FormControl,
     FormControlLabel,
     FormGroup,
     FormHelperText,
     FormLabel,
-    Grid, InputLabel, ListItemText, OutlinedInput, Select,
+    Grid, InputBase, InputLabel, ListItemText, OutlinedInput, Paper, Select,
     TextField
 } from "@mui/material";
 import {setLoading, showToast} from "../App";
@@ -15,6 +15,11 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import MenuItem from "@mui/material/MenuItem";
 import axios from 'axios'
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
+import DirectionsIcon from '@mui/icons-material/Directions';
+import Box from "@mui/material/Box";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -27,7 +32,7 @@ const MenuProps = {
     },
 };
 
-const AddBookForm = (props) => {
+const SearchBookForm = (props) => {
     // todo: handle exceptions
 
     const [personName, setPersonName] = React.useState([]);
@@ -99,7 +104,6 @@ const AddBookForm = (props) => {
 
     useEffect(() => {
 
-
         axios.get("/api/getGenre").then((res) => {
             setGenre(res.data)
             var arr = []
@@ -126,39 +130,19 @@ const AddBookForm = (props) => {
                 })
                 console.log("authors ", res.data)
 
-            }).catch((e)=>{
+            }).catch((e) => {
                 console.log(e)
             })
 
-        }).catch((e)=>{
+        }).catch((e) => {
             console.log(e)
         })
 
 
-
-
     }, []);   // passing an empty array so that useEffect runs only once
 
-    // useEffect(() => {
-    //     // auto call while loading this component
-    //     fetch("/api/getAuthors")
-    //         .then((res) => res.json())
-    //         .then((authors) => setAuthors(authors))
-    //         .then(() => {
-    //             var arr = []
-    //             authors.AuthorList.map(() => {
-    //                 arr.push(false)
-    //             })
-    //
-    //
-    //             selectAuthor({
-    //                 selecAuthors: arr
-    //             })
-    //         });
-    //
-    // }, []);
 
-    function addBook() {
+    function searchBook() {
         const name = state.title;
         const isbn = state.ISBN;
         const edition = state.edition;
@@ -186,7 +170,7 @@ const AddBookForm = (props) => {
         })
 
 
-        console.log("post req", "book name ", name, " publisher id ", publisherID, " genre list " , genre, " author list ", author);
+        console.log("post req", "book name ", name, " publisher id ", publisherID, " genre list ", genre, " author list ", author);
 
         const requestOptions = {
             method: "POST",
@@ -218,77 +202,41 @@ const AddBookForm = (props) => {
             ...state,
             [event.target.name]: value,
         });
+
         console.log(event.target.value);
-        console.log("Author list: ", authors);
+
     };
 
     return (
         <Grid padding={5} container spacing={1}>
             <Grid item xs={12} md={12}>
-                <h2>Add a new Book</h2>
-            </Grid>
-            <Grid item xs={0} md={4}>
-            </Grid>
-            <Grid item xs={12} md={4}>
-                <TextField
-                    required
-                    style={{backgroundColor: "white"}}
-                    onChange={onTextChange}
-                    value={state.ISBN}
-                    name="ISBN"
-                    fullWidth
-                    id="outlined-basic"
-                    label="ISBN"
-                    variant="outlined"
-                />
+                <h2>Search a Book</h2>
             </Grid>
 
-            <Grid item xs={0} md={4}>
-            </Grid>
+            <Paper
+                component="form"
+                sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
+            >
+
+                <InputBase onChange={onTextChange}
+                    sx={{ ml: 1, flex: 1 }}
+                    placeholder="Search book..."
+                    inputProps={{ 'aria-label': 'search google maps' }}
+                />
+                <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
+                    <SearchIcon />
+                </IconButton>
+
+
+            </Paper>
 
             <Grid item xs={12} md={12}>
             </Grid>
 
-            <Grid item xs={0} md={4}>
-            </Grid>
-            <Grid item xs={12} md={4}>
-                <TextField
-                    onChange={onTextChange}
-                    required
-                    style={{backgroundColor: "white"}}
-                    value={state.title}
-                    name="title"
-                    fullWidth
-                    id="outlined-basic"
-                    label="Book Name"
-                    variant="outlined"
-                />
-            </Grid>
 
-
-            <Grid item xs={0} md={4}>
-            </Grid>
             <Grid item xs={12} md={12}>
             </Grid>
-            <Grid item xs={0} md={4}>
-            </Grid>
 
-            <Grid item xs={12} md={4}>
-                <TextField
-                    onChange={onTextChange}
-                    required
-                    value={state.edition}
-                    style={{backgroundColor: "white"}}
-                    name="edition"
-                    fullWidth
-                    id="outlined-basic"
-                    label="Edition"
-                    variant="outlined"
-                    type="number"
-                />
-            </Grid>
-
-            <Grid item xs={0} md={4}></Grid>
 
             <Grid item xs={12} md={12}>
             </Grid>
@@ -316,25 +264,7 @@ const AddBookForm = (props) => {
             <Grid item xs={12} md={12}>
             </Grid>
 
-            <Grid item xs={0} md={4}>
-            </Grid>
-            <Grid item xs={12} md={4}>
-                <TextField
-                    onChange={onTextChange}
-                    required
-                    style={{backgroundColor: "white"}}
-                    value={state.language}
-                    name="language"
-                    fullWidth
-                    id="outlined-basic"
-                    label="Language"
-                    variant="outlined"
-                />
-            </Grid>
 
-
-            <Grid item xs={0} md={4}>
-            </Grid>
             <Grid item xs={12} md={12}>
 
 
@@ -344,85 +274,68 @@ const AddBookForm = (props) => {
 
             <Grid item xs={12} md={4}>
 
-                <FormControl required fullWidth sx={{minwidth: 300}}>
-                    <InputLabel id="demo-multiple-checkbox-label">Authors</InputLabel>
-                    <Select
-                        labelId="demo-multiple-checkbox-label"
-                        id="demo-multiple-checkbox"
-                        multiple
-                        style={{backgroundColor: "white"}}
+                {/*<FormControl required fullWidth sx={{minwidth: 300}}>*/}
+                {/*    <InputLabel id="demo-multiple-checkbox-label">Author</InputLabel>*/}
+                {/*    <Select*/}
+                {/*        labelId="demo-multiple-checkbox-label"*/}
+                {/*        id="demo-multiple-checkbox"*/}
+                {/*        style={{backgroundColor: "white"}}*/}
 
-                        value={personName}
-                        onChange={handleChange}
-                        input={<OutlinedInput label="Authors"/>}
-                        renderValue={(selected) => selected.join(', ')}
-                        MenuProps={MenuProps}>
+                {/*        value={personName}*/}
+                {/*        onChange={handleChange}*/}
+                {/*        input={<OutlinedInput label="Authors"/>}*/}
+                {/*        renderValue={(selected) => selected.join(', ')}*/}
+                {/*        MenuProps={MenuProps}>*/}
 
-                        {authors === null ? <ListItemText primary={"No data found"}/> :
+                {/*        {authors === null ? <ListItemText primary={"No data found"}/> :*/}
 
-                            authors.AuthorList?.map((singleAuthor, index) => (
-                                    <MenuItem onClick={() => {
-                                        handleAuthorSelection(singleAuthor.AuthorID - 1)
-                                    }} key={singleAuthor.AuthorID} value={singleAuthor.AuthorName}>
-
+                {/*            authors.AuthorList?.map((singleAuthor, index) => (*/}
+                {/*                <MenuItem onClick={() => {*/}
+                {/*                    handleAuthorSelection(singleAuthor.AuthorID - 1)*/}
+                {/*                }} key={singleAuthor.AuthorID} value={singleAuthor.AuthorName}>*/}
 
 
-                                        {/*<div onClick={() => {*/}
-                                        {/*    handleAuthorSelection(index)*/}
-                                        {/*}} name="selectedAuthors" />*/}
-                                        <ListItemText primary={singleAuthor.AuthorName}/>
-                                    </MenuItem>
-                                ))
-                        }
+                {/*                    /!*<div onClick={() => {*!/*/}
+                {/*                    /!*    handleAuthorSelection(index)*!/*/}
+                {/*                    /!*}} name="selectedAuthors" />*!/*/}
+                {/*                    <ListItemText primary={singleAuthor.AuthorName}/>*/}
+                {/*                </MenuItem>*/}
+                {/*            ))*/}
+                {/*        }*/}
 
 
-                    </Select>
-                </FormControl>
+                {/*    </Select>*/}
+                {/*</FormControl>*/}
+
+
+                <Box sx={{ minWidth: 120 }}>
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Author</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={state.authorID}
+                            label="authorID"
+                            onChange={handleChange}
+                        >
+                            <MenuItem value={10}>Ten</MenuItem>
+                            <MenuItem value={20}>Twenty</MenuItem>
+                            <MenuItem value={30}>Thirty</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
+
             </Grid>
 
             <Grid item xs={0} md={4}></Grid>
 
             <Grid item xs={12} md={12}>
             </Grid>
-            <Grid item xs={0} md={4}>
-            </Grid>
 
-            <Grid item xs={12} md={4}>
-                <TextField
-                    onChange={onTextChange}
-                    required
-                    value={state.publisherID}
-                    style={{backgroundColor: "white"}}
-                    name="publisherID"
-                    fullWidth
-                    id="outlined-basic"
-                    label="Publisher ID"
-                    variant="outlined"
-                    type="number"/>
-            </Grid>
-
-            <Grid item xs={0} md={4}></Grid>
 
             <Grid item xs={12} md={12}>
             </Grid>
-            <Grid item xs={0} md={4}>
-            </Grid>
 
-            <Grid item xs={12} md={4}>
-                <TextField
-                    onChange={onTextChange}
-                    value={state.description}
-                    style={{backgroundColor: "white"}}
-                    name="description"
-                    fullWidth
-                    id="outlined-basic"
-                    label="Description"
-                    variant="outlined"
-
-                />
-            </Grid>
-
-            <Grid item xs={0} md={4}></Grid>
 
             <Grid item xs={0} md={2}></Grid>
 
@@ -442,16 +355,15 @@ const AddBookForm = (props) => {
 
                                     {genres === null ? <div>No data found</div> :
                                         genres.GenreList?.map((singleGenre, index) => (
-                                                <FormControlLabel
-                                                    control={
-                                                        <Checkbox checked={selectedGenres.selected[index]} onChange={() => {
-                                                            handleGenreSelection(singleGenre.GenreID - 1)
-                                                        }} name="selectedGenres"/>
-                                                    }
-                                                    label={singleGenre.GenreName}/>
-                                            ))
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox checked={selectedGenres.selected[index]} onChange={() => {
+                                                        handleGenreSelection(singleGenre.GenreID - 1)
+                                                    }} name="selectedGenres"/>
+                                                }
+                                                label={singleGenre.GenreName}/>
+                                        ))
                                     }
-
 
 
                                 </CardContent>
@@ -472,8 +384,8 @@ const AddBookForm = (props) => {
 
             <Grid item xs={12} md={4}>
                 <center>
-                    <Button onClick={addBook} variant="contained" disableElevation>
-                        Add this book
+                    <Button onClick={searchBook} variant="contained" disableElevation>
+                        Search this book
                     </Button>
                 </center>
             </Grid>
@@ -483,4 +395,4 @@ const AddBookForm = (props) => {
     );
 };
 
-export default AddBookForm;
+export default SearchBookForm;
