@@ -768,7 +768,7 @@ const rentalHistoryList = async () => {
   console.log(ResponseObj);
 
   let design = `<div class="row"> 
-  <h2 align="center"> ALL RENTAL HISTORIES </h2> 
+  <h2 align="center"> RENTAL HISTORY </h2> 
   </div> 
   <hr>`;
 
@@ -790,6 +790,16 @@ const rentalHistoryList = async () => {
   let count = 1;
   ResponseObj.RentalObject.forEach((element) => {
     let rStatus = element.RentalStatus;
+    let stat = "";
+    if(rStatus == 1){
+      stat = "Borrowed";
+    }else if(rStatus == 2){
+      stat = "Overdue";
+    }else if(rStatus == 3){
+      stat = "Due Cleared";
+    }else if(rStatus == 4){
+      stat = "Returned";
+    }
     design += `<tr>
                         <th scope="row">${count}</th>
                         <td id="">${element.RentalId}</td>
@@ -797,12 +807,16 @@ const rentalHistoryList = async () => {
                         <td>${element.BookCopyId}</td>
                         <td>${element.IssueDate}</td>
                         <td>${element.ReturnDate}</td>
-                        <td>${element.RentalStatus}</td>`;
-                        if(rStatus == 1 || rStatus == 2){
+                        <td>${stat}</td>`;
+                        if(rStatus == 1 || rStatus == 3){
                           design += `<td>
-                        <button id="return_${element.RentalId}" value="${element.RentalId}" onclick="returnBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#returnBookModal">Return</button>
+                        <button id="return_${element.RentalId}" value="${element.RentalId}" onclick="returnBook(this.value)" class="btn btn-info btn-sm m-1">Return</button>
                         </td>`
-                        }if(rStatus == 3){
+                        }else if(rStatus == 2){
+                          design += `<td>
+                        <button disabled id="return_${element.RentalId}" value="${element.RentalId}" class="btn btn-warning btn-sm m-1">Clear Due First</button>
+                        </td>`
+                        }else if(rStatus == 4){
                           design += `<td>
                         <button disabled id="${element.RentalId}" value="${element.RentalId}" class="btn btn-secondary btn-sm m-1">Returned</button>
                         </td>`
@@ -876,11 +890,11 @@ const feeList = async () => {
                         <td>${element.PaymentStatus}</td>`;
                         if(pStatus == 0){
                           design += `<td>
-                        <button id="fee_${element.FineId}" value="${element.FineId}" onclick="payFee(this.value)" class="btn btn-warning btn-sm m-1" data-bs-toggle="modal" data-bs-target="#payFeeModal">Pay</button>
+                        <button id="fee_${element.RentalId}" value="${element.RentalId}" onclick="clearDue(this.value)" class="btn btn-warning btn-sm m-1" data-bs-toggle="modal" data-bs-target="#payFeeModal">Clear Due</button>
                         </td>`
                         }if(pStatus == 1){
                           design += `<td>
-                        <button disabled id="${element.FineId}" value="${element.FineId}" class="btn btn-secondary btn-sm m-1">Paid</button>
+                        <button disabled id="${element.FineId}" value="${element.FineId}" class="btn btn-success btn-sm m-1">Paid</button>
                         </td>`
                         }
                         design += `</tr>`;
@@ -991,5 +1005,53 @@ const addEmployee = async () => {
     window.location.reload();
   } else {
     window.alert(responseObj.ResponseDesc);
+  }
+};
+
+const returnBook = async (rentId) => {
+
+  let returnObj = {
+    RENT_ID: rentId,
+  };
+  returnObj = JSON.stringify(returnObj);
+  console.log(returnObj);
+
+  const response = await fetch("http://localhost:5000/api/returnBook", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: returnObj,
+  });
+  ResponseObj = await response.json();
+
+  if (ResponseObj.ResponseCode == 1) {
+    window.alert(ResponseObj.ResponseDesc);
+    window.location.reload();
+  } else {
+    window.alert(ResponseObj.ResponseDesc);
+  }
+};
+
+const clearDue = async (rentId) => {
+  let dueObj = {
+    RENT_ID: rentId,
+  };
+  dueObj = JSON.stringify(dueObj);
+  console.log(dueObj);
+
+  const response = await fetch("http://localhost:5000/api/clearDue", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: dueObj,
+  });
+  ResponseObj = await response.json();
+  if (ResponseObj.ResponseCode == 1) {
+    window.alert(ResponseObj.ResponseDesc);
+    window.location.reload();
+  } else {
+    window.alert(ResponseObj.ResponseDesc);
   }
 };

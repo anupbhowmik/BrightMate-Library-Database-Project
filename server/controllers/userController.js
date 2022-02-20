@@ -275,19 +275,48 @@ async function adminSignIn(req, resp) {
       let user_type_id = userInfo.rows[0].USER_TYPE_ID;
 
       let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
-      if (passwordCorrect && user_type_id == 3) {
-        responseObj = {
-          ResponseCode: 1,
-          ResponseDesc: "SUCCESS",
-          ResponseStatus: resp.statusCode,
-          UserId: user_id,
-          Username: user_name,
-          Email: email,
-          PasswordKey: passwordKey,
-          Mobile: mobile,
-          Gender: gender,
-          UserTypeId: user_type_id,
-        };
+      if (passwordCorrect) {
+        if (user_type_id == 2) {
+          let employeeJobQuery =
+            "SELECT JOB_ID FROM USER_EMPLOYEE WHERE USER_ID = :user_id";
+          let employeeJob = await connection.execute(
+            employeeJobQuery,
+            [user_id],
+            {
+              outFormat: oracledb.OUT_FORMAT_OBJECT,
+            }
+          );
+          employeeJob = employeeJob.rows[0][0];
+          console.log(employeeJob);
+
+          if (employeeJob == 1 || employeeJob == 3)
+            responseObj = {
+              ResponseCode: 1,
+              ResponseDesc: "SUCCESS",
+              ResponseStatus: resp.statusCode,
+              UserId: user_id,
+              Username: user_name,
+              Email: email,
+              PasswordKey: passwordKey,
+              Mobile: mobile,
+              Gender: gender,
+              UserTypeId: user_type_id,
+              JobId: employeeJob
+            };
+        } else if (user_type_id == 3) {
+          responseObj = {
+            ResponseCode: 1,
+            ResponseDesc: "SUCCESS",
+            ResponseStatus: resp.statusCode,
+            UserId: user_id,
+            Username: user_name,
+            Email: email,
+            PasswordKey: passwordKey,
+            Mobile: mobile,
+            Gender: gender,
+            UserTypeId: user_type_id,
+          };
+        }
       } else {
         responseObj = {
           ResponseCode: 0,
@@ -361,7 +390,6 @@ async function changePassword(req, resp) {
     let passwordCorrect = bcrypt.compareSync(old_password, passwordKey);
 
     if (passwordCorrect) {
-
       const hash = bcrypt.hashSync(new_password, salt);
 
       let setPasswordQuery =
@@ -383,7 +411,7 @@ async function changePassword(req, resp) {
         UserId: user_id,
         PasswordKey: hash,
       };
-    }else{
+    } else {
       responseObj = {
         ResponseCode: 0,
         ResponseDesc: "PASSWORD INCORRECT",
@@ -450,77 +478,77 @@ async function addEmployee(req, resp) {
     let job_id = req.body.JOB_ID;
     let user_type_id = 2; //EMPLOYEE
 
-      let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
-      let user_exists = await connection.execute(userCheckQuery, [email], {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      });
-      console.log(user_exists);
+    let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
+    let user_exists = await connection.execute(userCheckQuery, [email], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(user_exists);
 
-      if (user_exists.rows.length == 0) {
-        //user does not exist
-        console.log("user does not exist");
-        userExistsAlready = false;
+    if (user_exists.rows.length == 0) {
+      //user does not exist
+      console.log("user does not exist");
+      userExistsAlready = false;
 
-        //Get Next User Id
-        let user_id;
-        await syRegister
-          .getNextId(connection, syRegisterUsers)
-          .then(function (data) {
-            user_id = data;
-          });
+      //Get Next User Id
+      let user_id;
+      await syRegister
+        .getNextId(connection, syRegisterUsers)
+        .then(function (data) {
+          user_id = data;
+        });
 
-        console.log(user_id);
-        const hash = bcrypt.hashSync(user_password, salt);
+      console.log(user_id);
+      const hash = bcrypt.hashSync(user_password, salt);
 
-        let userInsertQuery =
-          "INSERT INTO USERS (USER_ID, USER_NAME, EMAIL, PASSWORD_KEY, MOBILE, GENDER, USER_TYPE_ID) VALUES( :user_id, :user_name, :email, :hash, :mobile, :gender, :user_type_id)";
-        let userInsertResult = await connection.execute(userInsertQuery, [
-          user_id,
-          user_name,
-          email,
-          hash,
-          mobile,
-          gender,
-          user_type_id,
-        ]);
+      let userInsertQuery =
+        "INSERT INTO USERS (USER_ID, USER_NAME, EMAIL, PASSWORD_KEY, MOBILE, GENDER, USER_TYPE_ID) VALUES( :user_id, :user_name, :email, :hash, :mobile, :gender, :user_type_id)";
+      let userInsertResult = await connection.execute(userInsertQuery, [
+        user_id,
+        user_name,
+        email,
+        hash,
+        mobile,
+        gender,
+        user_type_id,
+      ]);
 
-        console.log(userInsertResult);
+      console.log(userInsertResult);
 
-        join_date = new Date();
+      join_date = new Date();
 
-        let employeeInsertQuery =
-          "INSERT INTO USER_EMPLOYEE (USER_ID, JOIN_DATE, JOB_ID) VALUES( :user_id, :join_date, :job_id)";
-        employeeInsertResult = await connection.execute(employeeInsertQuery, [
-          user_id,
-          join_date,
-          job_id,
-        ]);
+      let employeeInsertQuery =
+        "INSERT INTO USER_EMPLOYEE (USER_ID, JOIN_DATE, JOB_ID) VALUES( :user_id, :join_date, :job_id)";
+      employeeInsertResult = await connection.execute(employeeInsertQuery, [
+        user_id,
+        join_date,
+        job_id,
+      ]);
 
-        console.log(employeeInsertResult);
+      console.log(employeeInsertResult);
 
-        connection.commit();
+      connection.commit();
 
-        responseObj = {
-          ResponseCode: 1,
-          ResponseDesc: "SUCCESS",
-          ResponseStatus: resp.statusCode,
-          Username: user_name,
-          UserType: 2,
-          UserId: user_id,
-          Email: email,
-          PasswordKey: hash,
-          Mobile: mobile,
-          Gender: gender,
-          JobID: job_id,
-        };
-      } else {
-        responseObj = {
-          ResponseCode: 0,
-          ResponseDesc: "USER EXISTS ALREADY",
-          ResponseStatus: resp.statusCode,
-        };
-        resp.send(responseObj);
-      }
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        Username: user_name,
+        UserType: 2,
+        UserId: user_id,
+        Email: email,
+        PasswordKey: hash,
+        Mobile: mobile,
+        Gender: gender,
+        JobID: job_id,
+      };
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "USER EXISTS ALREADY",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
   } catch (err) {
     console.log(err);
     responseObj = {

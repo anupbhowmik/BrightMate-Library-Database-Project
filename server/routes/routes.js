@@ -44,6 +44,7 @@ router.get("/api/getMagazines", bodyParser, magazineController.getMagazines);
 router.post("/api/getMagazineInfo", bodyParser, magazineController.getMagazineInfo);
 
 router.post("/api/rentBook", bodyParser, rentController.rentBook);
+router.post("/api/clearDue", bodyParser, rentController.clearDue);
 router.post("/api/returnBook", bodyParser, rentController.returnBook);
 router.get("/api/getAllRentalHistoryList", bodyParser, rentController.getAllRentalHistoryList);
 router.get("/api/getAllFineHistoryList", bodyParser, rentController.getAllFineHistoryList);

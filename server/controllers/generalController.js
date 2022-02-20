@@ -705,52 +705,52 @@ async function search(req, resp) {
       }
 
       genreSelectQuery = "SELECT * FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
-    let genreSelectResult = await connection.execute(
-      genreSelectQuery,
-      [book_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-
-    let genreObject = [];
-    if (genreSelectResult.rows.length != 0) {
-      for (let j = 0; j < genreSelectResult.rows.length; j++) {
-        let genreId = genreSelectResult.rows[j].GENRE_ID;
-        let genreQuery =
-          "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
-        genreNameResult = await connection.execute(genreQuery, [genreId], {
+      let genreSelectResult = await connection.execute(
+        genreSelectQuery,
+        [book_id],
+        {
           outFormat: oracledb.OUT_FORMAT_OBJECT,
-        });
-        let genreName = genreNameResult.rows[0].GENRE_NAME;
-        genreObject.push({
-          GenreId: genreId,
-          GenreName: genreName,
-        });
-      }
-    }
+        }
+      );
 
-    copySelectQuery =
-      "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY WHERE STATUS = 1 GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
-    let copySelectResult = await connection.execute(
-      copySelectQuery,
-      [book_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      let genreObject = [];
+      if (genreSelectResult.rows.length != 0) {
+        for (let j = 0; j < genreSelectResult.rows.length; j++) {
+          let genreId = genreSelectResult.rows[j].GENRE_ID;
+          let genreQuery =
+            "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
+          genreNameResult = await connection.execute(genreQuery, [genreId], {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          });
+          let genreName = genreNameResult.rows[0].GENRE_NAME;
+          genreObject.push({
+            GenreId: genreId,
+            GenreName: genreName,
+          });
+        }
       }
-    );
 
-    let copyObject = [];
-    if (copySelectResult.rows.length != 0) {
-      for (let k = 0; k < copySelectResult.rows.length; k++) {
-        let copyCount = copySelectResult.rows[k].CNT;
-        let edition = copySelectResult.rows[k].EDITION;
-        copyObject.push({
-          CopyCount: copyCount,
-          Edition: edition,
-        });
+      copySelectQuery =
+        "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY WHERE STATUS = 1 GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
+      let copySelectResult = await connection.execute(
+        copySelectQuery,
+        [book_id],
+        {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        }
+      );
+
+      let copyObject = [];
+      if (copySelectResult.rows.length != 0) {
+        for (let k = 0; k < copySelectResult.rows.length; k++) {
+          let copyCount = copySelectResult.rows[k].CNT;
+          let edition = copySelectResult.rows[k].EDITION;
+          copyObject.push({
+            CopyCount: copyCount,
+            Edition: edition,
+          });
+        }
       }
-    }
 
       searchObject.push({
         BookID: book_id,
