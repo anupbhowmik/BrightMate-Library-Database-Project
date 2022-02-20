@@ -449,25 +449,6 @@ async function addEmployee(req, resp) {
     let gender = req.body.GENDER;
     let job_id = req.body.JOB_ID;
     let user_type_id = 2; //EMPLOYEE
-    let admin_id = req.body.ADMIN_ID;
-    let admin_password = req.body.ADMIN_PASSWORD;
-
-    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
-    let adminCheckResult = await connection.execute(
-      adminCheckQuery,
-      [admin_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
-    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
-
-    if (
-      adminTypeId == 3 &&
-      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
-    ) {
-      console.log("GOT ADMIN PERMISSION");
 
       let userCheckQuery = "SELECT * FROM USERS WHERE EMAIL = :email";
       let user_exists = await connection.execute(userCheckQuery, [email], {
@@ -540,14 +521,6 @@ async function addEmployee(req, resp) {
         };
         resp.send(responseObj);
       }
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "ADMIN CREDENTIALS WRONG",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
   } catch (err) {
     console.log(err);
     responseObj = {

@@ -615,13 +615,10 @@ async function search(req, resp) {
     let authorQuery = "";
     let authorFromQuery = "";
     if (is_author_filter == 1) {
-      author_name = authorKey.AUTHOR_NAME;
-      author_name = "'%" + author_name + "%'";
+      author_id = authorKey.AUTHOR_ID;
       authorFromQuery = " , BOOKS_AUTHORS ba ";
       authorQuery =
-        " AND ba.AUTHOR_ID IN (SELECT AUTHOR_ID FROM AUTHOR WHERE UPPER(AUTHOR_NAME) LIKE UPPER(" +
-        author_name +
-        ")) AND b.BOOK_ID = ba.BOOK_ID";
+        " AND ba.AUTHOR_ID = " + author_id + " AND b.BOOK_ID = ba.BOOK_ID";
     }
 
     let genreKey = req.body.GENRE_OBJECT;
@@ -678,7 +675,7 @@ async function search(req, resp) {
         }
       );
 
-      let authorNameArr = [];
+      let authorObject = [];
       if (authorSelectResult.rows.length != 0) {
         for (let j = 0; j < authorSelectResult.rows.length; j++) {
           let authorId = authorSelectResult.rows[j].AUTHOR_ID;
@@ -687,7 +684,10 @@ async function search(req, resp) {
           authorNameResult = await connection.execute(authorQuery, [authorId], {
             outFormat: oracledb.OUT_FORMAT_OBJECT,
           });
-          authorNameArr[j] = authorNameResult.rows[0].AUTHOR_NAME;
+          authorObject.push({
+            AuthorId: authorId,
+            AuthorName: authorNameResult.rows[0].AUTHOR_NAME,
+          });
         }
       }
 
@@ -704,12 +704,61 @@ async function search(req, resp) {
         publisherName = publisherName.rows[0].PUBLISHER_NAME;
       }
 
+      genreSelectQuery = "SELECT * FROM BOOKS_GENRE WHERE BOOK_ID = :book_id";
+    let genreSelectResult = await connection.execute(
+      genreSelectQuery,
+      [book_id],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+
+    let genreObject = [];
+    if (genreSelectResult.rows.length != 0) {
+      for (let j = 0; j < genreSelectResult.rows.length; j++) {
+        let genreId = genreSelectResult.rows[j].GENRE_ID;
+        let genreQuery =
+          "SELECT GENRE_NAME FROM GENRE WHERE GENRE_ID = :genreId";
+        genreNameResult = await connection.execute(genreQuery, [genreId], {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        });
+        let genreName = genreNameResult.rows[0].GENRE_NAME;
+        genreObject.push({
+          GenreId: genreId,
+          GenreName: genreName,
+        });
+      }
+    }
+
+    copySelectQuery =
+      "SELECT COUNT(BOOK_COPY_ID) AS CNT, BOOK_ID, EDITION FROM BOOK_COPY WHERE STATUS = 1 GROUP BY BOOK_ID, EDITION HAVING BOOK_ID = :book_id";
+    let copySelectResult = await connection.execute(
+      copySelectQuery,
+      [book_id],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+
+    let copyObject = [];
+    if (copySelectResult.rows.length != 0) {
+      for (let k = 0; k < copySelectResult.rows.length; k++) {
+        let copyCount = copySelectResult.rows[k].CNT;
+        let edition = copySelectResult.rows[k].EDITION;
+        copyObject.push({
+          CopyCount: copyCount,
+          Edition: edition,
+        });
+      }
+    }
+
       searchObject.push({
         BookID: book_id,
         Title: bookItem.BOOK_TITLE,
-        Author: authorNameArr,
         Publisher: publisherName,
-        AvailableCopies: bookItem.AVAILABLE_COPIES,
+        AuthorObject: authorObject,
+        CopyObject: copyObject,
+        GenreObject: genreObject,
         YearOfPublication: bookItem.YEAR_OF_PUBLICATION,
         Description: bookItem.DESCRIPTION,
         Language: bookItem.LANGUAGE,
