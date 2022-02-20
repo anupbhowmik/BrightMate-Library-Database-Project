@@ -20,13 +20,14 @@ import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
 const pages = [
+    {title: "Home", address: "../"},
     {title: "All Books", address: "allbooks"},
+    {title: "Search Books", address: "searchresult"},
     // {title: "Categories", address: "#"},
     {title: "About us", address: "about"}];
 const settings = ["Dashboard", "Logout"];
 
 const ResponsiveAppBar = () => {
-
 
 
     var navigate = useNavigate();
@@ -56,7 +57,7 @@ const ResponsiveAppBar = () => {
 
         }
         else  if (index === 0){
-            navigate('dashboard')
+            navigate("dashboard/" + userInfo.UserId)
         }
     };
 
@@ -67,7 +68,7 @@ const ResponsiveAppBar = () => {
     }
 
     return (
-        <AppBar style={{backgroundColor: "white"}} position="sticky">
+        <AppBar sx={{backgroundColor: "white", zIndex: "1", paddingLeft: "230px"}} position="sticky">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <img onClick={() => navigatePage("/")} src={logo} className="App-logo" alt="logo"/>

@@ -2,14 +2,16 @@ import React from "react";
 import {Button, Grid, TextField} from "@mui/material";
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
-import {setAdminStatus, setLoading, setLoggedIn, setUserInfo, showToast} from "./App";
+import {setAdminStatus, setLoading, setLoggedIn, setUserInfo, showToast, transferData} from "./App";
 import axios from "axios";
+import login from "./images/login.png";
 
 import Cookies from 'universal-cookie';
 import {useNavigate} from "react-router";
+
 const cookies = new Cookies();
 
-const COOKIE_AGE=31536000
+const COOKIE_AGE = 31536000
 
 function Login() {
 
@@ -45,66 +47,48 @@ function Login() {
         const email = state.email;
         const password = state.password;
 
+        if (state.email == "" || state.password == "" || state.email == null || state.password == null){
+            showToast("Don't keep any of the fields empty")
+        } else {
+            setLoading(true);
+            axios.post(`/api/signIn`, {
+                EMAIL: email,
+                PASSWORD: password
+            }).then(res => {
+                setLoading(false);
+                if (res.data.ResponseCode !== 0) {
+                    showToast(" Logged in successfully");
+                    setLoggedIn(true);
+                    cookies.set('auth', JSON.stringify(res.data), {path: '/', maxAge: COOKIE_AGE})
+                    setUserInfo(res.data);
+                    navigate('../')
 
-        console.log("login req: ", "email ", email, "password ", password);
+                } else {
+                    showToast(" Login failed");
+                }
+                console.log(res.data)
+            }).catch(err => {
+                setLoading(false);
+                console.log(err)
+            })
+        }
 
 
-        setLoading(true);
-        axios.post(`/api/signIn`,{
-            EMAIL: email,
-            PASSWORD: password
-        }).then(res=>{
-            setLoading(false);
-            if (res.data.ResponseCode !== 0) {
-                showToast(" Logged in successfully");
-                setLoggedIn(true);
-                cookies.set('auth',JSON.stringify(res.data),{ path: '/', maxAge: COOKIE_AGE })
-                setUserInfo(res.data);
-                navigate('../')
-
-            } else {
-                showToast(" Login failed");
-            }
-            console.log(res.data)
-        }).catch(err=>{
-            setLoading(false);
-            console.log(err)
-        })
 
 
-        // const requestOptions = {
-        //     method: "POST",
-        //     headers: {"Content-Type": "application/json"},
-        //     body: JSON.stringify({
-        //         EMAIL: email,
-        //         PASSWORD: password
-        //     }),
-        // };
-        //
-        // setLoading(true);
-        // showToast("Logging in...");
-        // fetch("/api/signIn", requestOptions)
-        //     .then((res) => res.json())
-        //     .then((response) => setResp(response))
-        //     .then(() => {
-        //         console.log(response)
-        //         setLoading(false);
-        //         if (response.ResponseCode !== 0) {
-        //
-        //             showToast(" Logged in successfully");
-        //             setLoggedIn(true);
-        //             setUserInfo(response);
-        //         } else {
-        //             showToast(" Login failed");
-        //         }
-        //
-        //     })
+
     }
 
     return (
 
         <div style={{backgroundColor: "#F3F4F8"}}>
             <Grid container spacing={1} padding={1}>
+
+                <Grid item xs={12} md={12}>
+
+
+                </Grid>
+
 
                 <Grid item xs={1} md={3}></Grid>
                 <Grid marginTop={4} marginBottom={3} item xs={10} md={6}>
@@ -113,6 +97,15 @@ function Login() {
                             padding: '20px',
                             boxSizing: 'content-box',
                         }} elevation={0}>
+
+
+                            <b><strong><Typography variant="h4" component="div">
+                                Log in to continue
+                            </Typography> </strong></b>
+                            <br/>
+
+                            <img style={{objectFit: "contain"}} height={300} width={400} src={login}/>
+
 
                             <Grid item xs={0} md={4}></Grid>
 

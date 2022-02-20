@@ -22,22 +22,22 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import Typography from "@mui/material/Typography";
 import axios from "axios";
 
-const Books = (props) => {
+const Magazines = (props) => {
 
     var [isLoaded, setLoaded] = useState(false)
     useEffect(() => {
         setLoaded(false)
 
         setLoading(true);
-        axios.get('/api/getbooks')
+        axios.get('/api/getMagazines')
             .then((res) => {
                     setLoading(false);
                     if (res.data.ResponseCode !== 0) {
                         setBooks(res.data)
-                        showToast("All Books Loaded");
+                        showToast("All Magazines Loaded");
                         setLoaded(true)
                     } else {
-                        showToast("Books loading failed");
+                        showToast("Books Magazines failed");
                     }
                 }
             ).catch((e) => {
@@ -52,20 +52,20 @@ const Books = (props) => {
     const [books, setBooks] = useState({
         ResponseCode: 0,
         ResponseDesc: "",
-        Books: []
+        Magazines: []
     });
 
     function showAllBooks() {
         setLoading(true);
-        axios.get('/api/getbooks')
+        axios.get('/api/getMagazines')
             .then((res) => {
                     setLoading(false);
                     if (res.data.ResponseCode !== 0) {
                         setBooks(res.data)
-                        showToast("All Books Loaded");
+                        showToast("All Magazines Loaded");
                         setLoaded(true)
                     } else {
-                        showToast("Books loading failed");
+                        showToast("Magazines loading failed");
                     }
                 }
             ).catch((e) => {
@@ -74,8 +74,7 @@ const Books = (props) => {
     }
 
     function showBookDetails(singleBook) {
-        navigate("../bookdetails/" + singleBook.BookID)
-
+        navigate("../magazinedetails")
         setTransferData(singleBook)
 
     }
@@ -87,18 +86,18 @@ const Books = (props) => {
     return (
         <Grid container spacing={1} padding={1}>
             <Grid item xs={12} md={12}>
-                <h2>All Books</h2>
+                <h2>All Magazines</h2>
             </Grid>
 
             <Grid item xs={0} md={2}></Grid>
             <Grid item xs={12} md={8}>
                 <div style={{display: "flex", justifyContent: "center"}}>
                     <List>
-                        {books.size === null ? <div>No books found</div> :
-                            books.Books?.map((book) => (
+                        {books.size === null ? <div>No Magazines found</div> :
+                            books.Magazines?.map((book) => (
 
                                 <Card style={{textAlign: 'left', marginBottom: '10px'}}
-                                      onClick={() => showBookDetails(book)} key={book.BookID} elevation={0}
+                                      onClick={() => showBookDetails(book)} key={book.MagazineID} elevation={0}
                                       sx={{minWidth: 700}}>
                                     <CardActionArea>
                                         <CardContent>
@@ -114,41 +113,22 @@ const Books = (props) => {
 
                                                 <Grid sx={6} md={8}>
                                                     <b><strong><Typography variant="h6" component="div">
-                                                        {book.Title}
+                                                        {book.MagazineTitle}
                                                     </Typography> </strong></b>
                                                 </Grid>
                                             </Grid>
 
-                                            ISBN: {book.ISBN}<br/>
+                                            Publisher: {book.Publisher}<br/>
 
                                             <List>
-                                                {book.AuthorObject.map((singleAuthor) => (
-                                                    <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
+                                                {book.Genre.map((singleGenre) => (
+                                                    <Chip sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
                                                     />
                                                 ))}
 
                                             </List>
 
-                                            {book.CopyObject.length == 0 ?
-                                                <Chip sx={{mr: 1.5, mt: 1}} label={"No copies available right now"}
-                                                      variant="outlined"/> :
-                                                book.CopyObject.map((singleCopy) => (
 
-                                                    <Card elevation={0}>
-
-                                                        <Chip sx={{mr: 1.5, mt: 1, mb: 1}}
-                                                              label={singleCopy.Edition + " Edition"}
-                                                              variant="outlined"/>
-
-                                                        <Typography color={"#3A7CFF"} variant="body1" component="div">
-                                                            {"Copies Available: " + singleCopy.CopyCount}
-                                                        </Typography>
-
-                                                    </Card>
-
-
-                                                ))
-                                            }
 
 
                                         </CardContent>
@@ -190,4 +170,4 @@ const Books = (props) => {
     );
 };
 
-export default Books;
+export default Magazines;

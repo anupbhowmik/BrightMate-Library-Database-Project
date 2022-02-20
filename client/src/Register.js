@@ -21,11 +21,11 @@ const Register = (props) => {
     var navigate = useNavigate();
 
     var [state, setState] = React.useState({
-        user_name: null,
-        email: null,
-        password: null,
-        mobile_no: null,
-        gender: null
+        user_name: "",
+        email: "",
+        password: "",
+        mobile_no: "",
+        gender: ""
 
     });
 
@@ -43,7 +43,7 @@ const Register = (props) => {
         const pass = state.password;
         const mbl = state.mobile_no;
 
-        console.log("register req: ", "username ", name, " email ", email, "password ", pass, "gender ", gender, " mobile ", mbl);
+
 
         const requestOptions = {
             method: "POST",
@@ -57,13 +57,19 @@ const Register = (props) => {
             }),
         };
 
-        setLoading(true);
-        showToast("Creating new account...");
-        fetch("/api/signUp", requestOptions).then(() => {
-            setLoading(false);
-            showToast("Please login to continue");
-            navigate("../login")
-        });
+        if (name == "" || email === "" || pass == "" || email === "" || mbl == "" ){
+            showToast("Don't keep any of the required fields empty")
+        } else {
+            setLoading(true);
+            showToast("Creating new account...");
+            fetch("/api/signUp", requestOptions).then(() => {
+                setLoading(false);
+                showToast("Please login to continue");
+                navigate("../login")
+            });
+        }
+
+
     }
 
     const onTextChange = (event) => {
@@ -179,7 +185,7 @@ const Register = (props) => {
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={gender}
-                        label="Age"
+                        label="Gender"
                         onChange={handleChange}>
                         <MenuItem value={"Male"}>Male</MenuItem>
                         <MenuItem value={"Female"}>Female</MenuItem>

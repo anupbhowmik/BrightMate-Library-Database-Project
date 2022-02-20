@@ -4,7 +4,16 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import {setLoading, setLoggedIn, setTransferData, setUserInfo, showToast, transferData, userInfo} from "./App";
+import {
+    isLoggedIn,
+    setLoading,
+    setLoggedIn,
+    setTransferData,
+    setUserInfo,
+    showToast,
+    transferData,
+    userInfo
+} from "./App";
 import {
     Avatar, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid,
     List,
@@ -19,15 +28,23 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LanguageIcon from '@mui/icons-material/Language';
 import logo from ".//logo.png";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CategoryIcon from '@mui/icons-material/Category';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from "axios";
 import {useEffect} from "react";
 import Cookies from "universal-cookie";
+import {useNavigate} from "react-router";
+import {useParams} from "react-router-dom";
 
-const cookies  = new Cookies()
-const COOKIE_AGE=31536000
+const cookies = new Cookies()
+const COOKIE_AGE = 31536000
 
-export default function SingleBookDetails() {
+
+export default function SingleBookDetails(props) {
+
+    const params = useParams()
+    console.log('params ', params)
 
     var [singleBook, setBook] = React.useState({
 
@@ -37,16 +54,16 @@ export default function SingleBookDetails() {
     });
 
     var [state, setState] = React.useState({
-        copies: null
+        copies: []
     });
 
     useEffect(() => {
 
         setLoading(true);
-        console.log("book id ", transferData.BookID)
+        // console.log("book id ", transferData.BookID)
 
         axios.post("/api/getBookInfo", {
-            BOOK_ID: transferData.BookID
+            BOOK_ID: params.id
         }).then((res) => {
             setLoading(false);
             if (res.data.ResponseCode !== 0) {
@@ -63,6 +80,28 @@ export default function SingleBookDetails() {
         })
 
     }, []);
+
+    function getBookInfo() {
+        setLoading(true);
+        console.log("book id ", params.id)
+
+        axios.post("/api/getBookInfo", {
+            BOOK_ID: params.id
+        }).then((res) => {
+            setLoading(false);
+            if (res.data.ResponseCode !== 0) {
+                setBook(res.data)
+
+            } else {
+                showToast(" Book loading failed");
+            }
+            console.log(res.data)
+
+
+        }).catch((e) => {
+            console.log(e)
+        })
+    }
 
     function addCopy(edition) {
         setOpen(false);
@@ -129,49 +168,57 @@ export default function SingleBookDetails() {
         setOpen(false);
     };
 
+    var navigate = useNavigate();
 
-    function collectBook(userID, book, edition) {
+    function collectBook(book, edition) {
 
-        console.log("rent book req ", "userID ", userID, "book id ", book.BookID, " edition ", edition, " pass ", userInfo.PasswordKey);
+        // console.log("rent book req ", "book id ", book.BookID, " edition ", edition, " pass ", userInfo.PasswordKey);
 
-        const requestOptions = {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                USER_ID: userID,
-                USER_PASSWORD: userInfo.PasswordKey,
-                BOOK_ID: book.BookID,
-                EDITION: edition,
+        console.log('is logged in ', isLoggedIn)
+        if (isLoggedIn === false) {
+            showToast('Please log in first')
+            navigate('../login')
+        } else {
+            const requestOptions = {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    USER_ID: userInfo.userID,
+                    USER_PASSWORD: userInfo.PasswordKey,
+                    BOOK_ID: book.BookID,
+                    EDITION: edition,
 
-            }),
-        };
+                }),
+            };
 
-        setLoading(true);
-        showToast("Adding new book to Collection...");
-        fetch("/api/rentBook", requestOptions).then(() => {
-            setLoading(false);
-            showToast(book.Title + " Added to your collection!");
+            setLoading(true);
+            showToast("Adding new book to Collection...");
+            fetch("/api/rentBook", requestOptions).then(() => {
+                setLoading(false);
+                showToast(book.Title + " Added to your collection!");
 
-        });
+            });
 
-        setLoading(true);
-        console.log("book id ", transferData.BookID)
-        axios.post("/api/getBookInfo", {
-            BOOK_ID: transferData.BookID
-        }).then((res) => {
+            setLoading(true);
+            // console.log("book id ", transferData.BookID)
+            axios.post("/api/getBookInfo", {
+                BOOK_ID: params.id
+            }).then((res) => {
                 setLoading(false);
                 if (res.data.ResponseCode !== 0) {
                     setBook(res.data)
 
                 } else {
-                    showToast(" Book loading failed");
+                    showToast("Book loading failed");
                 }
                 console.log(res.data)
 
 
             }).catch((e) => {
-            console.log(e)
-        })
+                console.log(e)
+            })
+
+        }
 
 
     }
@@ -192,13 +239,18 @@ export default function SingleBookDetails() {
                         <CardContent>
 
                             <b><strong><Typography variant="h4" component="div">
-                                {transferData.Title}
+                                {singleBook.Title}
                             </Typography> </strong></b>
                             <br/>
 
                             <Typography sx={{mb: 1.5}} color="text.primary">
-                                ISBN: {transferData.ISBN}
+                                ISBN: {singleBook.ISBN}
                             </Typography>
+
+                            <Button variant={"outlined"} onClick={getBookInfo}>
+
+                                <RefreshIcon/> &nbsp;&nbsp;&nbsp;Refresh
+                            </Button>
 
                             <hr color="#E1EBFF"/>
 
@@ -211,15 +263,15 @@ export default function SingleBookDetails() {
                             </Typography>
                             <br/>
 
-                            {singleBook === null ? transferData.CopyObject.length === 0 ?
+                            {singleBook === null ? singleBook.CopyObject.length === 0 ?
                                     <Chip sx={{mr: 1.5}} label={"No copies available right now"}
                                           variant="outlined"/> :
-                                    transferData.CopyObject.map((singleCopy) => (
+                                    singleBook.CopyObject.map((singleCopy) => (
 
                                         <Card elevation={0}>
 
                                             <Chip
-                                                onClick={() => collectBook(userInfo.UserId, transferData, singleCopy.Edition)}
+                                                onClick={() => collectBook(userInfo.UserId, singleBook, singleCopy.Edition)}
                                                 size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
                                                 label={"Collect " + singleCopy.Edition + " Edition"}
                                             />
@@ -261,14 +313,14 @@ export default function SingleBookDetails() {
                                 :
                                 // the book is loaded from api
                                 singleBook.CopyObject.length === 0 ?
-                                    <Chip sx={{mr: 1.5 , mb: 1}} label={"No copies available right now"}
+                                    <Chip sx={{mr: 1.5, mb: 1}} label={"No copies available right now"}
                                           variant="outlined"/> :
                                     singleBook.CopyObject.map((singleCopy) => (
 
                                         <Card elevation={0}>
 
                                             <Chip
-                                                onClick={() => collectBook(userInfo.UserId, singleBook, singleCopy.Edition)}
+                                                onClick={() => collectBook(singleBook, singleCopy.Edition)}
                                                 size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
                                                 label={"Collect " + singleCopy.Edition + " Edition"}
                                             />
@@ -277,6 +329,7 @@ export default function SingleBookDetails() {
                                                         component="div">
                                                 {"Copies Available: " + singleCopy.CopyCount}
                                             </Typography>
+
                                             {/*for adding book copies in admin site*/}
                                             {/*<Dialog open={open} onClose={handleClose}>*/}
                                             {/*    <DialogTitle>Add copies</DialogTitle>*/}
@@ -318,7 +371,7 @@ export default function SingleBookDetails() {
                                 <CreateIcon/>
                             </Avatar>
                             <List>
-                                {transferData.AuthorObject.map((singleAuthor) => (
+                                {singleBook.AuthorObject.map((singleAuthor) => (
                                     <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
                                           variant="outlined"/>
                                 ))}
@@ -331,7 +384,7 @@ export default function SingleBookDetails() {
                             </Avatar>
 
                             <Typography paddingTop={1} variant="body2">
-                                {transferData.Publisher}
+                                {singleBook.Publisher}
                             </Typography>
 
 
@@ -340,7 +393,15 @@ export default function SingleBookDetails() {
                                 <LanguageIcon/>
                             </Avatar>
                             <Typography paddingTop={1} variant="body2">
-                                Language: {transferData.Language}
+                                Language: {singleBook.Language}
+                            </Typography>
+
+                            <br/>
+                            <Avatar sx={{bgcolor: "#3A7CFF"}}>
+                                <AccessTimeIcon/>
+                            </Avatar>
+                            <Typography paddingTop={1} variant="body2">
+                                Year of Publication: {singleBook.YearOfPublication}
                             </Typography>
 
                             <br/>
@@ -349,7 +410,7 @@ export default function SingleBookDetails() {
                                 <CategoryIcon/>
                             </Avatar>
                             <List>
-                                {transferData.GenreObject.map((singleGenre) => (
+                                {singleBook.GenreObject.map((singleGenre) => (
                                     <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
                                           variant="outlined"/>
                                 ))}
@@ -361,7 +422,7 @@ export default function SingleBookDetails() {
                                 <DescriptionIcon/>
                             </Avatar>
                             <Typography paddingTop={1} variant="body2">
-                                {transferData.Description}
+                                {singleBook.Description}
                             </Typography>
 
 

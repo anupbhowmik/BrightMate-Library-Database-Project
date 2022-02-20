@@ -1,9 +1,13 @@
 import React from "react";
+import SearchBookForm from "./components/searchBookForm";
 
 function SearchResult(){
     return(
-        <div>
-            Search result
+        <div style={{backgroundColor: "#F3F4F8"}}>
+            <SearchBookForm/>
+
+
+
         </div>
     )
 }

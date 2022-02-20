@@ -1,16 +1,17 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {
+    Avatar,
     Button, CardActionArea,
-    Checkbox, Divider,
+    Checkbox, Chip, Divider,
     FormControl,
     FormControlLabel,
     FormGroup,
     FormHelperText,
     FormLabel,
-    Grid, InputBase, InputLabel, ListItemText, OutlinedInput, Paper, Select,
+    Grid, InputBase, InputLabel, List, ListItemIcon, ListItemText, OutlinedInput, Paper, Select,
     TextField
 } from "@mui/material";
-import {setLoading, showToast} from "../App";
+import {setLoading, setTransferData, showToast} from "../App";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import MenuItem from "@mui/material/MenuItem";
@@ -20,6 +21,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import DirectionsIcon from '@mui/icons-material/Directions';
 import Box from "@mui/material/Box";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import Typography from "@mui/material/Typography";
+import {useNavigate} from "react-router";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -45,15 +49,33 @@ const SearchBookForm = (props) => {
             // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,
         );
+
+    };
+
+    const [genreName, setGenreName] = React.useState([]);
+    const handleChangeGenre = (event) => {
+        const {
+            target: {value},
+        } = event;
+        setGenreName(
+            // On autofill we get a stringified value.
+            typeof value === 'string' ? value.split(',') : value,
+        );
+
     };
 
     var [state, setState] = React.useState({
         ISBN: "",
         title: "",
-        year: null,
+        isYear: 0,
+        year: "",
         edition: 1,
         description: "",
         authorID: null,
+        isAuthor: 0,
+        authorName: "",
+        isGenre: 0,
+        singleGenreID: 0,
         publisherID: null,
         language: "",
         genre: [], // an array of int
@@ -61,7 +83,7 @@ const SearchBookForm = (props) => {
 
     var [genres, setGenre] = React.useState(
         // these are for getting genre list
-        null
+        []
     );
 
     var [authors, setAuthors] = React.useState(
@@ -101,6 +123,11 @@ const SearchBookForm = (props) => {
         console.log("Authors main array ", selectedAuthors.selecAuthors);
     };
 
+    const selectSingleAuthor = (authorID) => {
+        state.singleAuthorID = authorID
+        console.log('selected author id ', authorID)
+    }
+
 
     useEffect(() => {
 
@@ -139,17 +166,19 @@ const SearchBookForm = (props) => {
         })
 
 
-    }, []);   // passing an empty array so that useEffect runs only once
+    }, []);
 
+    const [books, setBooks] = useState({
+        ResponseCode: 0,
+        ResponseDesc: "",
+        SearchResult: []
+    });
 
     function searchBook() {
         const name = state.title;
-        const isbn = state.ISBN;
-        const edition = state.edition;
         const year = state.year;
-        const description = state.description;
-        const publisherID = state.publisherID;
-        const language = state.language;
+        const authorID = state.singleAuthorID;
+        const genreID = state.singleGenreID;
 
         var genre = []
         var author = []
@@ -169,31 +198,60 @@ const SearchBookForm = (props) => {
 
         })
 
-
-        console.log("post req", "book name ", name, " publisher id ", publisherID, " genre list ", genre, " author list ", author);
-
-        const requestOptions = {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                TITLE: name,
-                YEAR: year,
-                DESCRIPTION: description,
-                LANGUAGE: language,
-                PUBLISHER_ID: publisherID,
-                ISBN: isbn,
-                EDITION: edition,
-                GENRE: genre,
-                AUTHOR_ID: author,
-            }),
-        };
-
+        // const requestOptions = {
+        //     method: "POST",
+        //     headers: {"Content-Type": "application/json"},
+        //     body: JSON.stringify({
+        //         TITLE: name,
+        //         YEAR: year,
+        //         DESCRIPTION: description,
+        //         LANGUAGE: language,
+        //         PUBLISHER_ID: publisherID,
+        //         ISBN: isbn,
+        //         EDITION: edition,
+        //         GENRE: genre,
+        //         AUTHOR_ID: authorID,
+        //     }),
+        // };
+        //
+        //
+        // fetch("/api/addbook", requestOptions).then(() => {
+        //     setLoading(false);
+        //
+        // });
+        console.log('search req ',state)
         setLoading(true);
-        showToast("Adding new book to Database...");
-        fetch("/api/addbook", requestOptions).then(() => {
+
+        axios.post("/api/search", {
+            SEARCH_KEY: state.title,
+            AUTHOR_OBJECT: {
+                IS_AUTHOR_FILTER: state.isAuthor,
+                AUTHOR_NAME: state.authorName
+            },
+            GENRE_OBJECT: {
+                IS_GENRE_FILTER: state.isGenre,
+                GENRE_ID: state.singleGenreID
+            },
+            YEAR_OBJECT: {
+                IS_YEAR_FILTER: state.isYear,
+                YEAR: state.year
+            }
+        }).then((res) => {
             setLoading(false);
-            showToast(name + " Added to Database");
-        });
+            if (res.data.ResponseCode !== 0) {
+                setBooks(res.data.SearchResult)
+                showToast("Showing search results")
+
+
+            } else {
+                showToast("Search loading failed");
+            }
+            console.log("search results here: ", books)
+
+
+        }).catch((e) => {
+            console.log(e)
+        })
     }
 
     const onTextChange = (event) => {
@@ -206,6 +264,13 @@ const SearchBookForm = (props) => {
         console.log(event.target.value);
 
     };
+    var navigate = useNavigate();
+
+    function showBookDetails(singleBook) {
+        navigate("../bookdetails")
+        setTransferData(singleBook)
+
+    }
 
     return (
         <Grid padding={5} container spacing={1}>
@@ -213,22 +278,30 @@ const SearchBookForm = (props) => {
                 <h2>Search a Book</h2>
             </Grid>
 
-            <Paper
-                component="form"
-                sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
-            >
 
-                <InputBase onChange={onTextChange}
-                    sx={{ ml: 1, flex: 1 }}
-                    placeholder="Search book..."
-                    inputProps={{ 'aria-label': 'search google maps' }}
-                />
-                <IconButton type="submit" sx={{ p: '10px' }} aria-label="search">
-                    <SearchIcon />
-                </IconButton>
+            <Grid item xs={0} md={3}>
+            </Grid>
+            <Grid item xs={12} md={6}>
+                <Paper
+                    component="form"
+                    sx={{p: '2px 4px', display: 'flex', alignItems: 'center'}}
+                >
+
+                    <InputBase onChange={onTextChange}
+                               sx={{ml: 1, flex: 1}}
+                               placeholder="Search book..."
+                               inputProps={{'aria-label': 'search google maps'}}
+                    />
+                    <IconButton onClick={searchBook} type="submit" sx={{p: '10px'}} aria-label="search">
+                        <SearchIcon/>
+                    </IconButton>
 
 
-            </Paper>
+                </Paper>
+            </Grid>
+
+            <Grid item xs={0} md={3}>
+            </Grid>
 
             <Grid item xs={12} md={12}>
             </Grid>
@@ -238,14 +311,74 @@ const SearchBookForm = (props) => {
             </Grid>
 
 
-            <Grid item xs={12} md={12}>
+            <Grid item xs={0} md={3}>
             </Grid>
 
-            <Grid item xs={0} md={4}>
+            <Grid item xs={4} md={2}>
+                <Box sx={{minWidth: 120}}>
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Select an Author</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={personName}
+                            label="Select an Author"
+                            style={{backgroundColor: "white"}}
+                            onChange={handleChange}>
+
+                            {authors === null ? <ListItemText primary={"No data found"}/> :
+
+                                authors.AuthorList?.map((singleAuthor, index) => (
+                                    <MenuItem onClick={() => {
+                                        selectSingleAuthor(singleAuthor.AuthorID)
+                                    }} key={singleAuthor.AuthorID} value={singleAuthor.AuthorName}>
+
+                                        <ListItemText primary={singleAuthor.AuthorName}/>
+                                    </MenuItem>
+                                ))
+                            }
+
+                        </Select>
+                    </FormControl>
+                </Box>
+
             </Grid>
-            <Grid item xs={12} md={4}>
+
+
+            <Grid item xs={4} md={2}>
+
+                <Box sx={{minWidth: 120}}>
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Select a Genre</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={genreName}
+                            label="Select a Genre"
+                            style={{backgroundColor: "white"}}
+                            onChange={handleChangeGenre}>
+
+                            {genres === null ? <ListItemText primary={"No data found"}/> :
+
+                                genres.GenreList?.map((singleGenre, index) => (
+                                    <MenuItem onClick={() => {
+                                        selectSingleAuthor(singleGenre.GenreID)
+                                    }} key={singleGenre.GenreID} value={singleGenre.GenreName}>
+
+
+                                        <ListItemText primary={singleGenre.GenreName}/>
+                                    </MenuItem>
+                                ))
+                            }
+
+                        </Select>
+                    </FormControl>
+                </Box>
+
+            </Grid>
+
+            <Grid item xs={4} md={2}>
                 <TextField
-                    required
                     style={{backgroundColor: "white"}}
                     onChange={onTextChange}
                     value={state.year}
@@ -258,138 +391,109 @@ const SearchBookForm = (props) => {
                 />
             </Grid>
 
-            <Grid item xs={0} md={4}>
-            </Grid>
 
             <Grid item xs={12} md={12}>
             </Grid>
 
 
             <Grid item xs={12} md={12}>
-
-
-            </Grid>
-            <Grid item xs={0} md={4}>
-            </Grid>
-
-            <Grid item xs={12} md={4}>
-
-                {/*<FormControl required fullWidth sx={{minwidth: 300}}>*/}
-                {/*    <InputLabel id="demo-multiple-checkbox-label">Author</InputLabel>*/}
-                {/*    <Select*/}
-                {/*        labelId="demo-multiple-checkbox-label"*/}
-                {/*        id="demo-multiple-checkbox"*/}
-                {/*        style={{backgroundColor: "white"}}*/}
-
-                {/*        value={personName}*/}
-                {/*        onChange={handleChange}*/}
-                {/*        input={<OutlinedInput label="Authors"/>}*/}
-                {/*        renderValue={(selected) => selected.join(', ')}*/}
-                {/*        MenuProps={MenuProps}>*/}
-
-                {/*        {authors === null ? <ListItemText primary={"No data found"}/> :*/}
-
-                {/*            authors.AuthorList?.map((singleAuthor, index) => (*/}
-                {/*                <MenuItem onClick={() => {*/}
-                {/*                    handleAuthorSelection(singleAuthor.AuthorID - 1)*/}
-                {/*                }} key={singleAuthor.AuthorID} value={singleAuthor.AuthorName}>*/}
-
-
-                {/*                    /!*<div onClick={() => {*!/*/}
-                {/*                    /!*    handleAuthorSelection(index)*!/*/}
-                {/*                    /!*}} name="selectedAuthors" />*!/*/}
-                {/*                    <ListItemText primary={singleAuthor.AuthorName}/>*/}
-                {/*                </MenuItem>*/}
-                {/*            ))*/}
-                {/*        }*/}
-
-
-                {/*    </Select>*/}
-                {/*</FormControl>*/}
-
-
-                <Box sx={{ minWidth: 120 }}>
-                    <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Author</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={state.authorID}
-                            label="authorID"
-                            onChange={handleChange}
-                        >
-                            <MenuItem value={10}>Ten</MenuItem>
-                            <MenuItem value={20}>Twenty</MenuItem>
-                            <MenuItem value={30}>Thirty</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Box>
-
-            </Grid>
-
-            <Grid item xs={0} md={4}></Grid>
-
-            <Grid item xs={12} md={12}>
-            </Grid>
-
-
-            <Grid item xs={12} md={12}>
-            </Grid>
-
-
-            <Grid item xs={0} md={2}></Grid>
-
-            <Grid item xs={12} md={8}>
-                <center>
-                    <FormControl
-                        required
-                        component="fieldset"
-                        sx={{m: 3}}
-                        variant="standard">
-                        <FormLabel component="legend">Pick at least one Genre</FormLabel>
-                        <br/>
-                        <FormGroup>
-                            <Card style={{backgroundColor: "white"}} elevation={0} sx={{minWidth: 700}}>
-
-                                <CardContent>
-
-                                    {genres === null ? <div>No data found</div> :
-                                        genres.GenreList?.map((singleGenre, index) => (
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox checked={selectedGenres.selected[index]} onChange={() => {
-                                                        handleGenreSelection(singleGenre.GenreID - 1)
-                                                    }} name="selectedGenres"/>
-                                                }
-                                                label={singleGenre.GenreName}/>
-                                        ))
-                                    }
-
-
-                                </CardContent>
-
-
-                            </Card>
-
-
-                        </FormGroup>
-                        <FormHelperText>You can select multiple Genres</FormHelperText>
-                    </FormControl>
-                </center>
-            </Grid>
-            <Grid item xs={0} md={2}> </Grid>
-
-
-            <Grid item xs={0} md={4}></Grid>
-
-            <Grid item xs={12} md={4}>
                 <center>
                     <Button onClick={searchBook} variant="contained" disableElevation>
-                        Search this book
+                        <SearchIcon/>&nbsp;&nbsp;Search
                     </Button>
                 </center>
             </Grid>
-            <Grid item xs={0} md={4}></Grid>
+
+
+            {/*here are the search results*/}
+
+
+            <Grid container spacing={1} padding={1}>
+
+
+                <Grid item xs={0} md={2}></Grid>
+                <Grid item xs={12} md={8}>
+                    <div style={{display: "flex", justifyContent: "center"}}>
+                        <List>
+                            {books.size === null ? <div>No books found</div> :
+                                books.Books?.map((book) => (
+
+                                    <Card style={{textAlign: 'left', marginBottom: '10px'}}
+                                          onClick={() => showBookDetails(book)} key={book.BookID} elevation={0}
+                                          sx={{minWidth: 700}}>
+                                        <CardActionArea>
+                                            <CardContent>
+
+                                                <Grid container padding={1}>
+                                                    <Grid sx={1} md={1}>
+                                                        <ListItemIcon sx={{mb: 1.2}}>
+                                                            <Avatar sx={{bgcolor: "#3A7CFF"}}>
+                                                                <LibraryBooksIcon/>
+                                                            </Avatar>
+                                                        </ListItemIcon>
+                                                    </Grid>
+
+                                                    <Grid sx={6} md={8}>
+                                                        <b><strong><Typography variant="h6" component="div">
+                                                            {book.Title}
+                                                        </Typography> </strong></b>
+                                                    </Grid>
+                                                </Grid>
+
+                                                ISBN: {book.ISBN}<br/>
+
+                                                <List>
+                                                    {book.AuthorObject.map((singleAuthor) => (
+                                                        <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
+                                                        />
+                                                    ))}
+
+                                                </List>
+
+                                                {book.CopyObject.length == 0 ?
+                                                    <Chip sx={{mr: 1.5, mt: 1}} label={"No copies available right now"}
+                                                          variant="outlined"/> :
+                                                    book.CopyObject.map((singleCopy) => (
+
+                                                        <Card elevation={0}>
+
+                                                            <Chip sx={{mr: 1.5, mt: 1, mb: 1}}
+                                                                  label={singleCopy.Edition + " Edition"}
+                                                                  variant="outlined"/>
+
+                                                            <Typography color={"#3A7CFF"} variant="body1" component="div">
+                                                                {"Copies Available: " + singleCopy.CopyCount}
+                                                            </Typography>
+
+                                                        </Card>
+
+
+                                                    ))
+                                                }
+
+
+                                            </CardContent>
+                                        </CardActionArea>
+                                        {/*<CardActions>*/}
+                                        {/*    <center>*/}
+                                        {/*        <Button size="large" color="primary">*/}
+                                        {/*            <MdOutlineAddTask/>*/}
+                                        {/*            &nbsp;&nbsp;&nbsp; Add to collection*/}
+                                        {/*        </Button>*/}
+                                        {/*    </center>*/}
+                                        {/*</CardActions>*/}
+                                    </Card>
+                                ))
+                            }
+
+
+                        </List>
+                    </div>
+                </Grid>
+
+
+
+            </Grid>
 
         </Grid>
     );

@@ -19,6 +19,8 @@ import {Route, Routes} from "react-router-dom";
 import Cookies from 'universal-cookie';
 import UserDashboard from "./UserDashboard";
 import AllBooks from "./AllBooks";
+import AllMagazines from "./AllMagazines";
+import SingleMagazineDetails from "./SingleMagazineDetails";
 const cookies = new Cookies();
 
 var showToast;
@@ -91,12 +93,14 @@ function App() {
                     <Routes>
                         <Route exact path="/" element={<Home/>}/>
                         <Route exact path="/about" element={<About/>}/>
-                        <Route exact path="/bookdetails" element={<SingleBookDetails/>}/>
+                        <Route exact path="/bookdetails/:id" element={<SingleBookDetails/>}/>
                         <Route exact path="/searchresult" element={<SearchResult/>}/>
                         <Route exact path="/login" element={<Login/>}/>
                         <Route exact path="/register" element={<Register/>}/>
-                        <Route exact path="/dashboard" element={<UserDashboard/>}/>
+                        <Route exact path="/dashboard/:id" element={<UserDashboard/>}/>
                         <Route exact path="/allbooks" element={<AllBooks/>}/>
+                        <Route exact path="/allmagazines" element={<AllMagazines/>}/>
+                        <Route exact path="/magazinedetails" element={<SingleMagazineDetails/>}/>
 
                     </Routes>
                 </div>

@@ -7,17 +7,18 @@ import slide1 from "./slide1.jpg"
 import slide2 from "./slide2.jpg"
 import slide3 from "./slide3.jpg"
 import slide4 from "./slide4.jpg"
+import Magazines from "./components/magazines";
 
-function AllBooks() {
+function AllMagazines() {
 
     return (
         <div style={{backgroundColor: "#F3F4F8"}}>
 
 
-            <Books/>
+            <Magazines/>
 
         </div>
     )
 }
 
-export default AllBooks;
+export default AllMagazines;
