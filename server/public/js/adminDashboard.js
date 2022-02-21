@@ -57,12 +57,10 @@ const bookList = async () => {
   </div> 
   
   <div class="row">
-  <form>
 <input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
-<button style="width:7%;" onclick="searchByBook(${searchString})" class="btn btn-primary m-3">
+<button style="width:7%;" onclick="searchByBook()" class="btn btn-primary m-3">
 <i class="fa fa-search"></i>
 </button>
-</form>
 </div>
 
 <div class="row">
@@ -309,125 +307,132 @@ const addNewBook = async () => {
   }
 };
 
-// const searchByBook = async (searchString) =>{
-//   var searchInput = searchString; //document.getElementById("searchString");
-//   //if (searchInput && searchString != "") {
-//     let AUTHOR_OBJECT = [];
-//     AUTHOR_OBJECT.push({
-//       IS_AUTHOR_FILTER = 0,
-//       AUTHOR_ID = ""
-//     });
-
-//     let GENRE_OBJECT = [];
-//     GENRE_OBJECT.push({
-//       IS_GENRE_FILTER = 0,
-//       GENRE_ID = ""
-//     });
-
-//     let YEAR_OBJECT = [];
-//     YEAR_OBJECT.push({
-//       IS_YEAR_FILTER = 0,
-//       YEAR = ""
-//     });
-
-//     let bookObj = {
-//       SEARCH_KEY: searchInput.value,
-//       AUTHOR_OBJECT: AUTHOR_OBJECT,
-//       GENRE_OBJECT: GENRE_OBJECT,
-//       YEAR_OBJECT: YEAR_OBJECT
-//     };
+const searchByBook = async () =>{
+  const MainContent = document.getElementById("mainContents");
   
-//     console.log(bookObj);
+  var searchInput = document.getElementById("searchString");
+  //if (searchInput && searchString != "") {
+    let AUTHOR_OBJECT = [];
+    AUTHOR_OBJECT.push({
+      IS_AUTHOR_FILTER : 0,
+      AUTHOR_ID : ""
+    });
+
+    let GENRE_OBJECT = [];
+    GENRE_OBJECT.push({
+      IS_GENRE_FILTER : 0,
+      GENRE_ID : ""
+    });
+
+    let YEAR_OBJECT = [];
+    YEAR_OBJECT.push({
+      IS_YEAR_FILTER : 0,
+      YEAR : ""
+    });
+
+    let bookObj = {
+      SEARCH_KEY: searchInput.value,
+      AUTHOR_OBJECT: AUTHOR_OBJECT,
+      GENRE_OBJECT: GENRE_OBJECT,
+      YEAR_OBJECT: YEAR_OBJECT
+    };
   
-//     bookObj = JSON.stringify(bookObj);
+    console.log(bookObj);
   
-//     response = await fetch("http://localhost:5000/api/search", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: bookObj,
-//     });
-//     let design = `<div class="row"> 
-//   <h2 align="center"> BOOKS </h2> 
-//   </div> 
+    bookObj = JSON.stringify(bookObj);
   
-//   <div class="row">
-//   <form>
-// <input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
-// <button style="width:7%;" onclick="searchByBook(${searchString})" class="btn btn-primary m-3">
-// <i class="fa fa-search"></i>
-// </button>
-// </form>
-// </div>
+    response = await fetch("http://localhost:5000/api/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: bookObj,
+    });
 
-// <div class="row">
-//   <p align="center">
-//   <button style="width:50%;" class="btn btn-info" onclick="openAddNewBookModal()" data-bs-toggle="modal" data-bs-target="#addNewBookModal"> Add A New Book</button>
-//   </p>
-//   </div> 
-//   <hr>`;
+    let ResponseObj = await response.json();
+    console.log(ResponseObj);
 
-//   design += `<table class="table" style="font-size:smaller">
-//                     <thead>
-//                     <tr>
-//                         <th scope="col">#</th>
-//                         <th scope="col">Book ID</th>
-//                         <th scope="col">Title</th>
-//                         <th scope="col">Authors</th>
-//                         <th scope="col">Publisher</th>
-//                         <th scope="col">ISBN</th>
-//                         <th scope="col">Genre</th>
-//                         <th scope="col">Copies</th>
-//                         <th scope="col">Year</th>
-//                         <th scope="col">Language</th>
-//                         <th scope="col">Action</th>
-//                     </tr>
-//                     </thead>
-//                     <tbody>`;
 
-//   let count = 1;
-//   ResponseObj.Books.forEach((element) => {
-//     let authors = "";
-//     for (let i = 0; i < element.AuthorObject.length; i++) {
-//       authors = authors + element.AuthorObject[i].AuthorName + ", ";
-//     }
-//     let genre = "";
-//     for (let i = 0; i < element.GenreObject.length; i++) {
-//       genre = genre + element.GenreObject[i].GenreName + ", ";
-//     }
-//     let copyCount = 0;
-//     for (let i = 0; i < element.CopyObject.length; i++) {
-//       copyCount = copyCount + element.CopyObject[i].CopyCount;
-//     }
+    let design = `<div class="row"> 
+  <h2 align="center"> BOOKS </h2> 
+  </div> 
+  
+  <div class="row">
+  <form>
+<input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
+<button style="width:7%;" onclick="searchByBook()" class="btn btn-primary m-3">
+<i class="fa fa-search"></i>
+</button>
+</form>
+</div>
 
-//     design += `<tr>
-//                         <th scope="row">${count}</th>
-//                         <td id="">${element.BookID}</td>
-//                         <td>${element.Title}</td>
-//                         <td>${authors}</td>
-//                         <td>${element.Publisher}</td>
-//                         <td>${element.ISBN}</td>
-//                         <td>${genre}</td>
-//                         <td>${copyCount}<br>
-//                         <button id="copies_${element.BookID}" value="${element.BookID}" onclick="openBookCopyModal(this.value)" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addBookCopiesModal">Add</button>
-//                         </td>
-//                         <td>${element.YearOfPublication}</td>
-//                         <td>${element.Language}</td>
-//                         <td>
-//                         <button id="edit_${element.BookID}" value="${element.BookID}" onclick="editBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editBookModal">Edit</button>
-//                         <button id="delete_${element.BookID}" value="${element.BookID}" onclick="deleteBook(this.value)" class="btn btn-danger btn-sm">Delete</button>
-//                         </td>
-//                     </tr>`;
+<div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="openAddNewBookModal()" data-bs-toggle="modal" data-bs-target="#addNewBookModal"> Add A New Book</button>
+  </p>
+  </div> 
+  <hr>`;
 
-//     count++;
-//   });
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Book ID</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Authors</th>
+                        <th scope="col">Publisher</th>
+                        <th scope="col">ISBN</th>
+                        <th scope="col">Genre</th>
+                        <th scope="col">Copies</th>
+                        <th scope="col">Year</th>
+                        <th scope="col">Language</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
 
-//   design += `</tbody>
-//                 </table>`;
-//   MainContent.innerHTML = design;
-//   //}
-// }
+  let count = 1;
+  ResponseObj.SearchResult.forEach((element) => {
+    let authors = "";
+    for (let i = 0; i < element.AuthorObject.length; i++) {
+      authors = authors + element.AuthorObject[i].AuthorName + ", ";
+    }
+    let genre = "";
+    for (let i = 0; i < element.GenreObject.length; i++) {
+      genre = genre + element.GenreObject[i].GenreName + ", ";
+    }
+    let copyCount = 0;
+    for (let i = 0; i < element.CopyObject.length; i++) {
+      copyCount = copyCount + element.CopyObject[i].CopyCount;
+    }
+
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td id="">${element.BookID}</td>
+                        <td>${element.Title}</td>
+                        <td>${authors}</td>
+                        <td>${element.Publisher}</td>
+                        <td>${element.ISBN}</td>
+                        <td>${genre}</td>
+                        <td>${copyCount}<br>
+                        <button id="copies_${element.BookID}" value="${element.BookID}" onclick="openBookCopyModal(this.value)" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addBookCopiesModal">Add</button>
+                        </td>
+                        <td>${element.YearOfPublication}</td>
+                        <td>${element.Language}</td>
+                        <td>
+                        <button id="edit_${element.BookID}" value="${element.BookID}" onclick="editBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editBookModal">Edit</button>
+                        <button id="delete_${element.BookID}" value="${element.BookID}" onclick="deleteBook(this.value)" class="btn btn-danger btn-sm">Delete</button>
+                        </td>
+                    </tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+  //}
+}
 
 const magazineList = async () => {
   const MainContent = document.getElementById("mainContents");
@@ -1300,7 +1305,7 @@ if(element.EndDate){
                         <td>${element.JobTitle}</td>
                         <td>${element.Salary}</td>
                         <td>${element.JoinDate}</td>
-                        <td>${endDate}}</td>
+                        <td>${endDate}</td>
                     </tr>`;
 
     count++;

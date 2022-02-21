@@ -19,13 +19,6 @@ async function addBook(req, resp) {
     });
     console.log("DATABASE CONNECTED");
 
-    if (
-      req.body.TITLE.length != 0 &&
-      req.body.AUTHOR_ID.length != 0 &&
-      req.body.PUBLISHER_ID.length != 0 &&
-      req.body.GENRE.length != 0
-    ) {
-      console.log("all good");
       let title = req.body.TITLE;
       let yearOfPublication = req.body.YEAR;
       let book_description = null;
@@ -103,14 +96,6 @@ async function addBook(req, resp) {
         Description: book_description,
         Language: language,
       };
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "INSUFFICIENT DATA",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
   } catch (err) {
     console.log(err);
     responseObj = {
