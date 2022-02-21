@@ -28,6 +28,11 @@ import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
 import IconButton from "@mui/material/IconButton";
 import './components/user.css'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+
+// IoReceiptSharp
+import {IoReceiptSharp} from 'react-icons/io5';
+import {red} from "@mui/material/colors";
 
 const drawerWidth = 240;
 
@@ -179,31 +184,38 @@ function UserDashboard(props) {
         0
     )
 
-
     const drawer = (
         <div className="drawer">
             <Toolbar/>
             <Divider/>
             <List>
+                <ListItem button selected={menu === 0} onClick={() => {
+                    setMenu(0)
+                }}>
+                    <ListItemIcon>
+                        <AccountCircleIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary="User Details"/>
+                </ListItem>
                 <ListItem button selected={menu === 1} onClick={() => {
                     setMenu(1)
                 }}>
                     <ListItemIcon>
                         <LibraryBooksIcon/>
                     </ListItemIcon>
-                    <ListItemText primary="Rental History"/>
+                    <ListItemText primary="Fine History"/>
                 </ListItem>
 
                 <ListItem button selected={menu === 2} onClick={() => {
                     setMenu(2)
                 }}>
                     <ListItemIcon>
-                        <LibraryBooksIcon/>
+                        <IoReceiptSharp color={red}/>
                     </ListItemIcon>
-                    <ListItemText primary="Fine History"/>
+                    <ListItemText primary="Rental History"/>
                 </ListItem>
             </List>
-            
+
         </div>
     );
 
@@ -261,11 +273,11 @@ function UserDashboard(props) {
 
             {/*drawer*/}
 
-            {menu === 1 ? <Grid container spacing={1} padding={4}>
+            {menu === 0 ? <Grid container spacing={1}>
 
 
                 <Grid item xs={1} md={2}></Grid>
-                <Grid item xs={10} md={8}>
+                <Grid marginLeft={9} marginBottom={10} item xs={10} md={8}>
                     <center>
                         <Card style={{
                             padding: '20px',
@@ -357,191 +369,8 @@ function UserDashboard(props) {
                 </Dialog>
 
 
-                <Grid item xs={12} md={12}>
-                    <Typography variant="h6" component="div">
-                        Rental History
-                    </Typography>
-
-                </Grid>
-
-                <Grid item xs={1} md={2}></Grid>
-                <Grid item xs={12} md={8}>
-                    <div style={{display: "flex", justifyContent: "center"}}>
-
-                        <List aria-colcount={2} fullwidth>
-                            {userDetails.RentalObject?.map((rentalObject) => (
-
-                                <Card style={{textAlign: 'left', marginBottom: '10px'}}
-                                      key={rentalObject.BookObject[0].BookID}
-                                      elevation={0}
-                                      sx={{minWidth: 700}}>
-
-                                    <CardContent>
-
-                                        <Grid container padding={1}>
-                                            <Grid sx={1} md={1}>
-                                                <ListItemIcon sx={{mb: 1.2}}>
-                                                    <Avatar sx={{bgcolor: "#3A7CFF"}}>
-                                                        <LibraryBooksIcon/>
-                                                    </Avatar>
-                                                </ListItemIcon>
-                                            </Grid>
-
-                                            <Grid sx={6} md={8}>
-                                                <b><strong><Typography variant="h6" component="div">
-                                                    {rentalObject.BookObject[0].Title}
-                                                </Typography> </strong></b>
-                                            </Grid>
-                                        </Grid>
-
-                                        <List>
-                                            {rentalObject.BookObject[0].AuthorObject.map((singleAuthor) => (
-                                                <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
-                                                />
-                                            ))}
-
-                                        </List>
-
-                                        <Typography variant="body1" component="div">
-
-                                            {dateFix(rentalObject.IssueDate)}
-
-                                        </Typography>
-
-
-                                        {rentalObject.RentalStatus === 1 ?
-                                            <Chip variant="outlined" color="primary" sx={{mr: 1.5, mt: 1}}
-                                                  label="Pending Return"/> : <div></div>}
-                                        {rentalObject.RentalStatus === 2 ?
-                                            <Chip color="error" sx={{mr: 1.5, mt: 1}} label="Overdue"/> : <div></div>}
-                                        {rentalObject.RentalStatus === 3 ?
-                                            <Chip variant="outlined" color="success" sx={{mr: 1.5, mt: 1}}
-                                                  label={"Returned on" + dateFix(rentalObject.ReturnDate)}/> :
-                                            <div></div>}
-
-
-                                    </CardContent>
-
-
-                                </Card>
-                            ))}
-                        </List>
-                    </div>
-                </Grid>
-
-                <Grid item xs={1} md={2}></Grid>
-
-                <Grid item xs={0} md={4}></Grid>
-
-                <Grid item xs={12} md={4}>
-                    <center>
-                        <Button
-                            onClick={showRentalHistory}
-                            variant="contained"
-                            id="showRentalHistoryBtn"
-                            disableElevation>
-                            {isLoaded ? <div>Refresh Rental list</div> : <div>Show Rental History</div>}
-
-                        </Button>
-                    </center>
-                </Grid>
-                <Grid item xs={0} md={4}></Grid>
-
             </Grid> : (
-                menu === 2 ? <Grid container spacing={1} padding={4}>
-
-
-                        <Grid item xs={1} md={2}></Grid>
-                        <Grid item xs={10} md={8}>
-                            <center>
-                                <Card style={{
-                                    padding: '20px',
-                                    boxSizing: 'content-box',
-                                }} elevation={0}>
-                                    <Card elevation={0} sx={{bgcolor: "#6C63FF", marginBottom: 2}}>
-                                        <Typography color="white" sx={{mb: 2, mt: 2}} variant="h5" component="div">
-                                            {userDetails.UserTypeId === 1 ? <div>General Reader</div> : <div>Employee</div>}
-
-                                        </Typography>
-                                    </Card>
-                                    <ReactRoundedImage
-                                        image={reader}
-                                        imageWidth="120"
-                                        imageHeight="120"
-                                        roundedSize="0"/>
-
-                                    <Typography paddingTop={3} variant="h4" component="div">
-                                        {userDetails.Username}
-                                    </Typography>
-
-                                    <Chip sx={{mb: 1, mt: 1}} label={"Library card: " + userDetails.LibraryCardNumber}
-                                          variant="outlined"/>
-
-                                    <Typography variant="h6" component="div">
-                                        E-mail: {userDetails.Email}
-                                    </Typography>
-
-                                    <Grid item xs={0} md={4}></Grid>
-
-                                    <br/>
-                                    <Grid item xs={12} md={4}>
-                                        <center>
-                                            <Button
-                                                onClick={handleClickOpen}
-                                                variant="contained"
-                                                id="showRentalHistoryBtn"
-                                                disableElevation>
-
-                                                <VpnKeyIcon/>
-
-                                                &nbsp;&nbsp;&nbsp;Change Password
-
-                                            </Button>
-                                        </center>
-                                    </Grid>
-                                    <Grid item xs={0} md={4}></Grid>
-
-
-                                </Card>
-                            </center>
-                        </Grid>
-                        <Grid item xs={1} md={2}></Grid>
-
-
-                        <Dialog open={open} onClose={handleClose}>
-                            <DialogTitle>Change Password</DialogTitle>
-                            <DialogContent>
-
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="oldpass"
-                                    onChange={onTextChange}
-                                    value={passwordState.oldPass}
-                                    label="Enter Old Password"
-                                    name="oldPass"
-                                    type="password"
-                                    fullWidth
-                                    variant="standard"
-                                />
-
-                                <TextField
-                                    value={passwordState.newPass}
-                                    margin="dense"
-                                    id="newpass"
-                                    onChange={onTextChange}
-                                    label="Enter new Password"
-                                    type="password"
-                                    fullWidth
-                                    name="newPass"
-                                    variant="standard"
-                                />
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button variant="outlined" onClick={changePassword}>Update Password</Button>
-                            </DialogActions>
-                        </Dialog>
+                menu === 1 ? <Grid marginLeft={9} container spacing={1} padding={4}>
 
 
                         <Grid item xs={12} md={12}>
@@ -628,7 +457,7 @@ function UserDashboard(props) {
                                     variant="contained"
                                     id="showRentalHistoryBtn"
                                     disableElevation>
-                                    {isLoaded ? <div>Refresh Rental list</div> : <div>Show Rental History</div>}
+                                    {isLoaded ? <div>Refresh Fine list</div> : <div>Show Fine History</div>}
 
                                 </Button>
                             </center>
@@ -636,101 +465,7 @@ function UserDashboard(props) {
                         <Grid item xs={0} md={4}></Grid>
 
                     </Grid> :
-                    <Grid container spacing={1} padding={4}>
-
-
-                        <Grid item xs={1} md={2}></Grid>
-                        <Grid item xs={10} md={8}>
-                            <center>
-                                <Card style={{
-                                    padding: '20px',
-                                    boxSizing: 'content-box',
-                                }} elevation={0}>
-                                    <Card elevation={0} sx={{bgcolor: "#6C63FF", marginBottom: 2}}>
-                                        <Typography color="white" sx={{mb: 2, mt: 2}} variant="h5" component="div">
-                                            {userDetails.UserTypeId === 1 ? <div>General Reader</div> :
-                                                <div>Employee</div>}
-
-                                        </Typography>
-                                    </Card>
-                                    <ReactRoundedImage
-                                        image={reader}
-                                        imageWidth="120"
-                                        imageHeight="120"
-                                        roundedSize="0"/>
-
-                                    <Typography paddingTop={3} variant="h4" component="div">
-                                        {userDetails.Username}
-                                    </Typography>
-
-                                    <Chip sx={{mb: 1, mt: 1}} label={"Library card: " + userDetails.LibraryCardNumber}
-                                          variant="outlined"/>
-
-                                    <Typography variant="h6" component="div">
-                                        E-mail: {userDetails.Email}
-                                    </Typography>
-
-                                    <Grid item xs={0} md={4}></Grid>
-
-                                    <br/>
-                                    <Grid item xs={12} md={4}>
-                                        <center>
-                                            <Button
-                                                onClick={handleClickOpen}
-                                                variant="contained"
-                                                id="showRentalHistoryBtn"
-                                                disableElevation>
-
-                                                <VpnKeyIcon/>
-
-                                                &nbsp;&nbsp;&nbsp;Change Password
-
-                                            </Button>
-                                        </center>
-                                    </Grid>
-                                    <Grid item xs={0} md={4}></Grid>
-
-
-                                </Card>
-                            </center>
-                        </Grid>
-                        <Grid item xs={1} md={2}></Grid>
-
-
-                        <Dialog open={open} onClose={handleClose}>
-                            <DialogTitle>Change Password</DialogTitle>
-                            <DialogContent>
-
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="oldpass"
-                                    onChange={onTextChange}
-                                    value={passwordState.oldPass}
-                                    label="Enter Old Password"
-                                    name="oldPass"
-                                    type="password"
-                                    fullWidth
-                                    variant="standard"
-                                />
-
-                                <TextField
-                                    value={passwordState.newPass}
-                                    margin="dense"
-                                    id="newpass"
-                                    onChange={onTextChange}
-                                    label="Enter new Password"
-                                    type="password"
-                                    fullWidth
-                                    name="newPass"
-                                    variant="standard"
-                                />
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button variant="outlined" onClick={changePassword}>Update Password</Button>
-                            </DialogActions>
-                        </Dialog>
+                    <Grid marginLeft={9} container spacing={1} padding={4}>
 
 
                         <Grid item xs={12} md={12}>
@@ -828,23 +563,8 @@ function UserDashboard(props) {
             )}
 
 
-            <Grid item xs={0} md={1}></Grid>
-
-            <Grid sx={6} md={5}></Grid>
-
-
         </div>
     )
 }
-
-//
-// UserDashboard.propTypes = {
-//     /**
-//      * Injected by the documentation to work in an iframe.
-//      * You won't need it on your project.
-//      */
-//     window: PropTypes.func,
-// };
-
 
 export default UserDashboard;

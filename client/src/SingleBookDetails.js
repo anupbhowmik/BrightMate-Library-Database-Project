@@ -183,7 +183,7 @@ export default function SingleBookDetails(props) {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    USER_ID: userInfo.userID,
+                    USER_ID: userInfo.UserId,
                     USER_PASSWORD: userInfo.PasswordKey,
                     BOOK_ID: book.BookID,
                     EDITION: edition,
@@ -192,6 +192,9 @@ export default function SingleBookDetails(props) {
             };
 
             setLoading(true);
+
+            console.log('user info ', userInfo)
+            console.log("book rent req", "user id ", userInfo.UserId, "pass", userInfo.PasswordKey, "book id ", book.BookID, "edition ", edition)
             showToast("Adding new book to Collection...");
             fetch("/api/rentBook", requestOptions).then(() => {
                 setLoading(false);

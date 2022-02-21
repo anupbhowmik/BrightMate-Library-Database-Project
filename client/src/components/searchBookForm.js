@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {
     Avatar,
     Button, CardActionArea,
-    Checkbox, Chip, Divider,
+    Checkbox, Chip, CircularProgress, Divider,
     FormControl,
     FormControlLabel,
     FormGroup,
@@ -39,7 +39,8 @@ const MenuProps = {
 const SearchBookForm = (props) => {
     // todo: handle exceptions
 
-    const [personName, setPersonName] = React.useState([]);
+    const [personName, setPersonName] = useState([]);
+    const [loading, setLoading] = useState(false)
 
     const handleChange = (event) => {
         const {
@@ -49,7 +50,6 @@ const SearchBookForm = (props) => {
             // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,
         );
-
     };
 
     const [genreName, setGenreName] = React.useState([]);
@@ -73,6 +73,7 @@ const SearchBookForm = (props) => {
         description: "",
         authorID: null,
         isAuthor: 0,
+        singleAuthorID: "",
         authorName: "",
         isGenre: 0,
         singleGenreID: 0,
@@ -128,6 +129,11 @@ const SearchBookForm = (props) => {
         console.log('selected author id ', authorID)
     }
 
+    const selectSingleGenre = (genreID) => {
+        state.singleGenreID = genreID
+        console.log('selected genre id ', genreID)
+    }
+
 
     useEffect(() => {
 
@@ -168,65 +174,20 @@ const SearchBookForm = (props) => {
 
     }, []);
 
-    const [books, setBooks] = useState({
-        ResponseCode: 0,
-        ResponseDesc: "",
-        SearchResult: []
-    });
+    const [books, setBooks] = useState(
+        []
+    );
 
     function searchBook() {
-        const name = state.title;
-        const year = state.year;
-        const authorID = state.singleAuthorID;
-        const genreID = state.singleGenreID;
 
-        var genre = []
-        var author = []
-
-
-        selectedGenres.selected.map((singleGenre, index) => {
-            if (singleGenre) {
-                genre.push(index + 1);
-            }
-
-        })
-
-        selectedAuthors.selecAuthors.map((singleAuthor, index) => {
-            if (singleAuthor) {
-                author.push(index + 1);
-            }
-
-        })
-
-        // const requestOptions = {
-        //     method: "POST",
-        //     headers: {"Content-Type": "application/json"},
-        //     body: JSON.stringify({
-        //         TITLE: name,
-        //         YEAR: year,
-        //         DESCRIPTION: description,
-        //         LANGUAGE: language,
-        //         PUBLISHER_ID: publisherID,
-        //         ISBN: isbn,
-        //         EDITION: edition,
-        //         GENRE: genre,
-        //         AUTHOR_ID: authorID,
-        //     }),
-        // };
-        //
-        //
-        // fetch("/api/addbook", requestOptions).then(() => {
-        //     setLoading(false);
-        //
-        // });
-        console.log('search req ',state)
+        console.log('search req ', state)
         setLoading(true);
 
         axios.post("/api/search", {
             SEARCH_KEY: state.title,
             AUTHOR_OBJECT: {
                 IS_AUTHOR_FILTER: state.isAuthor,
-                AUTHOR_NAME: state.authorName
+                AUTHOR_ID: state.singleAuthorID
             },
             GENRE_OBJECT: {
                 IS_GENRE_FILTER: state.isGenre,
@@ -237,11 +198,10 @@ const SearchBookForm = (props) => {
                 YEAR: state.year
             }
         }).then((res) => {
+            console.log('search res data ', res.data)
             setLoading(false);
             if (res.data.ResponseCode !== 0) {
                 setBooks(res.data.SearchResult)
-                showToast("Showing search results")
-
 
             } else {
                 showToast("Search loading failed");
@@ -261,13 +221,15 @@ const SearchBookForm = (props) => {
             [event.target.name]: value,
         });
 
+        searchBook()
         console.log(event.target.value);
 
     };
+
     var navigate = useNavigate();
 
     function showBookDetails(singleBook) {
-        navigate("../bookdetails")
+        navigate("../bookdetails/" + singleBook.BookID)
         setTransferData(singleBook)
 
     }
@@ -289,10 +251,12 @@ const SearchBookForm = (props) => {
 
                     <InputBase onChange={onTextChange}
                                sx={{ml: 1, flex: 1}}
+                               name="title"
+                               value={state.title}
                                placeholder="Search book..."
                                inputProps={{'aria-label': 'search google maps'}}
                     />
-                    <IconButton onClick={searchBook} type="submit" sx={{p: '10px'}} aria-label="search">
+                    <IconButton onClick={searchBook} sx={{p: '10px'}} aria-label="search">
                         <SearchIcon/>
                     </IconButton>
 
@@ -362,7 +326,7 @@ const SearchBookForm = (props) => {
 
                                 genres.GenreList?.map((singleGenre, index) => (
                                     <MenuItem onClick={() => {
-                                        selectSingleAuthor(singleGenre.GenreID)
+                                        selectSingleGenre(singleGenre.GenreID)
                                     }} key={singleGenre.GenreID} value={singleGenre.GenreName}>
 
 
@@ -399,7 +363,9 @@ const SearchBookForm = (props) => {
             <Grid item xs={12} md={12}>
                 <center>
                     <Button onClick={searchBook} variant="contained" disableElevation>
-                        <SearchIcon/>&nbsp;&nbsp;Search
+                        {loading ? <Box sx={{display: 'flex'}}>
+                            <CircularProgress color="inherit"/></Box> : <SearchIcon/>}
+
                     </Button>
                 </center>
             </Grid>
@@ -408,15 +374,15 @@ const SearchBookForm = (props) => {
             {/*here are the search results*/}
 
 
-            <Grid container spacing={1} padding={1}>
 
+            <Grid container spacing={1} padding={1}>
 
                 <Grid item xs={0} md={2}></Grid>
                 <Grid item xs={12} md={8}>
                     <div style={{display: "flex", justifyContent: "center"}}>
                         <List>
                             {books.size === null ? <div>No books found</div> :
-                                books.Books?.map((book) => (
+                                books?.map((book) => (
 
                                     <Card style={{textAlign: 'left', marginBottom: '10px'}}
                                           onClick={() => showBookDetails(book)} key={book.BookID} elevation={0}
@@ -461,7 +427,8 @@ const SearchBookForm = (props) => {
                                                                   label={singleCopy.Edition + " Edition"}
                                                                   variant="outlined"/>
 
-                                                            <Typography color={"#3A7CFF"} variant="body1" component="div">
+                                                            <Typography color={"#3A7CFF"} variant="body1"
+                                                                        component="div">
                                                                 {"Copies Available: " + singleCopy.CopyCount}
                                                             </Typography>
 
@@ -490,7 +457,6 @@ const SearchBookForm = (props) => {
                         </List>
                     </div>
                 </Grid>
-
 
 
             </Grid>
