@@ -133,7 +133,7 @@ async function rentBook(req, resp) {
 
 async function returnBook(req, resp) {
   let connection;
-  let syRegisterFine = 8;
+
   try {
     connection = await oracledb.getConnection({
       user: dbuser,
@@ -143,168 +143,185 @@ async function returnBook(req, resp) {
     console.log("DATABASE CONNECTED");
 
     let return_date = new Date();
-    let rental_status = 3; //3 means returned
+    let rental_status = 4; //4 means returned
     let rentalId = req.body.RENT_ID;
-    let employee_id = req.body.EMPLOYEE_ID;
-    let employee_password = req.body.EMPLOYEE_PASSWORD;
 
-    let employeeSelectQuery =
-      "SELECT PASSWORD_KEY, USER_TYPE_ID FROM USERS WHERE USER_ID = :employee_id";
-    let employeeSelectResult = await connection.execute(employeeSelectQuery, [
-      employee_id,
+    let rentUpdateQuery =
+      "UPDATE RENTAL_HISTORY SET RETURN_DATE = :return_date, RENTAL_STATUS = :rental_status WHERE RENTAL_HISTORY_ID = :rentalId";
+    let rentUpdateResult = await connection.execute(rentUpdateQuery, [
+      return_date,
+      rental_status,
+      rentalId,
     ]);
+    console.log(rentUpdateResult);
 
-    let employee_password_key = employeeSelectResult.rows[0][0];
-    let user_type_id = employeeSelectResult.rows[0][1];
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      RentId: rent_id,
+      ReturnDate: return_date,
+    };
 
-    console.log("employee_password_key = ", employee_password_key);
-    console.log("user_type_id = ", user_type_id);
-
-    if (employee_password == employee_password_key && user_type_id == 2) {
-      let jobSelectQuery =
-        "SELECT JOB_ID FROM USER_EMPLOYEE WHERE USER_ID = :employee_id";
-      let jobSelectResult = await connection.execute(jobSelectQuery, [
-        employee_id,
-      ]);
-
-      let job_id = jobSelectResult.rows[0][0];
-      console.log("job_id = ", job_id);
-
-      if (job_id == 1 || job_id == 3) {
-        //LIBRARIAN OR LIBRARY ASSISTANT ONLY
-
-        let rentalQuery =
-          "SELECT * FROM RENTAL_HISTORY WHERE RENTAL_HISTORY_ID = :rentalId";
-        let rentalResult = await connection.execute(rentalQuery, [rentalId], {
-          outFormat: oracledb.OUT_FORMAT_OBJECT,
-        });
-
-        let returnObject = [];
-        if (rentalResult.rows.length != 0) {
-          rentalResult = rentalResult.rows[0];
-
-          let user_id = rentalResult.USER_ID;
-          let issue_date = rentalResult.ISSUE_DATE;
-          let today = new Date();
-
-          const utc1 = Date.UTC(
-            issue_date.getFullYear(),
-            issue_date.getMonth(),
-            issue_date.getDate()
-          );
-          const utc2 = Date.UTC(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate()
-          );
-          const diff = Math.floor((utc2 - utc1) / _MS_PER_DAY);
-          console.log("diff = ", diff);
-
-          if (diff >= 14) {
-            let fineQuery =
-              "SELECT * FROM FINE_HISTORY WHERE RENTAL_HISTORY_ID = :rentalId";
-            let fineResult = await connection.execute(fineQuery, [rentalId], {
-              outFormat: oracledb.OUT_FORMAT_OBJECT,
-            });
-
-            if (fineResult.rows.length != 0) {
-              let fine_starting_date = fineResult.rows[0].FINE_STARTING_DATE;
-              let fee_amount = fineResult.rows[0].FEE_AMOUNT;
-
-              const utc3 = Date.UTC(
-                fine_starting_date.getFullYear(),
-                fine_starting_date.getMonth(),
-                fine_starting_date.getDate()
-              );
-              const utc4 = Date.UTC(
-                today.getFullYear(),
-                today.getMonth(),
-                today.getDate()
-              );
-              const days = Math.floor((utc4 - utc3) / _MS_PER_DAY);
-              console.log("days = ", days);
-              fee_amount = 20 + days * 2;
-              let fineUpdateQuery =
-                "UPDATE FINE_HISTORY SET FEE_AMOUNT = :fee_amount, PAYMENT_STATUS = 1, PAYMENT_DATE = :today WHERE RENTAL_HISTORY_ID = :rentalId";
-              let fineUpdateResult = await connection.execute(fineUpdateQuery, [
-                fee_amount,
-                today,
-                rentalId,
-              ]);
-
-              console.log(fineUpdateResult);
-            } else {
-              //Get Next Fine Id
-              let fine_id;
-              await syRegister
-                .getNextId(connection, syRegisterFine)
-                .then(function (data) {
-                  fine_id = data;
-                });
-
-              console.log("fine_id = ", fine_id);
-
-              let fine_starting_date = issue_date + 14;
-
-              const utc3 = Date.UTC(
-                fine_starting_date.getFullYear(),
-                fine_starting_date.getMonth(),
-                fine_starting_date.getDate()
-              );
-              const utc4 = Date.UTC(
-                today.getFullYear(),
-                today.getMonth(),
-                today.getDate()
-              );
-              const days = Math.floor((utc4 - utc3) / _MS_PER_DAY);
-              console.log("days = ", days);
-
-              let fee_amount = 20 + days * 2;
-              let payment_status = 1;
-              let fineInsertQuery =
-                "INSERT INTO FINE_HISTORY (FINE_HISTORY_ID, USER_ID, FINE_STARTING_DATE, FEE_AMOUNT, PAYMENT_STATUS, RENTAL_HISTORY_ID)" +
-                " VALUES(:fine_id, :user_id, :today, :fee_amount, :payment_status, :rentalId)";
-              fineInsertResult = await connection.execute(fineInsertQuery, [
-                fine_id,
-                user_id,
-                fine_starting_date,
-                fee_amount,
-                payment_status,
-                rentalId,
-              ]);
-
-              console.log(fineInsertResult);
-            }
-          }
-
-          let rentUpdateQuery =
-            "UPDATE RENTAL_HISTORY SET RETURN_DATE = :return_date, RENTAL_STATUS = :rental_status WHERE RENTAL_HISTORY_ID = :rentalId";
-          let rentUpdateResult = await connection.execute(rentUpdateQuery, [
-            return_date,
-            rental_status,
-            rentalId,
-          ]);
-          console.log(rentUpdateResult);
-        }
-
+    connection.commit();
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
         responseObj = {
-          ResponseCode: 1,
-          ResponseDesc: "SUCCESS",
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
           ResponseStatus: resp.statusCode,
-          RentId: rent_id,
-          ReturnDate: return_date,
         };
+        resp.send(responseObj);
       }
-      connection.commit();
+      if (responseObj.ResponseCode == 1) {
+        console.log("SUCCESS");
+        resp.send(responseObj);
+      }
     } else {
+      console.log("FAILURE");
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc:
-          "NOT A LIBRARIAN OR LIBRARY ASSISTANT ACCOUNT / INVALID PASSWORD",
+        ResponseDesc: "FAILURE",
         ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
     }
+  }
+}
+
+async function clearDue(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let rentalStatus = 3; //3 means due cleared
+    let rentalId = req.body.RENT_ID;
+
+    let rentUpdateQuery =
+      "UPDATE RENTAL_HISTORY SET RENTAL_STATUS = :rentalStatus WHERE RENTAL_HISTORY_ID = :rentalId";
+    let rentUpdateResult = await connection.execute(rentUpdateQuery, [
+      rentalStatus,
+      rentalId,
+    ]);
+    console.log(rentUpdateResult);
+
+    let fineQuery = "SELECT * FROM FINE_HISTORY WHERE RENTAL_HISTORY_ID = :rentalId";
+    let fineResult = await connection.execute(fineQuery, [rentalId], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    console.log(fineResult);
+    let feeAmount = fineResult.rows[0].FEE_AMOUNT;
+
+    let paymentDate = new Date();
+    let paymentStatus = 1; // 1 means due paid
+    let fineUpdateQuery =
+      "UPDATE FINE_HISTORY SET PAYMENT_STATUS = :paymentStatus, PAYMENT_DATE = :paymentDate WHERE RENTAL_HISTORY_ID = :rentalId";
+    let fineUpdateResult = await connection.execute(fineUpdateQuery, [
+      paymentStatus,
+      paymentDate,
+      rentalId,
+    ]);
+    console.log(fineUpdateResult);
+
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      RentId: rentalId,
+      FeeAmount: feeAmount,
+      PaymentStatus: paymentStatus,
+      RentalStatus: rentalStatus,
+      PaymentDate: paymentDate
+    };
+    connection.commit();
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        resp.send(responseObj);
+      }
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "FAILURE",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
+async function returnBook(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let return_date = new Date();
+    let rental_status = 4; //4 means returned
+    let rentalId = req.body.RENT_ID;
+
+    let rentUpdateQuery =
+      "UPDATE RENTAL_HISTORY SET RETURN_DATE = :return_date, RENTAL_STATUS = :rental_status WHERE RENTAL_HISTORY_ID = :rentalId";
+    let rentUpdateResult = await connection.execute(rentUpdateQuery, [
+      return_date,
+      rental_status,
+      rentalId,
+    ]);
+    console.log(rentUpdateResult);
+
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      RentId: rentalId,
+      ReturnDate: return_date,
+    };
+
+    connection.commit();
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -345,7 +362,6 @@ async function returnBook(req, resp) {
 
 async function getAllRentalHistoryList(req, resp) {
   let connection;
-  let syRegisterFine = 8;
   const _MS_PER_DAY = 1000 * 60 * 60 * 24;
   try {
     connection = await oracledb.getConnection({
@@ -355,7 +371,7 @@ async function getAllRentalHistoryList(req, resp) {
     });
     console.log("DATABASE CONNECTED");
 
-    let rentalQuery = "SELECT * FROM RENTAL_HISTORY";
+    let rentalQuery = "SELECT * FROM RENTAL_HISTORY ORDER BY ISSUE_DATE ASC";
     let rentalResult = await connection.execute(rentalQuery, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
@@ -363,104 +379,11 @@ async function getAllRentalHistoryList(req, resp) {
     let rentalObject = [];
     if (rentalResult.rows.length != 0) {
       for (let j = 0; j < rentalResult.rows.length; j++) {
-        let user_id = rentalResult.rows[j].USER_ID;
-        let rentalId = rentalResult.rows[j].RENTAL_HISTORY_ID;
-
-        let issue_date = rentalResult.rows[j].ISSUE_DATE;
-        let today = new Date();
-
-        const utc1 = Date.UTC(
-          issue_date.getFullYear(),
-          issue_date.getMonth(),
-          issue_date.getDate()
-        );
-        const utc2 = Date.UTC(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate()
-        );
-        const diff = Math.floor((utc2 - utc1) / _MS_PER_DAY);
-
-        if (diff >= 14) {
-          let fineQuery =
-            "SELECT * FROM FINE_HISTORY WHERE RENTAL_HISTORY_ID = :rentalId";
-          let fineResult = await connection.execute(fineQuery, [rentalId], {
-            outFormat: oracledb.OUT_FORMAT_OBJECT,
-          });
-
-          if (fineResult.rows.length != 0) {
-            let fine_starting_date = fineResult.rows[0].FINE_STARTING_DATE;
-
-            const utc3 = Date.UTC(
-              fine_starting_date.getFullYear(),
-              fine_starting_date.getMonth(),
-              fine_starting_date.getDate()
-            );
-            const utc4 = Date.UTC(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate()
-            );
-            const days = Math.floor((utc4 - utc3) / _MS_PER_DAY);
-
-            let fee_amount = 20 + days * 2;
-            let fineUpdateQuery =
-              "UPDATE FINE_HISTORY SET FEE_AMOUNT = :fee_amount WHERE RENTAL_HISTORY_ID = :rentalId";
-            let fineUpdateResult = await connection.execute(fineUpdateQuery, [
-              fee_amount,
-              rentalId,
-            ]);
-
-          } else {
-            let rentUpdateQuery =
-              "UPDATE RENTAL_HISTORY SET RENTAL_STATUS = 2 WHERE RENTAL_HISTORY_ID = :rentalId"; //2 means overdue
-            let rentUpdateResult = await connection.execute(rentUpdateQuery, [
-              rentalId,
-            ]);
-
-            //Get Next Fine Id
-            let fine_id;
-            await syRegister
-              .getNextId(connection, syRegisterFine)
-              .then(function (data) {
-                fine_id = data;
-              });
-
-            let fine_starting_date = issue_date + 14;
-
-            const utc1 = Date.UTC(
-              fine_starting_date.getFullYear(),
-              fine_starting_date.getMonth(),
-              fine_starting_date.getDate()
-            );
-            const utc2 = Date.UTC(
-              today.getFullYear(),
-              today.getMonth(),
-              today.getDate()
-            );
-            const diff2 = Math.floor((utc2 - utc1) / _MS_PER_DAY);
-            
-            let fee_amount = 20 + diff2 * 2;
-            let payment_status = 0;
-            let fineInsertQuery =
-              "INSERT INTO FINE_HISTORY (FINE_HISTORY_ID, USER_ID, FINE_STARTING_DATE, FEE_AMOUNT, PAYMENT_STATUS, RENTAL_HISTORY_ID)" +
-              " VALUES(:fine_id, :user_id, :fine_starting_date, :fee_amount, :payment_status, :rentalId)";
-            fineInsertResult = await connection.execute(fineInsertQuery, [
-              fine_id,
-              user_id,
-              fine_starting_date,
-              fee_amount,
-              payment_status,
-              rentalId,
-            ]);
-          }
-        }
-
         rentalObject.push({
-          RentalId: rentalId,
+          RentalId: rentalResult.rows[j].RENTAL_HISTORY_ID,
           UserId: rentalResult.rows[j].USER_ID,
           BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
-          IssueDate: issue_date,
+          IssueDate: rentalResult.rows[j].ISSUE_DATE,
           ReturnDate: rentalResult.rows[j].RETURN_DATE,
           RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
         });
@@ -521,8 +444,9 @@ async function getAllRentalHistoryList(req, resp) {
 
 async function getAllFineHistoryList(req, resp) {
   let connection;
-
+  let syRegisterFine = 8;
   const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+
   try {
     connection = await oracledb.getConnection({
       user: dbuser,
@@ -531,19 +455,111 @@ async function getAllFineHistoryList(req, resp) {
     });
     console.log("DATABASE CONNECTED");
 
+    let rentQuery =
+      "SELECT RENTAL_HISTORY_ID, ISSUE_DATE, USER_ID, BOOK_COPY_ID, (ISSUE_DATE+14) AS FINE_STARTING_DATE FROM RENTAL_HISTORY WHERE RENTAL_STATUS = 1";
+    let rentResult = await connection.execute(rentQuery, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    if (rentResult.rows.length != 0) {
+      for (let i = 0; i < rentResult.rows.length; i++) {
+        let rentalResult = rentResult.rows[i];
+        let rentalId = rentalResult.RENTAL_HISTORY_ID;
+        let user_id = rentalResult.USER_ID;
+        let issue_date = rentalResult.ISSUE_DATE;
+        let fine_starting_date = rentalResult.FINE_STARTING_DATE;
+        let today = new Date();
+
+        const utc1 = Date.UTC(
+          issue_date.getFullYear(),
+          issue_date.getMonth(),
+          issue_date.getDate()
+        );
+        const utc2 = Date.UTC(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        );
+        const utc3 = Date.UTC(
+          fine_starting_date.getFullYear(),
+          fine_starting_date.getMonth(),
+          fine_starting_date.getDate()
+        );
+
+        const delay = Math.floor((utc2 - utc1) / _MS_PER_DAY);
+
+        if (delay >= 14) {
+          let rentUpdateQuery =
+            "UPDATE RENTAL_HISTORY SET RENTAL_STATUS = 2 WHERE RENTAL_HISTORY_ID = :rentalId"; //2 means overdue
+          let rentUpdateResult = await connection.execute(rentUpdateQuery, [
+            rentalId,
+          ]);
+          console.log(rentUpdateResult);
+          //Get Next Fine Id
+          let fine_id;
+          await syRegister
+            .getNextId(connection, syRegisterFine)
+            .then(function (data) {
+              fine_id = data;
+            });
+
+          const feeDays = Math.floor((utc2 - utc3) / _MS_PER_DAY);
+
+          let fee_amount = 20 + feeDays * 2;
+          let payment_status = 0;
+          let fineInsertQuery =
+            "INSERT INTO FINE_HISTORY (FINE_HISTORY_ID, USER_ID, FINE_STARTING_DATE, FEE_AMOUNT, PAYMENT_STATUS, RENTAL_HISTORY_ID)" +
+            " VALUES(:fine_id, :user_id, :fine_starting_date, :fee_amount, :payment_status, :rentalId)";
+          fineInsertResult = await connection.execute(fineInsertQuery, [
+            fine_id,
+            user_id,
+            fine_starting_date,
+            fee_amount,
+            payment_status,
+            rentalId,
+          ]);
+        }
+      }
+    }
+
     let fineQuery = "SELECT * FROM FINE_HISTORY";
     let fineResult = await connection.execute(fineQuery, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
+
     if (fineResult.rows.length != 0) {
       let fineObject = [];
       for (let j = 0; j < fineResult.rows.length; j++) {
+        let fineId = fineResult.rows[j].FINE_HISTORY_ID;
+        let fine_starting_date = fineResult.rows[j].FINE_STARTING_DATE;
+        let today = new Date();
+
+        const utc1 = Date.UTC(
+          fine_starting_date.getFullYear(),
+          fine_starting_date.getMonth(),
+          fine_starting_date.getDate()
+        );
+        const utc2 = Date.UTC(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        );
+        const days = Math.floor((utc2 - utc1) / _MS_PER_DAY);
+
+        let fee_amount = 20 + days * 2;
+        let fineUpdateQuery =
+          "UPDATE FINE_HISTORY SET FEE_AMOUNT = :fee_amount WHERE FINE_HISTORY_ID = :fineId";
+        let fineUpdateResult = await connection.execute(fineUpdateQuery, [
+          fee_amount,
+          fineId,
+        ]);
+
         fineObject.push({
-          FineId: fineResult.rows[j].FINE_HISTORY_ID,
+          FineId: fineId,
           RentalId: fineResult.rows[j].RENTAL_HISTORY_ID,
           UserId: fineResult.rows[j].USER_ID,
-          FineStartingDate: fineResult.rows[j].FINE_STARTING_DATE,
-          FeeAmount: fineResult.rows[j].FEE_AMOUNT,
+          FineStartingDate: fine_starting_date,
+          FeeAmount: fee_amount,
           PaymentDate: fineResult.rows[j].PAYMENT_DATE,
           PaymentStatus: fineResult.rows[j].PAYMENT_STATUS,
         });
@@ -559,7 +575,7 @@ async function getAllFineHistoryList(req, resp) {
     } else {
       responseObj = {
         ResponseCode: 0,
-        ResponseDesc: "FAILURE",
+        ResponseDesc: "NO DATA",
         ResponseStatus: resp.statusCode,
       };
       resp.send(responseObj);
@@ -604,6 +620,7 @@ async function getAllFineHistoryList(req, resp) {
 
 module.exports = {
   rentBook,
+  clearDue,
   returnBook,
   getAllRentalHistoryList,
   getAllFineHistoryList,
