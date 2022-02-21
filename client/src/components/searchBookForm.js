@@ -37,7 +37,6 @@ const MenuProps = {
 };
 
 const SearchBookForm = (props) => {
-    // todo: handle exceptions
 
     const [personName, setPersonName] = useState([]);
     const [loading, setLoading] = useState(false)

@@ -238,7 +238,7 @@ export default function SingleBookDetails(props) {
     }
 
     return (
-        <Grid container spacing={4} padding={5}>
+        <Grid  container spacing={4} padding={5}>
             <Grid item xs={12} md={12}>
                 <center>
                     <img src={logo} height={120} width={120}/>
@@ -249,8 +249,8 @@ export default function SingleBookDetails(props) {
             <Grid item xs={12} md={8}>
                 <div align="left" style={{display: "flex", justifyContent: "center"}}>
 
-                    <Card sx={{minWidth: 800}}>
-                        <CardContent>
+                    <Card sx={{minWidth: 800, maxWidth: 300}}>
+                        <CardContent sx={{padding: 4}}>
 
                             <b><strong><Typography variant="h4" component="div">
                                 {singleBook.Title}
