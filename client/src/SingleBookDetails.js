@@ -36,6 +36,7 @@ import {useEffect} from "react";
 import Cookies from "universal-cookie";
 import {useNavigate} from "react-router";
 import {useParams} from "react-router-dom";
+import searchResult from "./SearchResult";
 
 const cookies = new Cookies()
 const COOKIE_AGE = 31536000
@@ -101,6 +102,16 @@ export default function SingleBookDetails(props) {
         }).catch((e) => {
             console.log(e)
         })
+    }
+
+    function showSearch(authorID){
+        setTransferData(
+            {
+                authID: authorID,
+
+            }
+        )
+        navigate('../../searchresult')
     }
 
     function addCopy(edition) {
@@ -375,7 +386,17 @@ export default function SingleBookDetails(props) {
                             </Avatar>
                             <List>
                                 {singleBook.AuthorObject.map((singleAuthor) => (
-                                    <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
+                                    <Chip onClick={()=>{
+                                        setTransferData(
+                                            {
+                                                authID: singleAuthor.AuthorId,
+                                                genreID: null
+
+                                            }
+                                        )
+                                        navigate('../../searchresult')
+
+                                    }} clickable sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
                                           variant="outlined"/>
                                 ))}
 
@@ -414,7 +435,17 @@ export default function SingleBookDetails(props) {
                             </Avatar>
                             <List>
                                 {singleBook.GenreObject.map((singleGenre) => (
-                                    <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
+                                    <Chip onClick={()=>{
+                                        setTransferData(
+                                            {
+                                                authID: null,
+                                                genreID: singleGenre.GenreId
+
+                                            }
+                                        )
+                                        navigate('../../searchresult')
+
+                                    }} clickable sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
                                           variant="outlined"/>
                                 ))}
 

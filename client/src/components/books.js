@@ -76,13 +76,10 @@ const Books = (props) => {
     function showBookDetails(singleBook) {
         navigate("../bookdetails/" + singleBook.BookID)
 
-        setTransferData(singleBook)
+        // setTransferData(singleBook)
 
     }
 
-    useEffect(() => {
-        console.log("transferred data: ", transferData)
-    }, [transferData])
 
     return (
         <Grid container spacing={1} padding={1}>

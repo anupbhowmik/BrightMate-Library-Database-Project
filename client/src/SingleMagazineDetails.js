@@ -35,6 +35,7 @@ import axios from "axios";
 import {useEffect} from "react";
 import Cookies from "universal-cookie";
 import {useNavigate} from "react-router";
+import {useParams} from "react-router-dom";
 
 const cookies = new Cookies()
 const COOKIE_AGE = 31536000
@@ -45,13 +46,16 @@ export default function SingleMagazineDetails() {
         Genre: [],
     });
 
+    const params = useParams()
+    console.log('params ', params)
+
     useEffect(() => {
 
         setLoading(true);
-        console.log("magazine  ", transferData)
+        // console.log("magazine  ", transferData)
 
         axios.post("/api/getMagazineInfo", {
-            MAGAZINE_ID: transferData.MagazineID
+            MAGAZINE_ID: params.id
         }).then((res) => {
             setLoading(false);
             if (res.data.ResponseCode !== 0) {
@@ -71,10 +75,10 @@ export default function SingleMagazineDetails() {
 
     function getBookInfo() {
         setLoading(true);
-        console.log("book id ", transferData.MagazineID)
+        console.log("book id ", params.id)
 
         axios.post("/api/getMagazineInfo", {
-            MAGAZINE_ID: transferData.MagazineID
+            MAGAZINE_ID: params.id
         }).then((res) => {
             setLoading(false);
             if (res.data.ResponseCode !== 0) {
@@ -148,7 +152,7 @@ export default function SingleMagazineDetails() {
                             </Avatar>
                             <List>
                                 {singleBook.Genre.map((singleGenre) => (
-                                    <Chip clickable sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
+                                    <Chip sx={{mr: 1.5, mt: 1}} label={singleGenre.GenreName}
                                           variant="outlined"/>
                                 ))}
 

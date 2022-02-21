@@ -29,6 +29,7 @@ import AppBar from "@mui/material/AppBar";
 import IconButton from "@mui/material/IconButton";
 import './components/user.css'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 
 // IoReceiptSharp
 import {IoReceiptSharp} from 'react-icons/io5';
@@ -45,14 +46,16 @@ function UserDashboard(props) {
         var issueDate = dateStr.split("T")
         var issueTime = issueDate[1].split(".")
         return (
-            <div> Issue Date: {issueDate[0]} | Time: {issueTime[0]} </div>)
+            <> Date: {issueDate[0]} | Time: {issueTime[0]} </>)
     }
 
     var [userDetails, setUserDetails] = useState(
         {
             ResponseCode: 0,
             ResponseDesc: "",
-            RentalObject: []
+            RentalObject: [],
+            FineObject: []
+
         }
     )
 
@@ -103,7 +106,7 @@ function UserDashboard(props) {
 
     }, []);
 
-    function showRentalHistory() {
+    function refreshUserInfo() {
 
         setLoading(true);
 
@@ -120,6 +123,8 @@ function UserDashboard(props) {
                 showToast(" User details loading failed");
             }
             console.log("User info here: ", userDetails)
+
+            console.log("fine history here: ", userDetails.FineObject)
 
 
         }).catch((e) => {
@@ -201,7 +206,7 @@ function UserDashboard(props) {
                     setMenu(1)
                 }}>
                     <ListItemIcon>
-                        <LibraryBooksIcon/>
+                        <IoReceiptSharp color={red}/>
                     </ListItemIcon>
                     <ListItemText primary="Fine History"/>
                 </ListItem>
@@ -210,7 +215,8 @@ function UserDashboard(props) {
                     setMenu(2)
                 }}>
                     <ListItemIcon>
-                        <IoReceiptSharp color={red}/>
+
+                        <LibraryBooksIcon/>
                     </ListItemIcon>
                     <ListItemText primary="Rental History"/>
                 </ListItem>
@@ -369,198 +375,208 @@ function UserDashboard(props) {
                 </Dialog>
 
 
-            </Grid> : (
-                menu === 1 ? <Grid marginLeft={9} container spacing={1} padding={4}>
+            </Grid> : <div></div>}
+
+            {menu === 1 ? <Grid marginLeft={9} container spacing={1} padding={4}>
+
+                <Grid item xs={12} md={12}>
+                    <Typography variant="h6" component="div">
+                        Fine History
+                    </Typography>
+
+                </Grid>
+
+                <Grid item xs={1} md={2}></Grid>
+                <Grid item xs={12} md={8}>
+                    <div style={{display: "flex", justifyContent: "center"}}>
+
+                        <List aria-colcount={2} fullwidth>
+                            {userDetails.FineObject.map((fineObject) => (
+
+                                <Card style={{textAlign: 'left', marginBottom: '10px'}}
+                                      key={fineObject.FineId}
+                                      elevation={0}
+                                      sx={{minWidth: 700}}>
+
+                                    <CardContent>
+
+                                        <Grid container padding={1}>
+                                            <Grid sx={1} md={1}>
+                                                <ListItemIcon sx={{mb: 1.2}}>
+                                                    <Avatar sx={{bgcolor: "#E91E63"}}>
+                                                        <IoReceiptSharp/>
+                                                    </Avatar>
+                                                </ListItemIcon>
+                                            </Grid>
+
+                                            <Grid sx={6} md={8}>
+                                                <b><strong><Typography sx={{mt: 0.5}} variant="h6" component="div">
+                                                    Fine Starting
+                                                    {dateFix(fineObject.FineStartingDate)}
+                                                </Typography> </strong></b>
+                                            </Grid>
+
+                                            <Grid sx={5} md={3}></Grid>
+
+                                            <Grid sx={1} md={1}>
+                                                <ListItemIcon sx={{mb: 1.2}}>
+                                                    <Avatar sx={{bgcolor: "#50CB88"}}>
+                                                        <MonetizationOnIcon/>
+                                                    </Avatar>
+                                                </ListItemIcon>
+                                            </Grid>
+
+                                            <Grid sx={6} md={8}>
+                                                <b><strong><Typography sx={{mt: 0.5}} variant="h6" component="div">
+
+                                                    {"Fee: BDT " + fineObject.Fee}
+                                                </Typography> </strong></b>
+                                            </Grid>
+                                        </Grid>
 
 
-                        <Grid item xs={12} md={12}>
-                            <Typography variant="h6" component="div">
-                                Fine History
-                            </Typography>
+                                        <Typography variant="body1" component="div">
 
-                        </Grid>
+                                            {fineObject.FineStatus === "1" ?
+                                                <div>Payment Date {dateFix(fineObject.PaymentDate)}</div> :
+                                                <div></div>}
 
-                        <Grid item xs={1} md={2}></Grid>
-                        <Grid item xs={12} md={8}>
-                            <div style={{display: "flex", justifyContent: "center"}}>
-
-                                <List aria-colcount={2} fullwidth>
-                                    {userDetails.RentalObject?.map((rentalObject) => (
-
-                                        <Card style={{textAlign: 'left', marginBottom: '10px'}}
-                                              key={rentalObject.BookObject[0].BookID}
-                                              elevation={0}
-                                              sx={{minWidth: 700}}>
-
-                                            <CardContent>
-
-                                                <Grid container padding={1}>
-                                                    <Grid sx={1} md={1}>
-                                                        <ListItemIcon sx={{mb: 1.2}}>
-                                                            <Avatar sx={{bgcolor: "#3A7CFF"}}>
-                                                                <LibraryBooksIcon/>
-                                                            </Avatar>
-                                                        </ListItemIcon>
-                                                    </Grid>
-
-                                                    <Grid sx={6} md={8}>
-                                                        <b><strong><Typography variant="h6" component="div">
-                                                            {rentalObject.BookObject[0].Title}
-                                                        </Typography> </strong></b>
-                                                    </Grid>
-                                                </Grid>
-
-                                                <List>
-                                                    {rentalObject.BookObject[0].AuthorObject.map((singleAuthor) => (
-                                                        <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
-                                                        />
-                                                    ))}
-
-                                                </List>
-
-                                                <Typography variant="body1" component="div">
-
-                                                    {dateFix(rentalObject.IssueDate)}
-
-                                                </Typography>
+                                        </Typography>
 
 
-                                                {rentalObject.RentalStatus === 1 ?
-                                                    <Chip variant="outlined" color="primary" sx={{mr: 1.5, mt: 1}}
-                                                          label="Pending Return"/> : <div></div>}
-                                                {rentalObject.RentalStatus === 2 ?
-                                                    <Chip color="error" sx={{mr: 1.5, mt: 1}} label="Overdue"/> :
-                                                    <div></div>}
-                                                {rentalObject.RentalStatus === 3 ?
-                                                    <Chip variant="outlined" color="success" sx={{mr: 1.5, mt: 1}}
-                                                          label={"Returned on" + dateFix(rentalObject.ReturnDate)}/> :
-                                                    <div></div>}
+                                        {fineObject.FineStatus === "1" ?
+                                            <Chip variant="outlined" color="success" sx={{mr: 1.5, mt: 1}}
+                                                  label="Fine Paid"/> :
+                                            <Chip variant="outlined" color="error" sx={{mr: 1.5, mt: 1}}
+                                                  label="Fine Due"/>}
+
+                                    </CardContent>
 
 
-                                            </CardContent>
+                                </Card>
+                            ))}
+                        </List>
+                    </div>
+                </Grid>
+
+                <Grid item xs={1} md={2}></Grid>
+
+                <Grid item xs={0} md={4}></Grid>
+
+                <Grid item xs={12} md={4}>
+                    <center>
+                        <Button
+                            onClick={refreshUserInfo}
+                            variant="contained"
+                            id="showFineHistoryBtn"
+                            disableElevation>
+                            {isLoaded ? <div>Refresh Fine list</div> : <div>Show Fine History</div>}
+
+                        </Button>
+                    </center>
+                </Grid>
+                <Grid item xs={0} md={4}></Grid>
+
+            </Grid> : <div></div>}
+
+            {menu === 2 ? <Grid marginLeft={9} container spacing={1} padding={4}>
 
 
-                                        </Card>
-                                    ))}
-                                </List>
-                            </div>
-                        </Grid>
+                <Grid item xs={12} md={12}>
+                    <Typography variant="h6" component="div">
+                        Rental History
+                    </Typography>
 
-                        <Grid item xs={1} md={2}></Grid>
+                </Grid>
 
-                        <Grid item xs={0} md={4}></Grid>
+                <Grid item xs={1} md={2}></Grid>
+                <Grid item xs={12} md={8}>
+                    <div style={{display: "flex", justifyContent: "center"}}>
 
-                        <Grid item xs={12} md={4}>
-                            <center>
-                                <Button
-                                    onClick={showRentalHistory}
-                                    variant="contained"
-                                    id="showRentalHistoryBtn"
-                                    disableElevation>
-                                    {isLoaded ? <div>Refresh Fine list</div> : <div>Show Fine History</div>}
+                        <List aria-colcount={2} fullwidth>
+                            {userDetails.RentalObject?.map((rentalObject) => (
 
-                                </Button>
-                            </center>
-                        </Grid>
-                        <Grid item xs={0} md={4}></Grid>
+                                <Card style={{textAlign: 'left', marginBottom: '10px'}}
+                                      key={rentalObject.BookObject[0].BookID}
+                                      elevation={0}
+                                      sx={{minWidth: 700}}>
 
-                    </Grid> :
-                    <Grid marginLeft={9} container spacing={1} padding={4}>
+                                    <CardContent>
 
+                                        <Grid container padding={1}>
+                                            <Grid sx={1} md={1}>
+                                                <ListItemIcon sx={{mb: 1.2}}>
+                                                    <Avatar sx={{bgcolor: "#3A7CFF"}}>
+                                                        <LibraryBooksIcon/>
+                                                    </Avatar>
+                                                </ListItemIcon>
+                                            </Grid>
 
-                        <Grid item xs={12} md={12}>
-                            <Typography variant="h6" component="div">
-                                Rental History
-                            </Typography>
+                                            <Grid sx={6} md={8}>
+                                                <b><strong><Typography variant="h6" component="div">
+                                                    {rentalObject.BookObject[0].Title}
+                                                </Typography> </strong></b>
+                                            </Grid>
+                                        </Grid>
 
-                        </Grid>
+                                        <List>
+                                            {rentalObject.BookObject[0].AuthorObject.map((singleAuthor) => (
+                                                <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
+                                                />
+                                            ))}
 
-                        <Grid item xs={1} md={2}></Grid>
-                        <Grid item xs={12} md={8}>
-                            <div style={{display: "flex", justifyContent: "center"}}>
+                                        </List>
 
-                                <List aria-colcount={2} fullwidth>
-                                    {userDetails.RentalObject?.map((rentalObject) => (
+                                        <Typography variant="body1" component="div">
 
-                                        <Card style={{textAlign: 'left', marginBottom: '10px'}}
-                                              key={rentalObject.BookObject[0].BookID}
-                                              elevation={0}
-                                              sx={{minWidth: 700}}>
+                                            Issue {dateFix(rentalObject.IssueDate)}
 
-                                            <CardContent>
-
-                                                <Grid container padding={1}>
-                                                    <Grid sx={1} md={1}>
-                                                        <ListItemIcon sx={{mb: 1.2}}>
-                                                            <Avatar sx={{bgcolor: "#3A7CFF"}}>
-                                                                <LibraryBooksIcon/>
-                                                            </Avatar>
-                                                        </ListItemIcon>
-                                                    </Grid>
-
-                                                    <Grid sx={6} md={8}>
-                                                        <b><strong><Typography variant="h6" component="div">
-                                                            {rentalObject.BookObject[0].Title}
-                                                        </Typography> </strong></b>
-                                                    </Grid>
-                                                </Grid>
-
-                                                <List>
-                                                    {rentalObject.BookObject[0].AuthorObject.map((singleAuthor) => (
-                                                        <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
-                                                        />
-                                                    ))}
-
-                                                </List>
-
-                                                <Typography variant="body1" component="div">
-
-                                                    {dateFix(rentalObject.IssueDate)}
-
-                                                </Typography>
+                                        </Typography>
 
 
-                                                {rentalObject.RentalStatus === 1 ?
-                                                    <Chip variant="outlined" color="primary" sx={{mr: 1.5, mt: 1}}
-                                                          label="Pending Return"/> : <div></div>}
-                                                {rentalObject.RentalStatus === 2 ?
-                                                    <Chip color="error" sx={{mr: 1.5, mt: 1}} label="Overdue"/> :
-                                                    <div></div>}
-                                                {rentalObject.RentalStatus === 3 ?
-                                                    <Chip variant="outlined" color="success" sx={{mr: 1.5, mt: 1}}
-                                                          label={"Returned on" + dateFix(rentalObject.ReturnDate)}/> :
-                                                    <div></div>}
+                                        {rentalObject.RentalStatus === 1 ?
+                                            <Chip variant="outlined" color="primary" sx={{mr: 1.5, mt: 1}}
+                                                  label="Pending Return"/> : <div></div>}
+                                        {rentalObject.RentalStatus === 2 ?
+                                            <Chip color="error" sx={{mr: 1.5, mt: 1}} label="Overdue"/> :
+                                            <div></div>}
+                                        {rentalObject.RentalStatus === 3 ?
+                                            <Chip color="success" sx={{mr: 1.5, mt: 1}} label="Dues Cleared"/> :
+                                            <div></div>}
+                                        {rentalObject.RentalStatus === 4 ?
+                                            <Typography variant="body1" component="div" color="#50CB88">
+                                                Return {dateFix(rentalObject.ReturnDate)}
+                                            </Typography> :
+                                            <div></div>}
+
+                                    </CardContent>
 
 
-                                            </CardContent>
+                                </Card>
+                            ))}
+                        </List>
+                    </div>
+                </Grid>
 
+                <Grid item xs={1} md={2}></Grid>
 
-                                        </Card>
-                                    ))}
-                                </List>
-                            </div>
-                        </Grid>
+                <Grid item xs={0} md={4}></Grid>
 
-                        <Grid item xs={1} md={2}></Grid>
+                <Grid item xs={12} md={4}>
+                    <center>
+                        <Button
+                            onClick={refreshUserInfo}
+                            variant="contained"
+                            id="showRentalHistoryBtn"
+                            disableElevation>
+                            {isLoaded ? <div>Refresh Rental list</div> : <div>Show Rental History</div>}
 
-                        <Grid item xs={0} md={4}></Grid>
+                        </Button>
+                    </center>
+                </Grid>
+                <Grid item xs={0} md={4}></Grid>
 
-                        <Grid item xs={12} md={4}>
-                            <center>
-                                <Button
-                                    onClick={showRentalHistory}
-                                    variant="contained"
-                                    id="showRentalHistoryBtn"
-                                    disableElevation>
-                                    {isLoaded ? <div>Refresh Rental list</div> : <div>Show Rental History</div>}
-
-                                </Button>
-                            </center>
-                        </Grid>
-                        <Grid item xs={0} md={4}></Grid>
-
-                    </Grid>
-            )}
+            </Grid> : <div></div>}
 
 
         </div>

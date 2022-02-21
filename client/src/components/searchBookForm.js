@@ -11,7 +11,7 @@ import {
     Grid, InputBase, InputLabel, List, ListItemIcon, ListItemText, OutlinedInput, Paper, Select,
     TextField
 } from "@mui/material";
-import {setLoading, setTransferData, showToast} from "../App";
+import {setLoading, setTransferData, showToast, transferData} from "../App";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import MenuItem from "@mui/material/MenuItem";
@@ -126,17 +126,24 @@ const SearchBookForm = (props) => {
 
     const selectSingleAuthor = (authorID) => {
         state.singleAuthorID = authorID
+        state.isAuthor = 1
         console.log('selected author id ', authorID)
+        searchBook()
     }
 
     const selectSingleGenre = (genreID) => {
         state.singleGenreID = genreID
+        state.isGenre = 1
         console.log('selected genre id ', genreID)
+        searchBook()
     }
 
 
     useEffect(() => {
 
+        state.isGenre = 0
+        state.isAuthor = 0
+        state.isYear = 0
         axios.get("/api/getGenre").then((res) => {
             setGenre(res.data)
             var arr = []
@@ -171,6 +178,22 @@ const SearchBookForm = (props) => {
             console.log(e)
         })
 
+        if(transferData){
+            console.log('transfer data ', transferData)
+            if(transferData.genreID !== null){
+                state.singleGenreID = transferData.genreID
+                state.isGenre = 1
+            }
+            if(transferData.authID !== null){
+                state.singleAuthorID = transferData.authID
+                state.isAuthor = 1
+            }
+            console.log('state at search ',state)
+
+            searchBook()
+        }
+
+
 
     }, []);
 
@@ -179,7 +202,7 @@ const SearchBookForm = (props) => {
     );
 
     function searchBook() {
-
+        var isYear = (state.year === null || state.year === ""? 0 : 1)
         console.log('search req ', state)
         setLoading(true);
 
@@ -194,7 +217,7 @@ const SearchBookForm = (props) => {
                 GENRE_ID: state.singleGenreID
             },
             YEAR_OBJECT: {
-                IS_YEAR_FILTER: state.isYear,
+                IS_YEAR_FILTER: isYear,
                 YEAR: state.year
             }
         }).then((res) => {
@@ -239,7 +262,6 @@ const SearchBookForm = (props) => {
             <Grid item xs={12} md={12}>
                 <h2>Search a Book</h2>
             </Grid>
-
 
             <Grid item xs={0} md={3}>
             </Grid>

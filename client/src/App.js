@@ -100,7 +100,7 @@ function App() {
                         <Route exact path="/dashboard/:id" element={<UserDashboard/>}/>
                         <Route exact path="/allbooks" element={<AllBooks/>}/>
                         <Route exact path="/allmagazines" element={<AllMagazines/>}/>
-                        <Route exact path="/magazinedetails" element={<SingleMagazineDetails/>}/>
+                        <Route exact path="/magazinedetails/:id" element={<SingleMagazineDetails/>}/>
 
                     </Routes>
                 </div>
