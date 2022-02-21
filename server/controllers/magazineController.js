@@ -24,26 +24,6 @@ async function addMagazine(req, resp) {
     let publisher_id = req.body.PUBLISHER_ID;
     let genreArr = req.body.GENRE;
 
-    //CHECKING ADMIN
-    let admin_id = req.body.ADMIN_ID;
-    let admin_password = req.body.ADMIN_PASSWORD;
-
-    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
-    let adminCheckResult = await connection.execute(
-      adminCheckQuery,
-      [admin_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
-    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
-
-    if (
-      adminTypeId == 3 &&
-      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
-    ) {
-      console.log("GOT ADMIN PERMISSION");
 
       //Get Next Magazine Id
       let magazine_id;
@@ -90,14 +70,7 @@ async function addMagazine(req, resp) {
         Publisher_id: publisher_id,
         Language: language,
       };
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "ADMIN CREDENTIALS WRONG",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
+    
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -153,26 +126,6 @@ async function editMagazine(req, resp) {
     let publisher_id = req.body.PUBLISHER_ID;
     let genreArr = req.body.GENRE;
 
-    //CHECKING ADMIN
-    let admin_id = req.body.ADMIN_ID;
-    let admin_password = req.body.ADMIN_PASSWORD;
-
-    let adminCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :admin_id";
-    let adminCheckResult = await connection.execute(
-      adminCheckQuery,
-      [admin_id],
-      {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      }
-    );
-    let adminTypeId = adminCheckResult.rows[0].USER_TYPE_ID;
-    //let passwordCheck = bcrypt.compareSync(admin_password, adminCheckResult.rows[0].PASSWORD_KEY);
-
-    if (
-      adminTypeId == 3 &&
-      admin_password == adminCheckResult.rows[0].PASSWORD_KEY
-    ) {
-      console.log("GOT ADMIN PERMISSION");
 
       let magazineEditQuery =
         "UPDATE MAGAZINES SET MAGAZINE_TITLE = :magazine_title, PUBLISHER_ID = :publisher_id, LANGUAGE = :language WHERE MAGAZINE_ID = :magazine_id";
@@ -212,14 +165,7 @@ async function editMagazine(req, resp) {
         ResponseStatus: resp.statusCode,
         MagazineID: magazine_id,
       };
-    } else {
-      responseObj = {
-        ResponseCode: 0,
-        ResponseDesc: "ADMIN CREDENTIALS WRONG",
-        ResponseStatus: resp.statusCode,
-      };
-      resp.send(responseObj);
-    }
+    
   } catch (err) {
     console.log(err);
     responseObj = {
@@ -455,6 +401,7 @@ async function getMagazineInfo(req, resp) {
       MagazineID: magazineItem.MAGAZINE_ID,
       MagazineTitle: magazineItem.MAGAZINE_TITLE,
       Publisher: publisherName,
+      PublisherId: publisherId,
       Language: magazineItem.LANGUAGE,
       Genre: genreObject
     };

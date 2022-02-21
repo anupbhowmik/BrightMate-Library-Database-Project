@@ -179,7 +179,7 @@ async function signIn(req, resp) {
       let user_type_id = userInfo.rows[0].USER_TYPE_ID;
 
       let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
-      if (passwordCorrect) {
+      if (passwordCorrect && user_type_id == 1) {
         responseObj = {
           ResponseCode: 1,
           ResponseDesc: "SUCCESS",
@@ -257,7 +257,9 @@ async function adminSignIn(req, resp) {
     let userInfo = await connection.execute(userCheckQuery, [email], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
+
     console.log(userInfo);
+
     if (userInfo.rows.length == 0) {
       //user does not exist
       responseObj = {
@@ -275,35 +277,23 @@ async function adminSignIn(req, resp) {
       let user_type_id = userInfo.rows[0].USER_TYPE_ID;
 
       let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
-      if (passwordCorrect) {
-        if (user_type_id == 2) {
-          let employeeJobQuery =
-            "SELECT JOB_ID FROM USER_EMPLOYEE WHERE USER_ID = :user_id";
-          let employeeJob = await connection.execute(
-            employeeJobQuery,
-            [user_id],
-            {
-              outFormat: oracledb.OUT_FORMAT_OBJECT,
-            }
-          );
-          employeeJob = employeeJob.rows[0][0];
-          console.log(employeeJob);
 
-          if (employeeJob == 1 || employeeJob == 3)
-            responseObj = {
-              ResponseCode: 1,
-              ResponseDesc: "SUCCESS",
-              ResponseStatus: resp.statusCode,
-              UserId: user_id,
-              Username: user_name,
-              Email: email,
-              PasswordKey: passwordKey,
-              Mobile: mobile,
-              Gender: gender,
-              UserTypeId: user_type_id,
-              JobId: employeeJob
-            };
-        } else if (user_type_id == 3) {
+      if (user_type_id == 2) {
+        let employeeJobQuery =
+          "SELECT JOB_ID FROM USER_EMPLOYEE WHERE USER_ID = :user_id";
+        let employeeJob = await connection.execute(
+          employeeJobQuery,
+          [user_id],
+          {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          }
+        );
+        
+        employeeJob = employeeJob.rows[0].JOB_ID;
+        console.log("employeeJob: ", employeeJob);
+
+        if ((employeeJob == 1 || employeeJob == 3) && passwordCorrect)
+        //LIBRARIAN & LIBRARY ASSISTANTS ONLY
           responseObj = {
             ResponseCode: 1,
             ResponseDesc: "SUCCESS",
@@ -315,12 +305,26 @@ async function adminSignIn(req, resp) {
             Mobile: mobile,
             Gender: gender,
             UserTypeId: user_type_id,
+            JobId: employeeJob,
           };
-        }
+
+      } else if (user_type_id == 3 && passwordCorrect) {
+        responseObj = {
+          ResponseCode: 1,
+          ResponseDesc: "SUCCESS",
+          ResponseStatus: resp.statusCode,
+          UserId: user_id,
+          Username: user_name,
+          Email: email,
+          PasswordKey: passwordKey,
+          Mobile: mobile,
+          Gender: gender,
+          UserTypeId: user_type_id,
+        };
       } else {
         responseObj = {
           ResponseCode: 0,
-          ResponseDesc: "PASSWORD INCORRECT",
+          ResponseDesc: "WRONG CREDENTIALS",
           ResponseStatus: resp.statusCode,
         };
       }

@@ -42,20 +42,30 @@ const home = async () => {
 
 const bookList = async () => {
   const MainContent = document.getElementById("mainContents");
-
   const response = await fetch("http://localhost:5000/api/getBooks", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  
   let ResponseObj = await response.json();
   console.log(ResponseObj);
 
   let design = `<div class="row"> 
   <h2 align="center"> BOOKS </h2> 
   </div> 
+  
   <div class="row">
+  <form>
+<input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
+<button style="width:7%;" onclick="searchByBook(${searchString})" class="btn btn-primary m-3">
+<i class="fa fa-search"></i>
+</button>
+</form>
+</div>
+
+<div class="row">
   <p align="center">
   <button style="width:50%;" class="btn btn-info" onclick="openAddNewBookModal()" data-bs-toggle="modal" data-bs-target="#addNewBookModal"> Add A New Book</button>
   </p>
@@ -159,6 +169,76 @@ const editBook = async (bookId) => {
   $("#isbn").val(ResponseObj.ISBN);
 };
 
+const saveBookInfo = async () => {
+  let BOOK_ID = $("#book_id").val();
+  let YEAR = $("#year").val();
+  let DESCRIPTION = $("#description").val();
+  let LANGUAGE = $("#language").val();
+  let PUBLISHER_ID = $("#publisher").val();
+  let GENRE = [];
+  var markedCheckbox = document.getElementsByName("genreCheckbox");
+  for (var checkbox of markedCheckbox) {
+    if (checkbox.checked) GENRE.push(checkbox.value);
+  }
+
+  let bookObj = {
+    BOOK_ID: BOOK_ID,
+    YEAR: YEAR,
+    DESCRIPTION: DESCRIPTION,
+    LANGUAGE: LANGUAGE,
+    PUBLISHER_ID: PUBLISHER_ID,
+    GENRE: GENRE,
+  };
+
+  console.log(bookObj);
+
+  bookObj = JSON.stringify(bookObj);
+
+  const responseBook = await fetch("http://localhost:5000/api/editBook", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: bookObj,
+  });
+
+  responseObj = await responseBook.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    window.location.reload();
+  } else {
+    window.alert(responseObj.ResponseDesc);
+  }
+};
+
+const deleteBook = async (bookId) => {
+  console.log(bookId);
+
+  //Get Book Info from API
+  let bookObj = {
+    BOOK_ID: bookId,
+  };
+  bookObj = JSON.stringify(bookObj);
+  console.log(bookObj);
+
+  const response = await fetch("http://localhost:5000/api/deleteBook", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: bookObj,
+  });
+  ResponseObj = await response.json();
+  if (ResponseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    window.location.reload();
+  } else {
+    window.alert(ResponseObj.ResponseDesc);
+  }
+};
+
 const openAddNewBookModal = async () => {
   await showPublishers("new_publisher");
   await showAuthors();
@@ -178,7 +258,7 @@ const addNewBook = async () => {
     if (checkbox.checked) AUTHOR_ID.push(checkbox.value);
   }
   let GENRE = [];
-  var markedCheckbox2 = document.getElementsByName("new_genreCheckbox");
+  var markedCheckbox2 = document.getElementsByName("genreCheckbox");
   for (var checkbox2 of markedCheckbox2) {
     if (checkbox2.checked) GENRE.push(checkbox2.value);
   }
@@ -228,6 +308,126 @@ const addNewBook = async () => {
     window.alert("Empty Field");
   }
 };
+
+// const searchByBook = async (searchString) =>{
+//   var searchInput = searchString; //document.getElementById("searchString");
+//   //if (searchInput && searchString != "") {
+//     let AUTHOR_OBJECT = [];
+//     AUTHOR_OBJECT.push({
+//       IS_AUTHOR_FILTER = 0,
+//       AUTHOR_ID = ""
+//     });
+
+//     let GENRE_OBJECT = [];
+//     GENRE_OBJECT.push({
+//       IS_GENRE_FILTER = 0,
+//       GENRE_ID = ""
+//     });
+
+//     let YEAR_OBJECT = [];
+//     YEAR_OBJECT.push({
+//       IS_YEAR_FILTER = 0,
+//       YEAR = ""
+//     });
+
+//     let bookObj = {
+//       SEARCH_KEY: searchInput.value,
+//       AUTHOR_OBJECT: AUTHOR_OBJECT,
+//       GENRE_OBJECT: GENRE_OBJECT,
+//       YEAR_OBJECT: YEAR_OBJECT
+//     };
+  
+//     console.log(bookObj);
+  
+//     bookObj = JSON.stringify(bookObj);
+  
+//     response = await fetch("http://localhost:5000/api/search", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: bookObj,
+//     });
+//     let design = `<div class="row"> 
+//   <h2 align="center"> BOOKS </h2> 
+//   </div> 
+  
+//   <div class="row">
+//   <form>
+// <input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
+// <button style="width:7%;" onclick="searchByBook(${searchString})" class="btn btn-primary m-3">
+// <i class="fa fa-search"></i>
+// </button>
+// </form>
+// </div>
+
+// <div class="row">
+//   <p align="center">
+//   <button style="width:50%;" class="btn btn-info" onclick="openAddNewBookModal()" data-bs-toggle="modal" data-bs-target="#addNewBookModal"> Add A New Book</button>
+//   </p>
+//   </div> 
+//   <hr>`;
+
+//   design += `<table class="table" style="font-size:smaller">
+//                     <thead>
+//                     <tr>
+//                         <th scope="col">#</th>
+//                         <th scope="col">Book ID</th>
+//                         <th scope="col">Title</th>
+//                         <th scope="col">Authors</th>
+//                         <th scope="col">Publisher</th>
+//                         <th scope="col">ISBN</th>
+//                         <th scope="col">Genre</th>
+//                         <th scope="col">Copies</th>
+//                         <th scope="col">Year</th>
+//                         <th scope="col">Language</th>
+//                         <th scope="col">Action</th>
+//                     </tr>
+//                     </thead>
+//                     <tbody>`;
+
+//   let count = 1;
+//   ResponseObj.Books.forEach((element) => {
+//     let authors = "";
+//     for (let i = 0; i < element.AuthorObject.length; i++) {
+//       authors = authors + element.AuthorObject[i].AuthorName + ", ";
+//     }
+//     let genre = "";
+//     for (let i = 0; i < element.GenreObject.length; i++) {
+//       genre = genre + element.GenreObject[i].GenreName + ", ";
+//     }
+//     let copyCount = 0;
+//     for (let i = 0; i < element.CopyObject.length; i++) {
+//       copyCount = copyCount + element.CopyObject[i].CopyCount;
+//     }
+
+//     design += `<tr>
+//                         <th scope="row">${count}</th>
+//                         <td id="">${element.BookID}</td>
+//                         <td>${element.Title}</td>
+//                         <td>${authors}</td>
+//                         <td>${element.Publisher}</td>
+//                         <td>${element.ISBN}</td>
+//                         <td>${genre}</td>
+//                         <td>${copyCount}<br>
+//                         <button id="copies_${element.BookID}" value="${element.BookID}" onclick="openBookCopyModal(this.value)" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addBookCopiesModal">Add</button>
+//                         </td>
+//                         <td>${element.YearOfPublication}</td>
+//                         <td>${element.Language}</td>
+//                         <td>
+//                         <button id="edit_${element.BookID}" value="${element.BookID}" onclick="editBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editBookModal">Edit</button>
+//                         <button id="delete_${element.BookID}" value="${element.BookID}" onclick="deleteBook(this.value)" class="btn btn-danger btn-sm">Delete</button>
+//                         </td>
+//                     </tr>`;
+
+//     count++;
+//   });
+
+//   design += `</tbody>
+//                 </table>`;
+//   MainContent.innerHTML = design;
+//   //}
+// }
 
 const magazineList = async () => {
   const MainContent = document.getElementById("mainContents");
@@ -302,7 +502,7 @@ const addNewMagazine = async () => {
   let LANGUAGE = $("#new_mag_language").val();
   let PUBLISHER_ID = $("#new_mag_publisher").val();
   let GENRE = [];
-  var markedCheckbox2 = document.getElementsByName("new_genreCheckbox");
+  var markedCheckbox2 = document.getElementsByName("genreCheckbox");
   for (var checkbox2 of markedCheckbox2) {
     if (checkbox2.checked) GENRE.push(checkbox2.value);
   }
@@ -324,13 +524,16 @@ const addNewMagazine = async () => {
 
     magObj = JSON.stringify(magObj);
 
-    const responseMagazine = await fetch("http://localhost:5000/api/addMagazine", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: magObj,
-    });
+    const responseMagazine = await fetch(
+      "http://localhost:5000/api/addMagazine",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: magObj,
+      }
+    );
 
     responseObj = await responseMagazine.json();
     console.log(responseObj);
@@ -343,6 +546,77 @@ const addNewMagazine = async () => {
     }
   } else {
     window.alert("Empty Field");
+  }
+};
+
+const editMagazine = async (magazineId) => {
+  console.log(magazineId);
+
+  //Get Magazine Info from API
+  let magazineObj = {
+    MAGAZINE_ID: magazineId,
+  };
+  magazineObj = JSON.stringify(magazineObj);
+  console.log(magazineObj);
+
+  const response = await fetch("http://localhost:5000/api/getMagazineInfo", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: magazineObj,
+  });
+  ResponseObj = await response.json();
+  console.log(ResponseObj);
+
+  showPublishers("edit_mag_publisher");
+  showGenre("edit_mag_genre");
+
+  $("#edit_mag_id").val(ResponseObj.MagazineID);
+  $("#edit_mag_title").val(ResponseObj.MagazineTitle);
+  $("#edit_mag_language").val(ResponseObj.Language);
+  $("#edit_mag_publisher").val(ResponseObj.Publisher);
+};
+
+const saveMagazineInfo = async () => {
+  let MAGAZINE_ID = $("#edit_mag_id").val();
+  let TITLE = $("#edit_mag_title").val();
+  let LANGUAGE = $("#edit_mag_language").val();
+  let PUBLISHER_ID = $("#edit_mag_publisher").val();
+  let GENRE = [];
+  var markedCheckbox = document.getElementsByName("genreCheckbox");
+  for (var checkbox of markedCheckbox) {
+    if (checkbox.checked) GENRE.push(checkbox.value);
+  }
+
+  let magazineObj = {
+    MAGAZINE_ID: MAGAZINE_ID,
+    TITLE: TITLE,
+    LANGUAGE: LANGUAGE,
+    PUBLISHER_ID: PUBLISHER_ID,
+    GENRE: GENRE,
+  };
+
+  console.log(magazineObj);
+
+  magazineObj = JSON.stringify(magazineObj);
+
+  const responseBook = await fetch("http://localhost:5000/api/editMagazine", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: magazineObj,
+  });
+
+  responseObj = await responseBook.json();
+  console.log(responseObj);
+
+  if (responseObj.ResponseCode == 1) {
+    window.alert(responseObj.ResponseDesc);
+    window.location.reload();
+  } else {
+    window.alert(responseObj.ResponseDesc);
   }
 };
 
@@ -402,83 +676,13 @@ const showGenre = async (docId) => {
   let genreDesign = "";
   ResponseObj.GenreList.forEach((genre) => {
     genreDesign += `<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="new_genre_${genre.GenreID}" name="new_genreCheckbox">
+    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="new_genre_${genre.GenreID}" name="genreCheckbox">
     <label class="form-check-label" for="new_genre_${genre.GenreID}">
     ${genre.GenreName}
     </label>
     </div>`;
   });
   document.getElementById(docId).innerHTML = genreDesign;
-};
-
-const saveBookInfo = async () => {
-  let BOOK_ID = $("#book_id").val();
-  let YEAR = $("#year").val();
-  let DESCRIPTION = $("#description").val();
-  let LANGUAGE = $("#language").val();
-  let PUBLISHER_ID = $("#publisher").val();
-  let GENRE = [];
-  var markedCheckbox = document.getElementsByName("genreCheckbox");
-  for (var checkbox of markedCheckbox) {
-    if (checkbox.checked) GENRE.push(checkbox.value);
-  }
-
-  let bookObj = {
-    BOOK_ID: BOOK_ID,
-    YEAR: YEAR,
-    DESCRIPTION: DESCRIPTION,
-    LANGUAGE: LANGUAGE,
-    PUBLISHER_ID: PUBLISHER_ID,
-    GENRE: GENRE,
-  };
-
-  console.log(bookObj);
-
-  bookObj = JSON.stringify(bookObj);
-
-  const responseBook = await fetch("http://localhost:5000/api/editBook", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: bookObj,
-  });
-
-  responseObj = await responseBook.json();
-  console.log(responseObj);
-
-  if (responseObj.ResponseCode == 1) {
-    window.alert(responseObj.ResponseDesc);
-    window.location.reload();
-  } else {
-    window.alert(responseObj.ResponseDesc);
-  }
-};
-
-const deleteBook = async (bookId) => {
-  console.log(bookId);
-
-  //Get Book Info from API
-  let bookObj = {
-    BOOK_ID: bookId,
-  };
-  bookObj = JSON.stringify(bookObj);
-  console.log(bookObj);
-
-  const response = await fetch("http://localhost:5000/api/deleteBook", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: bookObj,
-  });
-  ResponseObj = await response.json();
-  if (ResponseObj.ResponseCode == 1) {
-    window.alert(responseObj.ResponseDesc);
-    window.location.reload();
-  } else {
-    window.alert(ResponseObj.ResponseDesc);
-  }
 };
 
 const openBookCopyModal = async (bookId) => {
@@ -1082,6 +1286,10 @@ const employeeList = async () => {
 
   let count = 1;
   ResponseObj.Employees.forEach((element) => {
+let endDate = "";
+if(element.EndDate){
+  endDate = element.EndDate;
+}
     design += `<tr>
                         <th scope="row">${count}</th>
                         <td id="">${element.EmployeeID}</td>
@@ -1092,7 +1300,7 @@ const employeeList = async () => {
                         <td>${element.JobTitle}</td>
                         <td>${element.Salary}</td>
                         <td>${element.JoinDate}</td>
-                        <td>${element.EndDate}</td>
+                        <td>${endDate}}</td>
                     </tr>`;
 
     count++;
@@ -1136,7 +1344,7 @@ const addNewEmployee = async () => {
   let EMAIL = $("#new_employee_email").val();
   let PASSWORD = $("#new_employee_password").val();
   let MOBILE = $("#new_employee_mobile").val();
-  
+
   let GENDER;
   if (document.getElementById("flexRadioMale").checked) {
     GENDER = "Male";
@@ -1147,9 +1355,9 @@ const addNewEmployee = async () => {
   }
 
   let JOB_ID;
-  let job = document.getElementsByName('new_employee_job');
-  for(var i = 0; i < job.length; i++){
-    if(job[i].checked){
+  let job = document.getElementsByName("new_employee_job");
+  for (var i = 0; i < job.length; i++) {
+    if (job[i].checked) {
       JOB_ID = job[i].value;
     }
   }
