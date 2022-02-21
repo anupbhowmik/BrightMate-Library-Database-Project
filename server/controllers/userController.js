@@ -179,7 +179,7 @@ async function signIn(req, resp) {
       let user_type_id = userInfo.rows[0].USER_TYPE_ID;
 
       let passwordCorrect = bcrypt.compareSync(userPassword, passwordKey);
-      if (passwordCorrect) {
+      if (passwordCorrect && user_type_id == 1) {
         responseObj = {
           ResponseCode: 1,
           ResponseDesc: "SUCCESS",
