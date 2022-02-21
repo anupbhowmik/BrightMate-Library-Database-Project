@@ -30,6 +30,7 @@ router.get("/api/getPublishers", bodyParser, generalController.getPublishers);
 router.post("/api/getPublisherById", bodyParser, generalController.getPublisherById);
 router.post("/api/search", bodyParser, generalController.search);
 
+
 router.post("/api/addBook", bodyParser, booksController.addBook);
 router.post("/api/addBookCopies", bodyParser, booksController.addBookCopies);
 router.get("/api/getBooks", bodyParser, booksController.getBooks);
@@ -37,6 +38,8 @@ router.post("/api/getBookInfo", bodyParser, booksController.getBookInfo);
 router.post("/api/getCopyInfo", bodyParser, booksController.getCopyInfo);
 router.post("/api/editBook", bodyParser, booksController.editBook);
 router.post("/api/deleteBook", bodyParser, booksController.deleteBook);
+router.post("/api/searchByBook", bodyParser, booksController.searchByBook);
+
 
 router.post("/api/addMagazine", bodyParser, magazineController.addMagazine);
 router.post("/api/editMagazine", bodyParser, magazineController.editMagazine);

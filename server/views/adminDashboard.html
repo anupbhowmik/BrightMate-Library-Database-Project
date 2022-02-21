@@ -8,6 +8,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="../css/adminDashboard.css" rel="stylesheet" type="text/css" />
     <link rel="icon" href="../images/reader.png">
     <style>
@@ -89,7 +90,9 @@
                 </li>
             </ul>
         </div>
+        
         <div class="p-3" id="mainContents" style="width: 100%;">
+            
         </div>
     </main>
     <div class="modal lg fade" id="editBookModal" tabindex="-1" aria-labelledby="editBookModalLabel" aria-hidden="true">
@@ -249,6 +252,52 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button onclick="addBookCopies()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal lg fade" id="editMagazineModal" tabindex="-1" aria-labelledby="editMagazineModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMagazineModalLabel">Edit Magazine Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="hidden" id="edit_mag_id" value="">
+                                <label for="edit_mag_title" class="col-form-label">Title:</label>
+                                <input type="text" class="form-control" id="edit_mag_title">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="edit_mag_language" class="col-form-label">Language:</label>
+                                <input type="text" class="form-control" id="edit_mag_language">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_mag_publisher" class="col-form-label">Publisher:</label>
+                                <select onchange="showPublisherList(this.value)" id="edit_mag_publisher" class="form-control"
+                                    aria-label="Others">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="edit_mag_genre" class="col-form-label">Genre:</label>
+                                <div id="edit_mag_genre"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="saveMagazineInfo()" type="button" data-bs-dismiss="modal"
                         class="btn btn-primary">Save</button>
                 </div>
             </div>
