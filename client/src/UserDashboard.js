@@ -291,7 +291,7 @@ function UserDashboard(props) {
                         }} elevation={0}>
                             <Card elevation={0} sx={{bgcolor: "#6C63FF", marginBottom: 2}}>
                                 <Typography color="white" sx={{mb: 2, mt: 2}} variant="h5" component="div">
-                                    {userDetails.UserTypeId === 1 ? <div>General Reader</div> : <div>Employee</div>}
+                                    {userDetails.UserType === 1 ? <div>General Reader</div> : <div>Employee</div>}
 
                                 </Typography>
                             </Card>

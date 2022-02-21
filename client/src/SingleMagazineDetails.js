@@ -111,7 +111,7 @@ export default function SingleMagazineDetails() {
                 <div align="left" style={{display: "flex", justifyContent: "center"}}>
 
                     <Card sx={{minWidth: 800}}>
-                        <CardContent>
+                        <CardContent sx={{padding: 4}}>
 
                             <b><strong><Typography variant="h4" component="div">
                                 {singleBook.MagazineTitle}
