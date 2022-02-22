@@ -18,6 +18,7 @@ router.post("/api/addEmployee", bodyParser, userController.addEmployee);
 router.get("/api/getJobs", bodyParser, userController.getJobs);
 router.get("/api/getEmployees", bodyParser, userController.getEmployees);
 router.post("/api/getUserInfo", bodyParser, userController.getUserInfo);
+router.post("/api/updateUserInfo", bodyParser, userController.updateUserInfo);
 
 router.post("/api/addAuthor", bodyParser, generalController.addAuthor);
 router.post("/api/editAuthor", bodyParser, generalController.editAuthor);
