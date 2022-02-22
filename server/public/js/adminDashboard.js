@@ -150,9 +150,6 @@ const editBook = async (bookId) => {
   ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  showPublishers("publisher");
-  showGenre("genre");
-
   let authors = "";
   for (let i = 0; i < ResponseObj.AuthorObject.length; i++) {
     authors = authors + ResponseObj.AuthorObject[i].AuthorName + ", ";
@@ -165,6 +162,10 @@ const editBook = async (bookId) => {
   $("#description").val(ResponseObj.Description);
   $("#language").val(ResponseObj.Language);
   $("#isbn").val(ResponseObj.ISBN);
+
+  
+  await showPublishers("publisher");
+  await showGenre("genre");
 };
 
 const saveBookInfo = async () => {
@@ -1070,15 +1071,33 @@ const publisherList = async () => {
 
   let count = 1;
   ResponseObj.PublisherList.forEach((element) => {
+
+    let adLine = "";
+    if(element.AddressLine != null){
+      adLine = element.AddressLine;
+    }
+    let city = "";
+    if(element.City != null){
+      city = element.City;
+    }
+    let postalCode = "";
+    if(element.PostalCode != null){
+      postalCode = element.PostalCode;
+    }
+    let country = "";
+    if(element.Country != null){
+      country = element.Country;
+    }
+
     design += `<tr>
                         <th scope="row">${count}</th>
                         <td id="">${element.PublisherID}</td>
                         <td>${element.PublisherName}</td>
                         <td>${element.Phone}</td>
-                        <td>${element.AddressLine}</td>
-                        <td>${element.City}</td>
-                        <td>${element.PostalCode}</td>
-                        <td>${element.Country}</td>
+                        <td>${adLine}</td>
+                        <td>${city}</td>
+                        <td>${postalCode}</td>
+                        <td>${country}</td>
                         <td>
                         <button id="edit_${element.PublisherID}" value="${element.PublisherID}" onclick="editPublisher(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editPublisherModal">Edit</button>
                         </td>
