@@ -420,6 +420,82 @@ async function getGenre(req, resp) {
   }
 }
 
+async function addGenre(req, resp) {
+  let connection;
+  let syRegisterGenre = 3;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let genre_name = req.body.GENRE_NAME;
+
+    //Get Next Genre Id
+    let genre_id;
+    await syRegister
+      .getNextId(connection, syRegisterGenre)
+      .then(function (data) {
+        genre_id = parseInt(data);
+      });
+
+    console.log(genre_id);
+
+    let genreInsertQuery =
+      "INSERT INTO GENRE (GENRE_ID, GENRE_NAME) VALUES( :genre_id, :genre_name)";
+    let genreInsertResult = await connection.execute(genreInsertQuery, [
+      genre_id,
+      genre_name,
+    ]);
+
+    console.log(genreInsertResult);
+
+    connection.commit();
+
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      GenreName: genre_name,
+      GenreId: genre_id
+    };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT INSERTED");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT INSERTED",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 async function getAuthors(req, resp) {
   let connection;
 
@@ -1037,6 +1113,7 @@ module.exports = {
   addPublisher,
   editPublisher,
   getGenre,
+  addGenre,
   getAuthors,
   getPublishers,
   getAuthorById,

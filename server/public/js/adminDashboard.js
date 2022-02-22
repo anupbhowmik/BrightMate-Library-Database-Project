@@ -543,7 +543,7 @@ const addNewMagazine = async () => {
 
     if (responseObj.ResponseCode == 1) {
       window.alert(responseObj.ResponseDesc);
-      window.location.reload();
+      magazineList();
     } else {
       window.alert(responseObj.ResponseDesc);
     }
@@ -687,6 +687,89 @@ const showGenre = async (docId) => {
   document.getElementById(docId).innerHTML = genreDesign;
 };
 
+const genreList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const responseGenre = await fetch("http://localhost:5000/api/getGenre", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  ResponseObj = await responseGenre.json();
+
+  console.log(ResponseObj);
+  let design = `<div class="row"> 
+  <h2 align="center"> Genre </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="openAddNewGenreModal()" data-bs-toggle="modal" data-bs-target="#addNewGenreModal"> Add A New Genre</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Genre Name</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.GenreList.forEach((element) => {
+
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td>${element.GenreName}</td>
+                    </tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+};
+
+const addNewGenre = async () => {
+  let GENRE_NAME = $("#add_new_genre").val();
+
+  if (GENRE_NAME != null) {
+    let genreObj = {
+      GENRE_NAME: GENRE_NAME
+    };
+
+    console.log(genreObj);
+    genreObj = JSON.stringify(genreObj);
+
+    const responseBook = await fetch(
+      "http://localhost:5000/api/addGenre",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: genreObj,
+      }
+    );
+
+    ResponseObj = await responseBook.json();
+    console.log(ResponseObj);
+
+    if (ResponseObj.ResponseCode == 1) {
+      window.alert(ResponseObj.ResponseDesc);
+      genreList();
+    } else {
+      window.alert(responseObj.ResponseDesc);
+    }
+  } else {
+    window.alert("Field empty");
+  }
+};
+
 const openBookCopyModal = async (bookId) => {
   $("#c_book_id").val(bookId);
 };
@@ -722,7 +805,7 @@ const addBookCopies = async (bookId) => {
 
     if (responseObj.ResponseCode == 1) {
       window.alert(responseObj.ResponseDesc);
-      window.location.reload();
+      bookList();
     } else {
       window.alert(responseObj.ResponseDesc);
     }
