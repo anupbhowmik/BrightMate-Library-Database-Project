@@ -116,36 +116,40 @@ If not starting, goto
    - Rental History
 
 ## Features of the Admin app
+
 - Log In / Log Out - only Admins, Librarians & Library Assistants have access to Admin site.
 - Books
   - See All Books List
-  - Add Book
+  - Add New Book
   - Add Copies of an Edition
   - Edit Book Information
   - Delete Book
   - Search Book
 - Magazine
   - See All Magazines List
-  - Add Magazine
-  - Edit Magazine
+  - Add New Magazine
+  - Edit Magazine Information
 - Authors
   - See All Authors List 
-  - Add Author
-  - Edit Author
+  - Add New Author
+  - Edit Author Information
   - Search Author
 - Publishers
   - See All Publishers List
-  - Add Publisher
-  - Edit Publisher
+  - Add New Publisher
+  - Edit Publisher Information
 - Rental History
   - Return Book
   - See Rental History List
-- Employee
-  - See All Employees List 
-  - Add Employee
 - Dues
   - See Due List
   - Clear Due
+- Employee
+  - See All Employees List 
+  - Add Employee
+- Genre
+  - See Genre List
+  - Add New Genre
 
 
 ## API Reference
