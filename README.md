@@ -54,13 +54,17 @@ If not starting, goto
 
 - Multi-Threaded user support
 - Secured account creation for readers
+- Book List
+- Magazine List
 - Book Rent
 - Live Search
-   - Search by book
-   - Search by author
-   - Search by genre
-   - Search by year published
-- Filter by Author and Genre from book details page
+   - Search by Book
+   - Search by Author
+   - Search by Genre
+   - Search by Year published
+- Filter
+  -  Filter by Author
+  -  Filter by Genre
 - User Dashboard
    - User Details
    - Fine History
@@ -101,4 +105,4 @@ If not starting, goto
 
 ## API Reference
 
-[All api references](https://documenter.getpostman.com/view/13141050/UVeAw9oE?fbclid=IwAR3DgAK1phAvB7Rp1KZsXI8HVQrIGN8VLHs6WgFOGY5atMAx49q9xfzN_gM#c9862e72-1278-482e-ad12-31d5cd53ca15)
+[Full API References](https://documenter.getpostman.com/view/13141050/UVeAw9oE?fbclid=IwAR3DgAK1phAvB7Rp1KZsXI8HVQrIGN8VLHs6WgFOGY5atMAx49q9xfzN_gM#c9862e72-1278-482e-ad12-31d5cd53ca15)
