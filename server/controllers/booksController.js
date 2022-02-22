@@ -19,7 +19,7 @@ async function addBook(req, resp) {
     });
     console.log("DATABASE CONNECTED");
 
-      let title = req.body.TITLE;
+      let title = req.body.BOOK_TITLE;
       let yearOfPublication = req.body.YEAR;
       let book_description = null;
       if (typeof req.body.DESCRIPTION !== "undefined") {

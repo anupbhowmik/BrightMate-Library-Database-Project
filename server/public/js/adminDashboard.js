@@ -205,7 +205,7 @@ const saveBookInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    bookList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -230,8 +230,8 @@ const deleteBook = async (bookId) => {
   });
   ResponseObj = await response.json();
   if (ResponseObj.ResponseCode == 1) {
-    window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    window.alert(ResponseObj.ResponseDesc);
+    bookList();
   } else {
     window.alert(ResponseObj.ResponseDesc);
   }
@@ -298,7 +298,7 @@ const addNewBook = async () => {
 
     if (responseObj.ResponseCode == 1) {
       window.alert(responseObj.ResponseDesc);
-      window.location.reload();
+      bookList();
     } else {
       window.alert(responseObj.ResponseDesc);
     }
@@ -572,13 +572,12 @@ const editMagazine = async (magazineId) => {
   ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  showPublishers("edit_mag_publisher");
-  showGenre("edit_mag_genre");
-
   $("#edit_mag_id").val(ResponseObj.MagazineID);
   $("#edit_mag_title").val(ResponseObj.MagazineTitle);
   $("#edit_mag_language").val(ResponseObj.Language);
-  $("#edit_mag_publisher").val(ResponseObj.Publisher);
+  
+  await showPublishers("edit_mag_publisher");
+  await showGenre("edit_mag_genre");
 };
 
 const saveMagazineInfo = async () => {
@@ -617,7 +616,7 @@ const saveMagazineInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    magazineList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -679,8 +678,8 @@ const showGenre = async (docId) => {
   let genreDesign = "";
   ResponseObj.GenreList.forEach((genre) => {
     genreDesign += `<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="new_genre_${genre.GenreID}" name="genreCheckbox">
-    <label class="form-check-label" for="new_genre_${genre.GenreID}">
+    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="genre_${genre.GenreID}" name="genreCheckbox">
+    <label class="form-check-label" for="genre_${genre.GenreID}">
     ${genre.GenreName}
     </label>
     </div>`;
@@ -856,16 +855,17 @@ const editAuthor = async (authorId) => {
   ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  let dateOfBirth = ResponseObj.DateOfBirth;
-  if (dateOfBirth != null) {
-    dateOfBirth = dateOfBirth.split("T");
+  let dateOfBirth = "";
+  if (ResponseObj.DateOfBirth != null) {
+    dateOfBirth = ResponseObj.DateOfBirth.split("T");
     dateOfBirth = dateOfBirth[0];
   }
-  let dateOfDeath = ResponseObj.DateOfDeath;
-  if (dateOfBirth != null) {
-    dateOfDeath = dateOfDeath.split("T");
+  let dateOfDeath = "";
+  if (ResponseObj.DateOfDeath != null) {
+    dateOfDeath = ResponseObj.DateOfDeath.split("T");
     dateOfDeath = dateOfDeath[0];
   }
+  console.log(dateOfBirth,"......",dateOfDeath);
 
   $("#authorId").val(ResponseObj.AuthorID);
   $("#authorName").val(ResponseObj.AuthorName);
@@ -906,7 +906,7 @@ const saveAuthorInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    authorList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -941,7 +941,7 @@ const addNewAuthor = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    authorList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -1076,7 +1076,7 @@ const savePublisherInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    publisherList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -1118,7 +1118,7 @@ const addNewPublisher = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    publisherList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -1304,7 +1304,7 @@ const employeeList = async () => {
   </div> 
   <div class="row">
   <p align="center">
-  <button style="width:50%;" onclick="opeNewEmployeeModal()" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewEmployeeModal"> Add A New Employee</button>
+  <button style="width:50%;" onclick="openNewEmployeeModal()" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewEmployeeModal"> Add A New Employee</button>
   </p>
   </div> 
   <hr>`;
@@ -1353,7 +1353,7 @@ if(element.EndDate){
   MainContent.innerHTML = design;
 };
 
-const opeNewEmployeeModal = async () => {
+const openNewEmployeeModal = async () => {
   showJobs();
 };
 
@@ -1432,7 +1432,7 @@ const addNewEmployee = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    employeeList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -1456,7 +1456,7 @@ const returnBook = async (rentId) => {
 
   if (ResponseObj.ResponseCode == 1) {
     window.alert(ResponseObj.ResponseDesc);
-    window.location.reload();
+    rentalHistoryList();
   } else {
     window.alert(ResponseObj.ResponseDesc);
   }
@@ -1479,7 +1479,7 @@ const clearDue = async (rentId) => {
   ResponseObj = await response.json();
   if (ResponseObj.ResponseCode == 1) {
     window.alert(ResponseObj.ResponseDesc);
-    window.location.reload();
+    feeList();
   } else {
     window.alert(ResponseObj.ResponseDesc);
   }

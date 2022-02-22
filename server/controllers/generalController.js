@@ -355,7 +355,7 @@ async function getGenre(req, resp) {
     });
     console.log("DATABASE CONNECTED");
 
-    genreSelectQuery = "SELECT * FROM GENRE";
+    genreSelectQuery = "SELECT * FROM GENRE ORDER BY GENRE_NAME ASC";
     let genreSelectResult = await connection.execute(genreSelectQuery, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
@@ -398,6 +398,7 @@ async function getGenre(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
@@ -405,10 +406,6 @@ async function getGenre(req, resp) {
           ResponseDesc: "ERROR CLOSING CONNECTION",
           ResponseStatus: resp.statusCode,
         };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        console.log("FOUND");
         resp.send(responseObj);
       }
     } else {
@@ -478,6 +475,7 @@ async function getAuthors(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
@@ -485,10 +483,6 @@ async function getAuthors(req, resp) {
           ResponseDesc: "ERROR CLOSING CONNECTION",
           ResponseStatus: resp.statusCode,
         };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        console.log("FOUND");
         resp.send(responseObj);
       }
     } else {
@@ -565,6 +559,7 @@ async function getPublishers(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
@@ -572,10 +567,6 @@ async function getPublishers(req, resp) {
           ResponseDesc: "ERROR CLOSING CONNECTION",
           ResponseStatus: resp.statusCode,
         };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        console.log("FOUND");
         resp.send(responseObj);
       }
     } else {
