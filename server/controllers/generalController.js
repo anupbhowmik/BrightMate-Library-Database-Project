@@ -76,6 +76,7 @@ async function addAuthor(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
@@ -83,10 +84,6 @@ async function addAuthor(req, resp) {
           ResponseDesc: "ERROR CLOSING CONNECTION",
           ResponseStatus: resp.statusCode,
         };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        console.log("INSERTED");
         resp.send(responseObj);
       }
     } else {
@@ -157,6 +154,7 @@ async function editAuthor(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
@@ -164,9 +162,6 @@ async function editAuthor(req, resp) {
           ResponseDesc: "ERROR CLOSING CONNECTION",
           ResponseStatus: resp.statusCode,
         };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
         resp.send(responseObj);
       }
     } else {
