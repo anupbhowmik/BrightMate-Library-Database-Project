@@ -32,10 +32,13 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import CreateIcon from '@mui/icons-material/Create';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import MailIcon from '@mui/icons-material/Mail';
+import CallIcon from '@mui/icons-material/Call';
 
 // IoReceiptSharp
 import {IoReceiptSharp} from 'react-icons/io5';
 import {red} from "@mui/material/colors";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const drawerWidth = 240;
 
@@ -168,6 +171,10 @@ function UserDashboard(props) {
                 setLoading(false)
                 if (res.data.ResponseCode === 1) {
                     showToast("User info updated!")
+                    refreshUserInfo()
+                    updateInfoState.userName = "";
+                    updateInfoState.mobile = "";
+                    setMenu(0);
                 } else {
                     showToast("Failed to update user info")
                 }
@@ -344,15 +351,23 @@ function UserDashboard(props) {
                                 imageHeight="120"
                                 roundedSize="0"/>
 
-                            <Typography paddingTop={3} variant="h4" component="div">
+                            <Typography paddingTop={2} variant="h4" component="div">
                                 {userDetails.Username}
                             </Typography>
 
                             <Chip sx={{mb: 1, mt: 1}} label={"Library card: " + userDetails.LibraryCardNumber}
                                   variant="outlined"/>
 
-                            <Typography variant="h6" component="div">
-                                E-mail: {userDetails.Email}
+                            <Typography paddingTop={2} variant="h6" component="div">
+                                <Avatar sx={{mb: 1, bgcolor: "#E91E63"}}>
+                                    <MailIcon/>
+                                </Avatar> {userDetails.Email}
+                            </Typography>
+
+                            <Typography paddingTop={2} variant="h6" component="div">
+                                <Avatar sx={{mb: 1, bgcolor: "#50CB88"}}>
+                                    <CallIcon/>
+                                </Avatar>{userDetails.Mobile}
                             </Typography>
 
                             <Grid item xs={0} md={4}></Grid>
@@ -450,20 +465,6 @@ function UserDashboard(props) {
                                     label="New Mobile Number"
                                     variant="outlined"
                                     type="number"
-
-                                />
-
-                                <TextField
-                                    sx={{marginTop: 2}}
-                                    style={{backgroundColor: "white"}}
-                                    onChange={onTextChange}
-                                    value={updateInfoState.oldPass}
-                                    name="oldPass"
-                                    fullWidth
-                                    id="outlined-basic"
-                                    label="Your current Password"
-                                    variant="outlined"
-                                    type="password"
 
                                 />
 
