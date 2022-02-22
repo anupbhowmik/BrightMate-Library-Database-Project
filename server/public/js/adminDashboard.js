@@ -56,7 +56,7 @@ const bookList = async () => {
   <h2 align="center"> BOOKS </h2> 
   </div> 
   
-  <div class="row">
+  <div class="row" style="align-items:center;">
 <input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
 <button style="width:7%;" onclick="searchByBook()" class="btn btn-primary m-3">
 <i class="fa fa-search"></i>
@@ -357,16 +357,14 @@ const searchByBook = async () =>{
   <h2 align="center"> BOOKS </h2> 
   </div> 
   
-  <div class="row">
-  <form>
-<input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
-<button style="width:7%;" onclick="searchByBook()" class="btn btn-primary m-3">
-<i class="fa fa-search"></i>
-</button>
-</form>
-</div>
+  <div class="row" style="align-items:center;">
+  <input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
+  <button style="width:7%;" onclick="searchByBook()" class="btn btn-primary m-3">
+  <i class="fa fa-search"></i>
+  </button>
+  </div>
 
-<div class="row">
+  <div class="row">
   <p align="center">
   <button style="width:50%;" class="btn btn-info" onclick="openAddNewBookModal()" data-bs-toggle="modal" data-bs-target="#addNewBookModal"> Add A New Book</button>
   </p>
@@ -736,19 +734,47 @@ const addBookCopies = async (bookId) => {
 
 const authorList = async () => {
   const MainContent = document.getElementById("mainContents");
-
-  const response = await fetch("http://localhost:5000/api/getAuthors", {
+  const searchInput = document.getElementById("searchString");
+  let response = "";
+  if(searchInput && searchInput.value != ""){
+    let authorObj = {
+      SEARCH_KEY: searchInput.value
+    };
+  
+    console.log(authorObj);
+    authorObj = JSON.stringify(authorObj);
+  
+    response = await fetch("http://localhost:5000/api/searchByAuthor", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: authorObj,
+    });
+  } else{
+  response = await fetch("http://localhost:5000/api/getAuthors", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   });
+}
   let ResponseObj = await response.json();
   console.log(ResponseObj);
 
   let design = `<div class="row"> 
   <h2 align="center"> AUTHORS </h2> 
   </div> 
+
+
+  <div class="row" style="align-items:center;">
+<input style="width:88%;" type="text" id="searchString" name="searchString" value="" placeholder="Search...."> 
+<button style="width:7%;" onclick="authorList()" class="btn btn-primary m-3">
+<i class="fa fa-search"></i>
+</button>
+</div>
+
+
   <div class="row">
   <p align="center">
   <button style="width:50%;" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewAuthorModal"> Add A New Author</button>
@@ -772,16 +798,23 @@ const authorList = async () => {
 
   let count = 1;
   ResponseObj.AuthorList.forEach((element) => {
-    let dateOfBirth = element.DateOfBirth;
-    if (dateOfBirth != null) {
+    let dateOfBirth = "";
+    if (element.DateOfBirth != null) {
+      dateOfBirth = element.DateOfBirth;
       dateOfBirth = dateOfBirth.split("T");
       dateOfBirth = dateOfBirth[0];
     }
 
-    let dateOfDeath = element.DateOfDeath;
-    if (dateOfDeath != null) {
+    let dateOfDeath = "";
+    if (element.DateOfDeath != null) {
+      dateOfDeath = element.DateOfDeath;
       dateOfDeath = dateOfDeath.split("T");
       dateOfDeath = dateOfDeath[0];
+    }
+
+    let bio = "";
+    if (element.Bio != null) {
+      bio = element.Bio;
     }
 
     design += `<tr>
@@ -790,7 +823,7 @@ const authorList = async () => {
                         <td>${element.AuthorName}</td>
                         <td>${dateOfBirth}</td>
                         <td>${dateOfDeath}</td>
-                        <td>${element.Bio}</td>
+                        <td>${bio}</td>
                         <td>
                         <button id="edit_${element.AuthorID}" value="${element.AuthorID}" onclick="editAuthor(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editAuthorModal">Edit</button>
                         </td>
@@ -1139,13 +1172,17 @@ const rentalHistoryList = async () => {
     } else if (rStatus == 4) {
       stat = "Returned";
     }
+    let returnDate = "";
+    if(element.ReturnDate != null){
+      returnDate = element.ReturnDate;
+    }
     design += `<tr>
                         <th scope="row">${count}</th>
                         <td id="">${element.RentalId}</td>
                         <td>${element.UserId}</td>
                         <td>${element.BookCopyId}</td>
                         <td>${element.IssueDate}</td>
-                        <td>${element.ReturnDate}</td>
+                        <td>${returnDate}</td>
                         <td>${stat}</td>`;
     if (rStatus == 1 || rStatus == 3) {
       design += `<td>
