@@ -18,7 +18,7 @@ This was the term project of BUET Level 2 Term 2 of Database Course (CSE 216).
 - ReactJS (Client App Frontend)
 - HTML, CSS, Bootstrap (Admin App Frontend)
 - Oracle 19c (Database)
-- 
+
 
 ## Installation
 
@@ -28,12 +28,12 @@ The database used in this app is `Oracle 19c` Database. If you don't have Oracle
 [Oracle Installation Guideline for Windows 10](http://www.rebellionrider.com/how-to-install-oracle-database-19c-on-windows-10/)
 <br />
 <br />
-After completing the installation, you will need to setup the database schema. You can create your own schema and provide the credentials into the `serverInformation.js` file located in the root directory.
+After completing the installation, you will need to setup the database schema. You can create your own schema and provide the credentials into the `serverInformation.js` file located in the /server directory.
 <br />
 <br />
 Run the snippets below in `SQL Plus` while being connected as `sysdba`.
 
-```bash
+```
   CREATE USER c##brightmate_library IDENTIFIED BY root;
   GRANT CREATE SESSION TO c##brightmate_library;
   GRANT ALL PRIVILEGES TO c##brightmate_library;
@@ -41,7 +41,7 @@ Run the snippets below in `SQL Plus` while being connected as `sysdba`.
 
 Sign into your schema by providing these credentials:
 
-```bash
+```
   connect c##brightmate_library;
   password: root
 ```
