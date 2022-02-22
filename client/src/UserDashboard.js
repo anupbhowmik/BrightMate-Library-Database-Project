@@ -152,29 +152,31 @@ function UserDashboard(props) {
 
     function updateUserInfo() {
         console.log('update info req ', updateInfoState)
-        // if (updateInfoState.userName == "" && updateInfoState.mobile == "") {
-        //     showToast("Please update at least one info before submitting")
-        // } else {
-        //
-        //     setLoading(true)
-        //     axios.post('/api/fix this', {
-        //         USER_ID: userInfo.UserId,
-        //
-        //     }).then((res) => {
-        //
-        //         console.log(res.data)
-        //         setLoading(false)
-        //         if (res.data.ResponseCode === 1) {
-        //             showToast("Password updated successfully!")
-        //         } else {
-        //             showToast("Old password is wrong")
-        //         }
-        //
-        //     }).catch((e) => {
-        //         console.log(e)
-        //     })
-        //
-        // }
+        if (updateInfoState.userName == "" && updateInfoState.mobile == "") {
+            showToast("Please update at least one info before submitting")
+        } else {
+
+            setLoading(true)
+            axios.post('/api/updateUserInfo', {
+                USER_ID: userDetails.UserId,
+                PASSWORD: userDetails.PasswordKey,
+                USER_NAME: updateInfoState.userName,
+                MOBILE: updateInfoState.mobile
+            }).then((res) => {
+
+                console.log(res.data)
+                setLoading(false)
+                if (res.data.ResponseCode === 1) {
+                    showToast("User info updated!")
+                } else {
+                    showToast("Failed to update user info")
+                }
+
+            }).catch((e) => {
+                console.log(e)
+            })
+
+        }
     }
 
     function changePassword() {
