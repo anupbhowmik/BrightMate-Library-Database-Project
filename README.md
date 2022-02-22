@@ -10,6 +10,8 @@ This is the term project of BUET Level 2 Term 2
 ## Authors
 
 - [@Anupznk](https://github.com/Anupznk)
+- [@fabihatasneem](https://github.com/fabihatasneem)
+
 
 
 ## Installation
@@ -23,7 +25,7 @@ Install all the dependencies from packeage.json
   npm i
   npm install
 ```
- start the client app
+ - start the client app
  ```bash
   npm start
 ```
