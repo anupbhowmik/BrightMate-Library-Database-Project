@@ -18,18 +18,18 @@ This was the term project of BUET Level 2 Term 2 of Database Course (CSE 216).
 - ReactJS (Client App Frontend)
 - HTML, CSS, Bootstrap (Admin App Frontend)
 - Oracle 19c (Database)
-
-- [@Anupznk](https://github.com/Anupznk)
-- [@fabihatasneem](https://github.com/fabihatasneem)
-
+- 
 
 ## Installation
 
 The database used in this app is `Oracle 19c` Database. If you don't have Oracle installed in your system, you need to install it first to run the app in your system. To install Oracle, you can follow the given link below:
 <br />
-Oracle Installation Guideline for Windows 10
+<br />
+[Oracle Installation Guideline for Windows 10](http://www.rebellionrider.com/how-to-install-oracle-database-19c-on-windows-10/)
+<br />
 <br />
 After completing the installation, you will need to setup the database schema. You can create your own schema and provide the credentials into the `serverInformation.js` file located in the root directory.
+<br />
 <br />
 Run the snippets below in `SQL Plus` while being connected as `sysdba`.
 
