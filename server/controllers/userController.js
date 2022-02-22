@@ -458,6 +458,108 @@ async function changePassword(req, resp) {
   }
 }
 
+async function updateUserInfo(req, resp) {
+  let connection;
+  const saltRounds = 5;
+  const salt = bcrypt.genSaltSync(saltRounds);
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    let user_id = req.body.USER_ID;
+    let user_password = req.body.PASSWORD;
+    let userName = req.body.USER_NAME;
+    let mobile = req.body.MOBILE;
+
+    let userCheckQuery = "SELECT * FROM USERS WHERE USER_ID = :user_id";
+    let userInfo = await connection.execute(userCheckQuery, [user_id], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    console.log(userInfo);
+    let passwordKey = userInfo.rows[0].PASSWORD_KEY;
+    if (passwordKey == user_password) {
+
+      if(!userName || userName == ""){
+        userName = userInfo.rows[0].USER_NAME;
+      }
+      if(!mobile || mobile == ""){
+        mobile = userInfo.rows[0].MOBILE;
+      }
+      let setUserInfoQuery =
+        "UPDATE USERS SET USER_NAME = :userName, MOBILE = :mobile WHERE USER_ID = :user_id";
+      let setUserInfoResult = await connection.execute(
+        setUserInfoQuery,[
+          userName,
+          mobile,
+          user_id
+        ],
+        {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        }
+      );
+      console.log(setUserInfoResult);
+
+      connection.commit();
+
+      responseObj = {
+        ResponseCode: 1,
+        ResponseDesc: "SUCCESS",
+        ResponseStatus: resp.statusCode,
+        UserId: user_id,
+        PasswordKey: user_password,
+        UserName: userName,
+        Mobile: mobile,
+        Email: userInfo.rows[0].EMAIL
+      };
+    } else {
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "PASSWORD INCORRECT",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        resp.send(responseObj);
+      } else {
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "FAILURE",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+    }
+  }
+}
+
 async function addEmployee(req, resp) {
   let connection;
   let syRegisterUsers = 1;
@@ -1052,4 +1154,5 @@ module.exports = {
   getJobs,
   getEmployees,
   getUserInfo,
+  updateUserInfo
 };
