@@ -67,6 +67,7 @@ If not starting, goto
   -  Filter by Genre
 - User Dashboard
    - User Details
+   - Update user Details
    - Fine History
    - Rental History
 
