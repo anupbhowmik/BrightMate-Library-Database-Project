@@ -19,13 +19,30 @@ This is the term project of BUET Level 2 Term 2
 - Install [Node](https://nodejs.org/en/download/) on your device
 - Clone the repository
 
-Install all the dependencies from packeage.json
+Install all the dependencies from package.json
 - `cd` to `client` directory
 ```bash
   npm i
   npm install
 ```
- - start the client app
+ start the client app
  ```bash
   npm start
 ```
+## Features of the Client app
+
+- Multi-Threaded user support
+- Secured account creation for readers
+- Book Rent
+- Live Search
+   - Search by book
+   - Search by author
+   - Search by genre
+   - Search by year published
+- Filter by Author and Genre from book details page
+- User Dashboard
+   - User Details
+   - Fine History
+   - Rental History
+
+
