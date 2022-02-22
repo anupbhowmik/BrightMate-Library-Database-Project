@@ -287,7 +287,7 @@ export default function SingleBookDetails(props) {
                                             <Chip
                                                 onClick={() => collectBook(userInfo.UserId, singleBook, singleCopy.Edition)}
                                                 size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
-                                                label={"Collect " + singleCopy.Edition + " Edition"}
+                                                label={"Collect " + "Edition "  + singleCopy.Edition}
                                             />
 
                                             <Typography sx={{mb: 1.5}} color={"#3A7CFF"} variant="body1" component="div">
@@ -336,7 +336,7 @@ export default function SingleBookDetails(props) {
                                             <Chip
                                                 onClick={() => collectBook(singleBook, singleCopy.Edition)}
                                                 size={"large"} color="primary" clickable={true} sx={{mr: 1.5, mb: 1}}
-                                                label={"Collect " + singleCopy.Edition + " Edition"}
+                                                label={"Collect " + "Edition "  + singleCopy.Edition}
                                             />
 
                                             <Typography sx={{mb: 1.5}} color={"#3A7CFF"} variant="body1"

@@ -134,7 +134,7 @@ const Books = (props) => {
                                                     <Card elevation={0}>
 
                                                         <Chip sx={{mr: 1.5, mt: 1, mb: 1}}
-                                                              label={singleCopy.Edition + " Edition"}
+                                                              label={"Edition " + singleCopy.Edition }
                                                               variant="outlined"/>
 
                                                         <Typography color={"#3A7CFF"} variant="body1" component="div">
