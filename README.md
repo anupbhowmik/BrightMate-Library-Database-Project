@@ -22,6 +22,8 @@ This was the term project of BUET Level 2 Term 2 of Database Course (CSE 216).
 
 ## Installation
 
+### Oracle Installation
+
 The database used in this app is `Oracle 19c` Database. If you don't have Oracle installed in your system, you need to install it first to run the app in your system. To install Oracle, you can follow the given link below:
 <br />
 <br />
@@ -48,8 +50,14 @@ Sign into your schema by providing these credentials:
 
 In this way, your schema will be ready to hold the database tables. The SQL Dump file is provided in the root directory. Import them into your newly created schema. 
 <br />
-For database creation and table configuration, we have used Navicat Premium 16.
 <br />
+For database creation and table configuration, we have used `Navicat Premium 16`.
+<br />
+<br />
+
+
+### Node Installation
+
 
 - Install [Node](https://nodejs.org/en/download/) on your device
 - Clone the repository
