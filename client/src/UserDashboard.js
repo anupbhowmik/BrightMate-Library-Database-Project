@@ -30,6 +30,8 @@ import IconButton from "@mui/material/IconButton";
 import './components/user.css'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import CreateIcon from '@mui/icons-material/Create';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 // IoReceiptSharp
 import {IoReceiptSharp} from 'react-icons/io5';
@@ -59,17 +61,20 @@ function UserDashboard(props) {
         }
     )
 
-    var [passwordState, setPasswordState] = useState(
+    var [updateInfoState, setUpdateInfoState] = useState(
         {
-            oldPass: null,
-            newPass: null
+            oldPass: "",
+            newPass: "",
+            userName: "",
+            mobile: ""
         }
     )
 
+
     const onTextChange = (event) => {
         const value = event.target.value;
-        setPasswordState({
-            ...passwordState,
+        setUpdateInfoState({
+            ...updateInfoState,
             [event.target.name]: value,
         });
         console.log(event.target.value);
@@ -136,27 +141,53 @@ function UserDashboard(props) {
 
     const handleClickOpen = () => {
         setOpen(true);
-        passwordState.newPass = null;
-        passwordState.oldPass = null;
+        updateInfoState.newPass = null;
+        updateInfoState.oldPass = null;
     };
 
     const handleClose = () => {
         setOpen(false);
-        console.log(passwordState)
+        console.log(updateInfoState)
     };
 
+    function updateUserInfo() {
+        console.log('update info req ', updateInfoState)
+        // if (updateInfoState.userName == "" && updateInfoState.mobile == "") {
+        //     showToast("Please update at least one info before submitting")
+        // } else {
+        //
+        //     setLoading(true)
+        //     axios.post('/api/fix this', {
+        //         USER_ID: userInfo.UserId,
+        //
+        //     }).then((res) => {
+        //
+        //         console.log(res.data)
+        //         setLoading(false)
+        //         if (res.data.ResponseCode === 1) {
+        //             showToast("Password updated successfully!")
+        //         } else {
+        //             showToast("Old password is wrong")
+        //         }
+        //
+        //     }).catch((e) => {
+        //         console.log(e)
+        //     })
+        //
+        // }
+    }
 
     function changePassword() {
 
-        if (passwordState.oldPass == null || passwordState.newPass == null || passwordState.oldPass == "" || passwordState.newPass == "") {
+        if (updateInfoState.oldPass == null || updateInfoState.newPass == null || updateInfoState.oldPass == "" || updateInfoState.newPass == "") {
             showToast("Don't keep any of the fields empty")
         } else {
             setOpen(false)
             setLoading(true)
             axios.post('/api/changePassword', {
                 USER_ID: userInfo.UserId,
-                OLD_PASSWORD: passwordState.oldPass,
-                NEW_PASSWORD: passwordState.newPass
+                OLD_PASSWORD: updateInfoState.oldPass,
+                NEW_PASSWORD: updateInfoState.newPass
             }).then((res) => {
 
                 console.log(res.data)
@@ -219,6 +250,16 @@ function UserDashboard(props) {
                         <LibraryBooksIcon/>
                     </ListItemIcon>
                     <ListItemText primary="Rental History"/>
+                </ListItem>
+
+                <ListItem button selected={menu === 3} onClick={() => {
+                    setMenu(3)
+                }}>
+                    <ListItemIcon>
+
+                        <CreateIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary="Change User Info"/>
                 </ListItem>
             </List>
 
@@ -348,7 +389,7 @@ function UserDashboard(props) {
                             margin="dense"
                             id="oldpass"
                             onChange={onTextChange}
-                            value={passwordState.oldPass}
+                            value={updateInfoState.oldPass}
                             label="Enter Old Password"
                             name="oldPass"
                             type="password"
@@ -357,7 +398,7 @@ function UserDashboard(props) {
                         />
 
                         <TextField
-                            value={passwordState.newPass}
+                            value={updateInfoState.newPass}
                             margin="dense"
                             id="newpass"
                             onChange={onTextChange}
@@ -376,6 +417,70 @@ function UserDashboard(props) {
 
 
             </Grid> : <div></div>}
+
+            {menu === 3 ? <Grid container spacing={1}>
+
+
+                    <Grid item xs={1} md={2}></Grid>
+                    <Grid marginLeft={9} marginBottom={10} item xs={10} md={8}>
+                        <center>
+                            <Grid item xs={4} md={4}>
+                                <TextField
+                                    style={{backgroundColor: "white"}}
+                                    onChange={onTextChange}
+                                    value={updateInfoState.userName}
+                                    name="userName"
+                                    fullWidth
+                                    id="outlined-basic"
+                                    label="New User Name"
+                                    variant="outlined"
+
+                                />
+
+                                <TextField
+                                    sx={{marginTop: 2}}
+                                    style={{backgroundColor: "white"}}
+                                    onChange={onTextChange}
+                                    value={updateInfoState.mobile}
+                                    name="mobile"
+                                    fullWidth
+                                    id="outlined-basic"
+                                    label="New Mobile Number"
+                                    variant="outlined"
+                                    type="number"
+
+                                />
+
+                                <TextField
+                                    sx={{marginTop: 2}}
+                                    style={{backgroundColor: "white"}}
+                                    onChange={onTextChange}
+                                    value={updateInfoState.oldPass}
+                                    name="oldPass"
+                                    fullWidth
+                                    id="outlined-basic"
+                                    label="Your current Password"
+                                    variant="outlined"
+                                    type="password"
+
+                                />
+
+                                <Button
+                                    sx={{marginTop: 2}}
+                                    onClick={updateUserInfo}
+                                    variant="contained"
+                                    disableElevation>
+                                    <ManageAccountsIcon/>
+                                    &nbsp;&nbsp;&nbsp;Update User Info
+
+                                </Button>
+
+                            </Grid>
+                        </center>
+                    </Grid>
+                </Grid>
+                :
+                <div></div>}
 
             {menu === 1 ? <Grid marginLeft={9} container spacing={1} padding={4}>
 
