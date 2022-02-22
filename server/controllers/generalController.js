@@ -611,7 +611,6 @@ async function search(req, resp) {
 
     let authorKey = req.body.AUTHOR_OBJECT;
     let is_author_filter = authorKey.IS_AUTHOR_FILTER;
-    let author_name;
     let authorQuery = "";
     let authorFromQuery = "";
     if (is_author_filter == 1) {
@@ -643,7 +642,7 @@ async function search(req, resp) {
     }
 
     let searchQuery =
-      "SELECT b.BOOK_ID, b.BOOK_TITLE, b.DESCRIPTION, b.LANGUAGE, b.PUBLISHER_ID, b.ISBN, b.AVAILABLE_COPIES" +
+      "SELECT b.BOOK_ID, b.BOOK_TITLE, b.DESCRIPTION, b.LANGUAGE, b.PUBLISHER_ID, b.ISBN, b.AVAILABLE_COPIES, b.YEAR_OF_PUBLICATION " +
       " FROM BOOKS b " +
       authorFromQuery +
       genreFromQuery +
@@ -971,6 +970,81 @@ async function getPublisherById(req, resp) {
   }
 }
 
+async function searchByAuthor(req, resp) {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection({
+      user: dbuser,
+      password: dbpassword,
+      connectString: connectionString,
+    });
+    console.log("DATABASE CONNECTED");
+
+    searchString = req.body.SEARCH_KEY;
+    searchString = "%" + searchString + "%";
+
+    authorSelectQuery = "SELECT * FROM AUTHOR WHERE UPPER(AUTHOR_NAME) LIKE UPPER(:searchString)";
+    let authorSelectResult = await connection.execute(authorSelectQuery, [searchString], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    let authorObject = [];
+    for (let i = 0; i < authorSelectResult.rows.length; i++) {
+      let authorItem = authorSelectResult.rows[i];
+
+      authorObject.push({
+        AuthorID: authorItem.AUTHOR_ID,
+        AuthorName: authorItem.AUTHOR_NAME,
+        DateOfBirth: authorItem.DATE_OF_BIRTH,
+        DateOfDeath: authorItem.DATE_OF_DEATH,
+        Bio: authorItem.BIO,
+      });
+    }
+    responseObj = {
+      ResponseCode: 1,
+      ResponseDesc: "SUCCESS",
+      ResponseStatus: resp.statusCode,
+      AuthorList: authorObject,
+    };
+  } catch (err) {
+    console.log(err);
+    responseObj = {
+      ResponseCode: 0,
+      ResponseDesc: "FAILURE",
+      ResponseStatus: resp.statusCode,
+    };
+    resp.send(responseObj);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("CONNECTION CLOSED");
+      } catch (err) {
+        console.log("Error closing connection");
+        responseObj = {
+          ResponseCode: 0,
+          ResponseDesc: "ERROR CLOSING CONNECTION",
+          ResponseStatus: resp.statusCode,
+        };
+        resp.send(responseObj);
+      }
+      if (responseObj.ResponseCode == 1) {
+        console.log("FOUND");
+        resp.send(responseObj);
+      }
+    } else {
+      console.log("NOT FOUND");
+      responseObj = {
+        ResponseCode: 0,
+        ResponseDesc: "NOT FOUND",
+        ResponseStatus: resp.statusCode,
+      };
+      resp.send(responseObj);
+    }
+  }
+}
+
 module.exports = {
   addAuthor,
   editAuthor,
@@ -982,4 +1056,5 @@ module.exports = {
   getAuthorById,
   getPublisherById,
   search,
+  searchByAuthor
 };

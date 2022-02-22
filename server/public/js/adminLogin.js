@@ -27,7 +27,6 @@ const loginAdmin = async() => {
         if(responseObj.ResponseCode == 0){
             window.alert(responseObj.ResponseDesc);
         }else if(responseObj.ResponseCode == 1){
-            window.alert("Login Successful");
             sessionStorage.setItem("adminName", responseObj.Username);
             sessionStorage.setItem("adminId", responseObj.UserId);
             sessionStorage.setItem("adminPassword", responseObj.PasswordKey);

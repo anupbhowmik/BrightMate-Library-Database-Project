@@ -29,7 +29,7 @@ router.post("/api/getAuthorById", bodyParser, generalController.getAuthorById);
 router.get("/api/getPublishers", bodyParser, generalController.getPublishers);
 router.post("/api/getPublisherById", bodyParser, generalController.getPublisherById);
 router.post("/api/search", bodyParser, generalController.search);
-
+router.post("/api/searchByAuthor", bodyParser, generalController.searchByAuthor);
 
 router.post("/api/addBook", bodyParser, booksController.addBook);
 router.post("/api/addBookCopies", bodyParser, booksController.addBookCopies);
