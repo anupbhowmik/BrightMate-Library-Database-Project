@@ -1252,7 +1252,12 @@ const rentalHistoryList = async () => {
                         <th scope="col">#</th>
                         <th scope="col">ID</th>
                         <th scope="col">User ID</th>
+                        <th scope="col">User Name</th>
+                        <th scope="col">Card No.</th>
+                        <th scope="col">Book ID</th>
+                        <th scope="col">Title</th>
                         <th scope="col">Book Copy ID</th>
+                        <th scope="col">Edition</th>
                         <th scope="col">Issue Date</th>
                         <th scope="col">Return Date</th>
                         <th scope="col">Rental Status</th>
@@ -1282,7 +1287,12 @@ const rentalHistoryList = async () => {
                         <th scope="row">${count}</th>
                         <td id="">${element.RentalId}</td>
                         <td>${element.UserId}</td>
+                        <td>${element.UserName}</td>
+                        <td>${element.LibraryCardNumber}</td>
+                        <td>${element.BookId}</td>
+                        <td>${element.BookTitle}</td>
                         <td>${element.BookCopyId}</td>
+                        <td>${element.Edition}</td>
                         <td>${element.IssueDate}</td>
                         <td>${returnDate}</td>
                         <td>${stat}</td>`;
