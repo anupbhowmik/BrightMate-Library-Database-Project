@@ -175,17 +175,22 @@ const SearchBookForm = (props) => {
         })
 
         if(transferData){
-            console.log('transfer data ', transferData)
+
+
             if(transferData.genreID !== null){
+                showToast("Showing books of selected Genre ", transferData.genreName)
                 state.singleGenreID = transferData.genreID
                 state.isGenre = 1
             }
             if(transferData.authID !== null){
+
+                console.log('transfer data author ', transferData.authName)
+                showToast("Showing books of selected Author ", transferData.authName)
                 state.singleAuthorID = transferData.authID
                 state.isAuthor = 1
             }
             console.log('state at search ',state)
-            
+
             searchBook()
 
             state.singleGenreID = transferData.genreID

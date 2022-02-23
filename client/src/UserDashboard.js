@@ -543,6 +543,13 @@ function UserDashboard(props) {
                                             </Grid>
                                         </Grid>
 
+                                        <Typography variant="body1" component="div">
+                                            Fine ID: {fineObject.FineId}
+                                        </Typography>
+
+                                        <Typography variant="body1" component="div">
+                                            Rental ID: {fineObject.RentalId}
+                                        </Typography>
 
                                         <Typography variant="body1" component="div">
 
@@ -621,12 +628,16 @@ function UserDashboard(props) {
                                                 </ListItemIcon>
                                             </Grid>
 
+
                                             <Grid sx={6} md={8}>
                                                 <b><strong><Typography variant="h6" component="div">
                                                     {rentalObject.BookObject[0].Title}
                                                 </Typography> </strong></b>
                                             </Grid>
                                         </Grid>
+
+                                        <Chip variant="outlined" sx={{mr: 1.5}}
+                                              label={'Edition:' + rentalObject.BookObject[0].Edition}/>
 
                                         <List>
                                             {rentalObject.BookObject[0].AuthorObject.map((singleAuthor) => (
@@ -635,6 +646,16 @@ function UserDashboard(props) {
                                             ))}
 
                                         </List>
+
+                                        <Typography variant="body1" component="div">
+                                            Book copy ID: {rentalObject.BookCopyId}
+                                        </Typography>
+
+                                        <Typography variant="body1" component="div">
+                                            Rental ID: {rentalObject.RentalId}
+                                        </Typography>
+
+                                        <hr color="#F3F4F8"/>
 
                                         <Typography variant="body1" component="div">
 
