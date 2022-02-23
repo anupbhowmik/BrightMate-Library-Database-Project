@@ -38,10 +38,6 @@ import {useNavigate} from "react-router";
 import {useParams} from "react-router-dom";
 import searchResult from "./SearchResult";
 
-const cookies = new Cookies()
-const COOKIE_AGE = 31536000
-
-
 export default function SingleBookDetails(props) {
 
     const params = useParams()
@@ -103,81 +99,6 @@ export default function SingleBookDetails(props) {
             console.log(e)
         })
     }
-
-    function showSearch(authorID){
-        setTransferData(
-            {
-                authID: authorID,
-
-            }
-        )
-        navigate('../../searchresult')
-    }
-
-    function addCopy(edition) {
-        setOpen(false);
-        setLoading(true);
-
-        const copy = state.copies;
-
-
-        console.log("add book coy req: ", "copies ", copy);
-
-
-        showToast("Adding book copies...");
-
-        setLoading(true)
-
-        axios.post('/api/addBookCopies', {
-            BOOK_ID: transferData.BookID,
-            COPIES: parseInt(copy),
-            EDITION: edition,
-            ADMIN_ID: 3,
-        }).then(res => {
-
-            if (res.data.ResponseCode === 1) {
-                console.log(transferData)
-                var arr = [...transferData.CopyObject]
-                arr.map((a, i) => {
-                    if (a.Edition === edition) {
-                        arr[i].CopyCount += parseInt(copy)
-                    }
-                })
-            }
-            var tmp = {...transferData}
-            tmp.CopyObject = arr
-            setTransferData(tmp)
-
-        }).catch(err => {
-            console.log(err)
-        }).finally(() => {
-            setLoading(false)
-        })
-
-
-        state.copies = null;
-    }
-
-    const onTextChange = (event) => {
-        const value = event.target.value;
-        setState({
-            ...state,
-            [event.target.name]: value,
-        });
-        console.log(event.target.value);
-
-    };
-
-    const [open, setOpen] = React.useState(false);
-
-    const handleClickOpen = () => {
-        setOpen(true);
-        state.copies = null;
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
 
     var navigate = useNavigate();
 
@@ -293,33 +214,7 @@ export default function SingleBookDetails(props) {
                                             <Typography sx={{mb: 1.5}} color={"#3A7CFF"} variant="body1" component="div">
                                                 {"Copies Available: " + singleCopy.CopyCount}
                                             </Typography>
-                                            {/*for adding book copies in admin site*/}
-                                            {/*<Dialog open={open} onClose={handleClose}>*/}
-                                            {/*    <DialogTitle>Add copies</DialogTitle>*/}
-                                            {/*    <DialogContent>*/}
-                                            {/*        <TextField*/}
-                                            {/*            onChange={onTextChange}*/}
-                                            {/*            required*/}
-                                            {/*            value={state.copies}*/}
-                                            {/*            style={{backgroundColor: "white"}}*/}
-                                            {/*            name="copies"*/}
-                                            {/*            fullWidth*/}
-                                            {/*            id="outlined-basic"*/}
-                                            {/*            label="Number of copies"*/}
-                                            {/*            type="number"*/}
-                                            {/*        />*/}
-                                            {/*    </DialogContent>*/}
-                                            {/*    <DialogActions>*/}
-                                            {/*        <Button onClick={handleClose}>Cancel</Button>*/}
-                                            {/*        <Button onClick={() => {*/}
-                                            {/*            addCopy(singleCopy.Edition)*/}
-                                            {/*        }}>Submit</Button>*/}
-                                            {/*    </DialogActions>*/}
-                                            {/*</Dialog>*/}
-                                            {/*<Button sx={{mb: 1.5}} variant="outlined"*/}
-                                            {/*        onClick={handleClickOpen}>*/}
-                                            {/*    Add copies of {singleCopy.Edition} edition*/}
-                                            {/*</Button><br/>*/}
+
 
                                         </Card>
 
@@ -344,33 +239,6 @@ export default function SingleBookDetails(props) {
                                                 {"Copies Available: " + singleCopy.CopyCount}
                                             </Typography>
 
-                                            {/*for adding book copies in admin site*/}
-                                            {/*<Dialog open={open} onClose={handleClose}>*/}
-                                            {/*    <DialogTitle>Add copies</DialogTitle>*/}
-                                            {/*    <DialogContent>*/}
-                                            {/*        <TextField*/}
-                                            {/*            onChange={onTextChange}*/}
-                                            {/*            required*/}
-                                            {/*            value={state.copies}*/}
-                                            {/*            style={{backgroundColor: "white"}}*/}
-                                            {/*            name="copies"*/}
-                                            {/*            fullWidth*/}
-                                            {/*            id="outlined-basic"*/}
-                                            {/*            label="Number of copies"*/}
-                                            {/*            type="number"*/}
-                                            {/*        />*/}
-                                            {/*    </DialogContent>*/}
-                                            {/*    <DialogActions>*/}
-                                            {/*        <Button onClick={handleClose}>Cancel</Button>*/}
-                                            {/*        <Button onClick={() => {*/}
-                                            {/*            addCopy(singleCopy.Edition)*/}
-                                            {/*        }}>Submit</Button>*/}
-                                            {/*    </DialogActions>*/}
-                                            {/*</Dialog>*/}
-                                            {/*<Button sx={{mb: 1.5}} variant="outlined"*/}
-                                            {/*        onClick={handleClickOpen}>*/}
-                                            {/*    Add copies of {singleCopy.Edition} edition*/}
-                                            {/*</Button><br/>*/}
 
                                         </Card>
 
@@ -390,6 +258,7 @@ export default function SingleBookDetails(props) {
                                         setTransferData(
                                             {
                                                 authID: singleAuthor.AuthorId,
+                                                authName: singleAuthor.AuthorName,
                                                 genreID: null
 
                                             }
@@ -439,7 +308,8 @@ export default function SingleBookDetails(props) {
                                         setTransferData(
                                             {
                                                 authID: null,
-                                                genreID: singleGenre.GenreId
+                                                genreID: singleGenre.GenreId,
+                                                genreName: singleGenre.GenreName
 
                                             }
                                         )
