@@ -376,13 +376,33 @@ async function getAllRentalHistoryList(req, resp) {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
 
+
     let rentalObject = [];
     if (rentalResult.rows.length != 0) {
       for (let j = 0; j < rentalResult.rows.length; j++) {
+
+        let user_id = rentalResult.rows[j].USER_ID;
+        let bookCopyId = rentalResult.rows[j].BOOK_COPY_ID;
+
+        let bookQuery = "SELECT * FROM BOOKS b, BOOK_COPY bc WHERE BOOK_COPY_ID = :bookCopyId AND b.BOOK_ID = bc.BOOK_ID";
+        let bookResult = await connection.execute(bookQuery, [bookCopyId], {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        });
+
+        let userQuery = "SELECT * FROM USERS u, USER_READERS ur WHERE u.USER_ID = :user_id AND u.USER_ID = ur.USER_ID";
+        let userResult = await connection.execute(userQuery, [user_id], {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        });
+    
         rentalObject.push({
           RentalId: rentalResult.rows[j].RENTAL_HISTORY_ID,
           UserId: rentalResult.rows[j].USER_ID,
+          UserName: userResult.rows[0].USER_NAME,
+          LibraryCardNumber: userResult.rows[0].LIBRARY_CARD_NUMBER,
           BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
+          BookId: bookResult.rows[0].BOOK_ID,
+          BookTitle: bookResult.rows[0].BOOK_TITLE,
+          Edition: bookResult.rows[0].EDITION,
           IssueDate: rentalResult.rows[j].ISSUE_DATE,
           ReturnDate: rentalResult.rows[j].RETURN_DATE,
           RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
