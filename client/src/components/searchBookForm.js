@@ -64,21 +64,19 @@ const SearchBookForm = (props) => {
     };
 
     var [state, setState] = React.useState({
-        ISBN: "",
+        isFirstLoad: true,
         title: "",
         isYear: 0,
         year: "",
-        edition: 1,
-        description: "",
-        authorID: null,
         isAuthor: 0,
         singleAuthorID: "",
         authorName: "",
         isGenre: 0,
         singleGenreID: 0,
-        publisherID: null,
-        language: "",
-        genre: [], // an array of int
+        searchResultText: ""
+
+
+
     });
 
     var [genres, setGenre] = React.useState(
@@ -152,7 +150,6 @@ const SearchBookForm = (props) => {
 
             console.log("genre ", res.data)
 
-
             selectGenre({
                 selected: arr
             })
@@ -188,8 +185,15 @@ const SearchBookForm = (props) => {
                 state.isAuthor = 1
             }
             console.log('state at search ',state)
-
+            
             searchBook()
+
+            state.singleGenreID = transferData.genreID
+            state.isGenre = 0
+            state.singleAuthorID = transferData.authID
+            state.isAuthor = 0
+
+
         }
 
 
@@ -200,7 +204,28 @@ const SearchBookForm = (props) => {
         []
     );
 
+    useEffect(()=>{
+        if(!state.isFirstLoad)
+            searchBook();
+
+    },[state])
+
+    const onTextChange = (event) => {
+
+
+        const value = event.target.value;
+        setState({
+            ...state, isFirstLoad: false,
+            [event.target.name]: value,
+        });
+
+        console.log(event.target.value);
+
+        // searchBook();   // this is calling before changing the state
+    };
+
     function searchBook() {
+
         var isYear = (state.year === null || state.year === ""? 0 : 1)
         console.log('search req ', state)
         setLoading(true);
@@ -228,7 +253,7 @@ const SearchBookForm = (props) => {
             } else {
                 showToast("Search loading failed");
             }
-            console.log("search results here: ", books)
+            // console.log("search results here: ", books)
 
 
         }).catch((e) => {
@@ -236,17 +261,7 @@ const SearchBookForm = (props) => {
         })
     }
 
-    const onTextChange = (event) => {
-        const value = event.target.value;
-        setState({
-            ...state,
-            [event.target.name]: value,
-        });
 
-        searchBook()
-        console.log(event.target.value);
-
-    };
 
     var navigate = useNavigate();
 
@@ -445,7 +460,7 @@ const SearchBookForm = (props) => {
                                                         <Card elevation={0}>
 
                                                             <Chip sx={{mr: 1.5, mt: 1, mb: 1}}
-                                                                  label={singleCopy.Edition + " Edition"}
+                                                                  label={"Edition " + singleCopy.Edition}
                                                                   variant="outlined"/>
 
                                                             <Typography color={"#3A7CFF"} variant="body1"
