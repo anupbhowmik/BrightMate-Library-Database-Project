@@ -489,6 +489,7 @@ async function getAllFineHistoryList(req, resp) {
         let issue_date = rentalResult.ISSUE_DATE;
         let fine_starting_date = rentalResult.FINE_STARTING_DATE;
         let today = new Date();
+        
 
         const utc1 = Date.UTC(
           issue_date.getFullYear(),
@@ -574,10 +575,19 @@ async function getAllFineHistoryList(req, resp) {
           fineId,
         ]);
 
+        let user_id = fineResult.rows[j].USER_ID;
+
+        let userQuery = "SELECT * FROM USERS u, USER_READERS ur WHERE u.USER_ID = :user_id AND u.USER_ID = ur.USER_ID";
+        let userResult = await connection.execute(userQuery, [user_id], {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        });
+
         fineObject.push({
           FineId: fineId,
           RentalId: fineResult.rows[j].RENTAL_HISTORY_ID,
           UserId: fineResult.rows[j].USER_ID,
+          UserName: userResult.rows[0].USER_NAME,
+          LibraryCardNumber: userResult.rows[0].LIBRARY_CARD_NUMBER,
           FineStartingDate: fine_starting_date,
           FeeAmount: fee_amount,
           PaymentDate: fineResult.rows[j].PAYMENT_DATE,

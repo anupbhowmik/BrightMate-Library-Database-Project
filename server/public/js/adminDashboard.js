@@ -1345,6 +1345,8 @@ const feeList = async () => {
                         <th scope="col">#</th>
                         <th scope="col">ID</th>
                         <th scope="col">User ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Card No.</th>
                         <th scope="col">Rental History ID</th>
                         <th scope="col">Fine Starting Date</th>
                         <th scope="col">Payment Date</th>
@@ -1374,6 +1376,8 @@ const feeList = async () => {
                         <th scope="row">${count}</th>
                         <td id="">${element.FineId}</td>
                         <td>${element.UserId}</td>
+                        <td>${element.UserName}</td>
+                        <td>${element.LibraryCardNumber}</td>
                         <td>${element.RentalId}</td>
                         <td>${fineStartingDate}</td>
                         <td>${paymentDate}</td>
