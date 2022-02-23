@@ -88,6 +88,11 @@
                         Employees
                     </a>
                 </li>
+                <li>
+                    <a href="#" onclick="genreList()" class="nav-link text-white">
+                        Genre
+                    </a>
+                </li>
             </ul>
         </div>
         
@@ -174,13 +179,13 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <label for="new_title" class="col-form-label">Title:</label>
-                                <input type="text" class="form-control" id="new_title" required>
+                                <input type="text" class="form-control" id="new_title" >
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="new_year" class="col-form-label">Year of Publication:</label>
-                                <input type="number" class="form-control" id="new_year" required>
+                                <input type="number" class="form-control" id="new_year">
                             </div>
                             <div class="col-md-6">
                                 <label for="new_publisher" class="col-form-label">Publisher:</label>
@@ -192,11 +197,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="new_isbn" class="col-form-label">ISBN:</label>
-                                <input type="text" class="form-control" id="new_isbn" required>
+                                <input type="text" class="form-control" id="new_isbn" >
                             </div>
                             <div class="col-md-6">
                                 <label for="new_language" class="col-form-label">Language:</label>
-                                <input type="text" class="form-control" id="new_language" required>
+                                <input type="text" class="form-control" id="new_language" >
                             </div>
                         </div>
                         <div class="row">
@@ -288,8 +293,9 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label for="edit_mag_genre" class="col-form-label">Genre:</label>
+                                <input type="hidden" value="">
                                 <div id="edit_mag_genre"></div>
                             </div>
                         </div>
@@ -608,6 +614,33 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button onclick="addNewEmployee()" type="button" data-bs-dismiss="modal"
+                        class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal lg fade" id="addNewGenreModal" tabindex="-1" aria-labelledby="addNewGenreModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNewGenreModalLabel">Add A New Genre</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="addNewGenreModal" class="col-form-label">Genre:</label>
+                                <input type="text" class="form-control" id="add_new_genre">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="addNewGenre()" type="button" data-bs-dismiss="modal"
                         class="btn btn-primary">Save</button>
                 </div>
             </div>

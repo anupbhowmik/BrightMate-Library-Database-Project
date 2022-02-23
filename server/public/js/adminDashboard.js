@@ -150,9 +150,6 @@ const editBook = async (bookId) => {
   ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  showPublishers("publisher");
-  showGenre("genre");
-
   let authors = "";
   for (let i = 0; i < ResponseObj.AuthorObject.length; i++) {
     authors = authors + ResponseObj.AuthorObject[i].AuthorName + ", ";
@@ -165,6 +162,10 @@ const editBook = async (bookId) => {
   $("#description").val(ResponseObj.Description);
   $("#language").val(ResponseObj.Language);
   $("#isbn").val(ResponseObj.ISBN);
+
+  
+  await showPublishers("publisher");
+  await showGenre("genre");
 };
 
 const saveBookInfo = async () => {
@@ -205,7 +206,7 @@ const saveBookInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    bookList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -230,8 +231,8 @@ const deleteBook = async (bookId) => {
   });
   ResponseObj = await response.json();
   if (ResponseObj.ResponseCode == 1) {
-    window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    window.alert(ResponseObj.ResponseDesc);
+    bookList();
   } else {
     window.alert(ResponseObj.ResponseDesc);
   }
@@ -298,7 +299,7 @@ const addNewBook = async () => {
 
     if (responseObj.ResponseCode == 1) {
       window.alert(responseObj.ResponseDesc);
-      window.location.reload();
+      bookList();
     } else {
       window.alert(responseObj.ResponseDesc);
     }
@@ -543,7 +544,7 @@ const addNewMagazine = async () => {
 
     if (responseObj.ResponseCode == 1) {
       window.alert(responseObj.ResponseDesc);
-      window.location.reload();
+      magazineList();
     } else {
       window.alert(responseObj.ResponseDesc);
     }
@@ -572,13 +573,12 @@ const editMagazine = async (magazineId) => {
   ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  showPublishers("edit_mag_publisher");
-  showGenre("edit_mag_genre");
-
   $("#edit_mag_id").val(ResponseObj.MagazineID);
   $("#edit_mag_title").val(ResponseObj.MagazineTitle);
   $("#edit_mag_language").val(ResponseObj.Language);
-  $("#edit_mag_publisher").val(ResponseObj.Publisher);
+  
+  await showPublishers("edit_mag_publisher");
+  await showGenre("edit_mag_genre");
 };
 
 const saveMagazineInfo = async () => {
@@ -617,7 +617,7 @@ const saveMagazineInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    magazineList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -679,13 +679,96 @@ const showGenre = async (docId) => {
   let genreDesign = "";
   ResponseObj.GenreList.forEach((genre) => {
     genreDesign += `<div class="form-check">
-    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="new_genre_${genre.GenreID}" name="genreCheckbox">
-    <label class="form-check-label" for="new_genre_${genre.GenreID}">
+    <input class="form-check-input" type="checkbox" value="${genre.GenreID}" id="genre_${genre.GenreID}" name="genreCheckbox">
+    <label class="form-check-label" for="genre_${genre.GenreID}">
     ${genre.GenreName}
     </label>
     </div>`;
   });
   document.getElementById(docId).innerHTML = genreDesign;
+};
+
+const genreList = async () => {
+  const MainContent = document.getElementById("mainContents");
+
+  const responseGenre = await fetch("http://localhost:5000/api/getGenre", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  ResponseObj = await responseGenre.json();
+
+  console.log(ResponseObj);
+  let design = `<div class="row"> 
+  <h2 align="center"> Genre </h2> 
+  </div> 
+  <div class="row">
+  <p align="center">
+  <button style="width:50%;" class="btn btn-info" onclick="openAddNewGenreModal()" data-bs-toggle="modal" data-bs-target="#addNewGenreModal"> Add A New Genre</button>
+  </p>
+  </div> 
+  <hr>`;
+
+  design += `<table class="table" style="font-size:smaller">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Genre Name</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+
+  let count = 1;
+  ResponseObj.GenreList.forEach((element) => {
+
+    design += `<tr>
+                        <th scope="row">${count}</th>
+                        <td>${element.GenreName}</td>
+                    </tr>`;
+
+    count++;
+  });
+
+  design += `</tbody>
+                </table>`;
+  MainContent.innerHTML = design;
+};
+
+const addNewGenre = async () => {
+  let GENRE_NAME = $("#add_new_genre").val();
+
+  if (GENRE_NAME != null) {
+    let genreObj = {
+      GENRE_NAME: GENRE_NAME
+    };
+
+    console.log(genreObj);
+    genreObj = JSON.stringify(genreObj);
+
+    const responseBook = await fetch(
+      "http://localhost:5000/api/addGenre",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: genreObj,
+      }
+    );
+
+    ResponseObj = await responseBook.json();
+    console.log(ResponseObj);
+
+    if (ResponseObj.ResponseCode == 1) {
+      window.alert(ResponseObj.ResponseDesc);
+      genreList();
+    } else {
+      window.alert(responseObj.ResponseDesc);
+    }
+  } else {
+    window.alert("Field empty");
+  }
 };
 
 const openBookCopyModal = async (bookId) => {
@@ -723,7 +806,7 @@ const addBookCopies = async (bookId) => {
 
     if (responseObj.ResponseCode == 1) {
       window.alert(responseObj.ResponseDesc);
-      window.location.reload();
+      bookList();
     } else {
       window.alert(responseObj.ResponseDesc);
     }
@@ -856,16 +939,17 @@ const editAuthor = async (authorId) => {
   ResponseObj = await response.json();
   console.log(ResponseObj);
 
-  let dateOfBirth = ResponseObj.DateOfBirth;
-  if (dateOfBirth != null) {
-    dateOfBirth = dateOfBirth.split("T");
+  let dateOfBirth = "";
+  if (ResponseObj.DateOfBirth != null) {
+    dateOfBirth = ResponseObj.DateOfBirth.split("T");
     dateOfBirth = dateOfBirth[0];
   }
-  let dateOfDeath = ResponseObj.DateOfDeath;
-  if (dateOfBirth != null) {
-    dateOfDeath = dateOfDeath.split("T");
+  let dateOfDeath = "";
+  if (ResponseObj.DateOfDeath != null) {
+    dateOfDeath = ResponseObj.DateOfDeath.split("T");
     dateOfDeath = dateOfDeath[0];
   }
+  console.log(dateOfBirth,"......",dateOfDeath);
 
   $("#authorId").val(ResponseObj.AuthorID);
   $("#authorName").val(ResponseObj.AuthorName);
@@ -906,7 +990,7 @@ const saveAuthorInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    authorList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -941,7 +1025,7 @@ const addNewAuthor = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    authorList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -987,15 +1071,33 @@ const publisherList = async () => {
 
   let count = 1;
   ResponseObj.PublisherList.forEach((element) => {
+
+    let adLine = "";
+    if(element.AddressLine != null){
+      adLine = element.AddressLine;
+    }
+    let city = "";
+    if(element.City != null){
+      city = element.City;
+    }
+    let postalCode = "";
+    if(element.PostalCode != null){
+      postalCode = element.PostalCode;
+    }
+    let country = "";
+    if(element.Country != null){
+      country = element.Country;
+    }
+
     design += `<tr>
                         <th scope="row">${count}</th>
                         <td id="">${element.PublisherID}</td>
                         <td>${element.PublisherName}</td>
                         <td>${element.Phone}</td>
-                        <td>${element.AddressLine}</td>
-                        <td>${element.City}</td>
-                        <td>${element.PostalCode}</td>
-                        <td>${element.Country}</td>
+                        <td>${adLine}</td>
+                        <td>${city}</td>
+                        <td>${postalCode}</td>
+                        <td>${country}</td>
                         <td>
                         <button id="edit_${element.PublisherID}" value="${element.PublisherID}" onclick="editPublisher(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editPublisherModal">Edit</button>
                         </td>
@@ -1076,7 +1178,7 @@ const savePublisherInfo = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    publisherList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -1118,7 +1220,7 @@ const addNewPublisher = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    publisherList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -1304,7 +1406,7 @@ const employeeList = async () => {
   </div> 
   <div class="row">
   <p align="center">
-  <button style="width:50%;" onclick="opeNewEmployeeModal()" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewEmployeeModal"> Add A New Employee</button>
+  <button style="width:50%;" onclick="openNewEmployeeModal()" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewEmployeeModal"> Add A New Employee</button>
   </p>
   </div> 
   <hr>`;
@@ -1353,7 +1455,7 @@ if(element.EndDate){
   MainContent.innerHTML = design;
 };
 
-const opeNewEmployeeModal = async () => {
+const openNewEmployeeModal = async () => {
   showJobs();
 };
 
@@ -1432,7 +1534,7 @@ const addNewEmployee = async () => {
 
   if (responseObj.ResponseCode == 1) {
     window.alert(responseObj.ResponseDesc);
-    window.location.reload();
+    employeeList();
   } else {
     window.alert(responseObj.ResponseDesc);
   }
@@ -1456,7 +1558,7 @@ const returnBook = async (rentId) => {
 
   if (ResponseObj.ResponseCode == 1) {
     window.alert(ResponseObj.ResponseDesc);
-    window.location.reload();
+    rentalHistoryList();
   } else {
     window.alert(ResponseObj.ResponseDesc);
   }
@@ -1479,7 +1581,7 @@ const clearDue = async (rentId) => {
   ResponseObj = await response.json();
   if (ResponseObj.ResponseCode == 1) {
     window.alert(ResponseObj.ResponseDesc);
-    window.location.reload();
+    feeList();
   } else {
     window.alert(ResponseObj.ResponseDesc);
   }

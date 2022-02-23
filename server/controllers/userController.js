@@ -420,7 +420,6 @@ async function changePassword(req, resp) {
         ResponseDesc: "PASSWORD INCORRECT",
         ResponseStatus: resp.statusCode,
       };
-      resp.send(responseObj);
     }
   } catch (err) {
     console.log(err);
@@ -435,18 +434,9 @@ async function changePassword(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
-        responseObj = {
-          ResponseCode: 0,
-          ResponseDesc: "FAILURE",
-          ResponseStatus: resp.statusCode,
-        };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        resp.send(responseObj);
-      } else {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "FAILURE",
@@ -522,7 +512,6 @@ async function updateUserInfo(req, resp) {
         ResponseDesc: "PASSWORD INCORRECT",
         ResponseStatus: resp.statusCode,
       };
-      resp.send(responseObj);
     }
   } catch (err) {
     console.log(err);
@@ -537,18 +526,9 @@ async function updateUserInfo(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
-        responseObj = {
-          ResponseCode: 0,
-          ResponseDesc: "FAILURE",
-          ResponseStatus: resp.statusCode,
-        };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        resp.send(responseObj);
-      } else {
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "FAILURE",
@@ -652,7 +632,6 @@ async function addEmployee(req, resp) {
         ResponseDesc: "USER EXISTS ALREADY",
         ResponseStatus: resp.statusCode,
       };
-      resp.send(responseObj);
     }
   } catch (err) {
     console.log(err);
@@ -667,23 +646,12 @@ async function addEmployee(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "Error closing connection",
-          ResponseStatus: resp.statusCode,
-        };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        console.log("INSERTED");
-        resp.send(responseObj);
-      } else {
-        console.log("NOT INSERTED");
-        responseObj = {
-          ResponseCode: 0,
-          ResponseDesc: "FAILURE",
           ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
@@ -752,6 +720,7 @@ async function getJobs(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
@@ -759,10 +728,6 @@ async function getJobs(req, resp) {
           ResponseDesc: "ERROR CLOSING CONNECTION",
           ResponseStatus: resp.statusCode,
         };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        console.log("FOUND");
         resp.send(responseObj);
       }
     } else {
@@ -992,21 +957,12 @@ async function getUserInfo(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
           ResponseCode: 0,
           ResponseDesc: "Error closing connection",
-          ResponseStatus: resp.statusCode,
-        };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        resp.send(responseObj);
-      } else {
-        responseObj = {
-          ResponseCode: 0,
-          ResponseDesc: "FAILURE",
           ResponseStatus: resp.statusCode,
         };
         resp.send(responseObj);
@@ -1120,6 +1076,7 @@ async function getEmployees(req, resp) {
       try {
         await connection.close();
         console.log("CONNECTION CLOSED");
+        resp.send(responseObj);
       } catch (err) {
         console.log("Error closing connection");
         responseObj = {
@@ -1127,10 +1084,6 @@ async function getEmployees(req, resp) {
           ResponseDesc: "ERROR CLOSING CONNECTION",
           ResponseStatus: resp.statusCode,
         };
-        resp.send(responseObj);
-      }
-      if (responseObj.ResponseCode == 1) {
-        console.log("FOUND");
         resp.send(responseObj);
       }
     } else {
