@@ -384,6 +384,8 @@ async function getAllRentalHistoryList(req, resp) {
         let user_id = rentalResult.rows[j].USER_ID;
         let bookCopyId = rentalResult.rows[j].BOOK_COPY_ID;
 
+        console.log(bookCopyId);
+
         let bookQuery = "SELECT * FROM BOOKS b, BOOK_COPY bc WHERE BOOK_COPY_ID = :bookCopyId AND b.BOOK_ID = bc.BOOK_ID";
         let bookResult = await connection.execute(bookQuery, [bookCopyId], {
           outFormat: oracledb.OUT_FORMAT_OBJECT,
