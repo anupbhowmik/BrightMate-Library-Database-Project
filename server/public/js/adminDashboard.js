@@ -420,7 +420,6 @@ const searchByBook = async () =>{
                         <td>${element.Language}</td>
                         <td>
                         <button id="edit_${element.BookID}" value="${element.BookID}" onclick="editBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editBookModal">Edit</button>
-                        <button id="delete_${element.BookID}" value="${element.BookID}" onclick="deleteBook(this.value)" class="btn btn-danger btn-sm">Delete</button>
                         </td>
                     </tr>`;
 
