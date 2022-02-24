@@ -34,6 +34,8 @@ import CreateIcon from '@mui/icons-material/Create';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MailIcon from '@mui/icons-material/Mail';
 import CallIcon from '@mui/icons-material/Call';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 // IoReceiptSharp
 import {IoReceiptSharp} from 'react-icons/io5';
@@ -51,7 +53,7 @@ function UserDashboard(props) {
         var issueDate = dateStr.split("T")
         var issueTime = issueDate[1].split(".")
         return (
-            <> Date: {issueDate[0]} | Time: {issueTime[0]} </>)
+            <> <DateRangeIcon sx={{ pt: 1}}/> {issueDate[0]} <AccessTimeIcon  sx={{pt: 1}}/> {issueTime[0]} </>)
     }
 
     var [userDetails, setUserDetails] = useState(
@@ -442,6 +444,11 @@ function UserDashboard(props) {
                     <Grid item xs={1} md={2}></Grid>
                     <Grid marginLeft={9} marginBottom={10} item xs={10} md={8}>
                         <center>
+
+                            <Typography sx={{mb: 3}} variant="h4" component="div">
+                                Update User Information
+                            </Typography>
+
                             <Grid item xs={4} md={4}>
                                 <TextField
                                     style={{backgroundColor: "white"}}
@@ -489,7 +496,7 @@ function UserDashboard(props) {
             {menu === 1 ? <Grid marginLeft={9} container spacing={1} padding={4}>
 
                 <Grid item xs={12} md={12}>
-                    <Typography variant="h6" component="div">
+                    <Typography variant="h4" component="div">
                         Fine History
                     </Typography>
 
@@ -548,7 +555,7 @@ function UserDashboard(props) {
                                         </Typography>
 
                                         <Typography variant="body1" component="div">
-                                            Rental ID: {fineObject.RentalId}
+                                            Rental History ID: {fineObject.RentalId}
                                         </Typography>
 
                                         <Typography variant="body1" component="div">
@@ -599,7 +606,7 @@ function UserDashboard(props) {
 
 
                 <Grid item xs={12} md={12}>
-                    <Typography variant="h6" component="div">
+                    <Typography variant="h4" component="div">
                         Rental History
                     </Typography>
 
@@ -636,6 +643,10 @@ function UserDashboard(props) {
                                             </Grid>
                                         </Grid>
 
+                                        <Typography sx={{mb: 1}} variant="body1" component="div">
+                                            ISBN: {rentalObject.BookObject[0].ISBN}
+                                        </Typography>
+
                                         <Chip variant="outlined" sx={{mr: 1.5}}
                                               label={'Edition:' + rentalObject.BookObject[0].Edition}/>
 
@@ -659,7 +670,7 @@ function UserDashboard(props) {
 
                                         <Typography variant="body1" component="div">
 
-                                            Issue {dateFix(rentalObject.IssueDate)}
+                                            Issued On {dateFix(rentalObject.IssueDate)}
 
                                         </Typography>
 
