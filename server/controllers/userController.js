@@ -473,21 +473,17 @@ async function updateUserInfo(req, resp) {
     console.log(userInfo);
     let passwordKey = userInfo.rows[0].PASSWORD_KEY;
     if (passwordKey == user_password) {
-
-      if(!userName || userName == ""){
+      if (!userName || userName == "") {
         userName = userInfo.rows[0].USER_NAME;
       }
-      if(!mobile || mobile == ""){
+      if (!mobile || mobile == "") {
         mobile = userInfo.rows[0].MOBILE;
       }
       let setUserInfoQuery =
         "UPDATE USERS SET USER_NAME = :userName, MOBILE = :mobile WHERE USER_ID = :user_id";
       let setUserInfoResult = await connection.execute(
-        setUserInfoQuery,[
-          userName,
-          mobile,
-          user_id
-        ],
+        setUserInfoQuery,
+        [userName, mobile, user_id],
         {
           outFormat: oracledb.OUT_FORMAT_OBJECT,
         }
@@ -504,7 +500,7 @@ async function updateUserInfo(req, resp) {
         PasswordKey: user_password,
         UserName: userName,
         Mobile: mobile,
-        Email: userInfo.rows[0].EMAIL
+        Email: userInfo.rows[0].EMAIL,
       };
     } else {
       responseObj = {
@@ -887,38 +883,39 @@ async function getUserInfo(req, resp) {
             PublisherName: publisherName,
           });
 
+          let fineQuery =
+            "SELECT * FROM FINE_HISTORY WHERE RENTAL_HISTORY_ID = :rentalId";
+          let fineResult = await connection.execute(fineQuery, [rentalId], {
+            outFormat: oracledb.OUT_FORMAT_OBJECT,
+          });
+          let fineObject = [];
+          if (fineResult.rows.length != 0) {
+              for (let j = 0; j < fineResult.rows.length; j++) {
+                let fineId = fineResult.rows[j].FINE_HISTORY_ID;
+                console.log("fineId = ", fineId);
+
+                fineObject.push({
+                  FineId: fineId,
+                  FineStartingDate: fineResult.rows[j].FINE_STARTING_DATE,
+                  Fee: fineResult.rows[j].FEE_AMOUNT,
+                  FineStatus: fineResult.rows[j].PAYMENT_STATUS,
+                  PaymentDate: fineResult.rows[j].PAYMENT_DATE,
+                  RentalId: fineResult.rows[j].RENTAL_HISTORY_ID,
+                });
+              }
+          }
+
           rentalObject.push({
             RentalId: rentalId,
             BookCopyId: rentalResult.rows[j].BOOK_COPY_ID,
             BookObject: bookObject,
+            FineObject: fineObject,
             IssueDate: rentalResult.rows[j].ISSUE_DATE,
             ReturnDate: rentalResult.rows[j].RETURN_DATE,
             RentalStatus: rentalResult.rows[j].RENTAL_STATUS,
           });
         }
       }
-
-      let fineQuery = "SELECT * FROM FINE_HISTORY WHERE USER_ID = :user_id";
-      let fineResult = await connection.execute(fineQuery, [user_id], {
-        outFormat: oracledb.OUT_FORMAT_OBJECT,
-      });
-
-      let fineObject = [];
-      if (fineResult.rows.length != 0) {
-        for (let j = 0; j < fineResult.rows.length; j++) {
-          let fineId = fineResult.rows[j].FINE_HISTORY_ID;
-
-          fineObject.push({
-            FineId: fineId,
-            FineStartingDate: fineResult.rows[j].FINE_STARTING_DATE,
-            Fee: fineResult.rows[j].FEE_AMOUNT,
-            FineStatus: fineResult.rows[j].PAYMENT_STATUS,
-            PaymentDate: fineResult.rows[j].PAYMENT_DATE,
-            RentalId: fineResult.rows[j].RENTAL_HISTORY_ID,
-          });
-        }
-      }
-
       connection.commit();
 
       responseObj = {
@@ -934,8 +931,7 @@ async function getUserInfo(req, resp) {
         Gender: user.GENDER,
         LibraryCardNumber: reader.LIBRARY_CARD_NUMBER,
         MembershipTakenDate: reader.MEMBERSHIP_TAKEN_DATE,
-        RentalObject: rentalObject,
-        FineObject: fineObject,
+        RentalObject: rentalObject
       };
     } else {
       responseObj = {
@@ -951,7 +947,6 @@ async function getUserInfo(req, resp) {
       ResponseDesc: "FAILURE",
       ResponseStatus: resp.statusCode,
     };
-    resp.send(responseObj);
   } finally {
     if (connection) {
       try {
@@ -1107,5 +1102,5 @@ module.exports = {
   getJobs,
   getEmployees,
   getUserInfo,
-  updateUserInfo
+  updateUserInfo,
 };

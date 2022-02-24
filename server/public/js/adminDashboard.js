@@ -118,10 +118,10 @@ const bookList = async () => {
                         <td>${element.Language}</td>
                         <td>
                         <button id="edit_${element.BookID}" value="${element.BookID}" onclick="editBook(this.value)" class="btn btn-info btn-sm m-1" data-bs-toggle="modal" data-bs-target="#editBookModal">Edit</button>
-                        <button id="delete_${element.BookID}" value="${element.BookID}" onclick="deleteBook(this.value)" class="btn btn-danger btn-sm">Delete</button>
                         </td>
                     </tr>`;
 
+  /* <button id="delete_${element.BookID}" value="${element.BookID}" onclick="deleteBook(this.value)" class="btn btn-danger btn-sm">Delete</button>*/
     count++;
   });
 
@@ -212,31 +212,31 @@ const saveBookInfo = async () => {
   }
 };
 
-const deleteBook = async (bookId) => {
-  console.log(bookId);
+// const deleteBook = async (bookId) => {
+//   console.log(bookId);
 
-  //Get Book Info from API
-  let bookObj = {
-    BOOK_ID: bookId,
-  };
-  bookObj = JSON.stringify(bookObj);
-  console.log(bookObj);
+//   //Get Book Info from API
+//   let bookObj = {
+//     BOOK_ID: bookId,
+//   };
+//   bookObj = JSON.stringify(bookObj);
+//   console.log(bookObj);
 
-  const response = await fetch("http://localhost:5000/api/deleteBook", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: bookObj,
-  });
-  ResponseObj = await response.json();
-  if (ResponseObj.ResponseCode == 1) {
-    window.alert(ResponseObj.ResponseDesc);
-    bookList();
-  } else {
-    window.alert(ResponseObj.ResponseDesc);
-  }
-};
+//   const response = await fetch("http://localhost:5000/api/deleteBook", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: bookObj,
+//   });
+//   ResponseObj = await response.json();
+//   if (ResponseObj.ResponseCode == 1) {
+//     window.alert(ResponseObj.ResponseDesc);
+//     bookList();
+//   } else {
+//     window.alert(ResponseObj.ResponseDesc);
+//   }
+// };
 
 const openAddNewBookModal = async () => {
   await showPublishers("new_publisher");
@@ -1345,6 +1345,8 @@ const feeList = async () => {
                         <th scope="col">#</th>
                         <th scope="col">ID</th>
                         <th scope="col">User ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Card No.</th>
                         <th scope="col">Rental History ID</th>
                         <th scope="col">Fine Starting Date</th>
                         <th scope="col">Payment Date</th>
@@ -1374,6 +1376,8 @@ const feeList = async () => {
                         <th scope="row">${count}</th>
                         <td id="">${element.FineId}</td>
                         <td>${element.UserId}</td>
+                        <td>${element.UserName}</td>
+                        <td>${element.LibraryCardNumber}</td>
                         <td>${element.RentalId}</td>
                         <td>${fineStartingDate}</td>
                         <td>${paymentDate}</td>
