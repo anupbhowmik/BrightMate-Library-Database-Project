@@ -1,6 +1,6 @@
-const user = 'tfuser11';
-const password = '63ba26d3';
-const connectionString = '103.94.135.201:1521/orclcdb.localdomain';
+const user = 'c##brightmate_library';
+const password = 'root';
+const connectionString = 'localhost:1521/ORCL';
 
 module.exports = {
     user,

@@ -11,7 +11,7 @@
  Target Server Version : 120200
  File Encoding         : 65001
 
- Date: 23/02/2022 03:37:31
+ Date: 25/02/2022 19:08:40
 */
 
 
@@ -53,6 +53,7 @@ INSERT INTO "TFUSER11"."AUTHOR" VALUES ('9', 'Ronald Rivest', NULL, NULL, 'Ronal
 INSERT INTO "TFUSER11"."AUTHOR" VALUES ('10', 'Charles E. Leiserson', TO_DATE('2022-01-29 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), TO_DATE('2022-02-09 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), 'Charles E. Leiserson');
 INSERT INTO "TFUSER11"."AUTHOR" VALUES ('15', 'J. K. Rowling', TO_DATE('1965-07-31 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), NULL, 'Joanne Rowling, CH, OBE, HonFRSE, FRCPE, FRSL, known by her pen name J. K. Rowling, is a British author, philanthropist, film producer, and screenwriter.');
 INSERT INTO "TFUSER11"."AUTHOR" VALUES ('16', 'DEMO AUTHOR', TO_DATE('2022-03-12 00:00:00', 'SYYYY-MM-DD HH24:MI:SS'), NULL, 'FAAAAAAAAAAAAAAAAAAAAAAA');
+INSERT INTO "TFUSER11"."AUTHOR" VALUES ('19', 'New Test Author', TO_DATE('1995-07-12 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), NULL, 'Test bio');
 INSERT INTO "TFUSER11"."AUTHOR" VALUES ('4', 'Sarat Chandra Chattopadhyay', TO_DATE('1876-09-15 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), TO_DATE('1938-01-16 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), 'Sarat Chandra Chattopadhyay was a Bengali novelist and short story writer of the early 20th century. Most of his works deal with the lifestyle, tragedy and struggle of the village people and the contemporary social practices that prevailed in Bengal.');
 INSERT INTO "TFUSER11"."AUTHOR" VALUES ('12', 'Muhammad Zafar Iqbal', TO_DATE('1952-12-23 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), NULL, 'Muhammed Zafar Iqbal is a Bangladeshi science fiction author, physicist, academic, activist & former professor of computer science and engineering and Head of the department of Electrical and Electronic Engineering at Shahjalal University of Science and Technology. He achieved his PhD from University of Washington.');
 INSERT INTO "TFUSER11"."AUTHOR" VALUES ('13', 'Sidney Sheldon', TO_DATE('1917-02-11 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), TO_DATE('2007-01-30 06:00:00', 'SYYYY-MM-DD HH24:MI:SS'), 'Sidney Sheldon was an American writer, director, and producer. Sheldon was prominent in the 1930s, first working on Broadway plays, and then in motion pictures, notably writing the successful comedy The Bachelor and the Bobby-Soxer, which earned him an Oscar in 1948.');
@@ -95,15 +96,15 @@ DISABLE ROW MOVEMENT
 -- ----------------------------
 -- Records of BOOKS
 -- ----------------------------
-INSERT INTO "TFUSER11"."BOOKS" VALUES ('2', 'Gitanjali', '1909', 'Tagore received the Nobel Prize for Literature, largely for the English translation, Song Offerings. It is part of the UNESCO Collection of Representative Works. Its central theme is devotion, and its motto is - I am here to sing thee songs', 'Bangla', '6', '9788174764270', '22');
-INSERT INTO "TFUSER11"."BOOKS" VALUES ('3', 'ঘরে বাইরে', '1916', 'The Home and the World is a 1916 novel by Rabindranath Tagore. The book illustrates the battle Tagore had with himself, between the ideas of Western culture and revolution against the Western culture.', 'Bangla', '3', '9789848815410', '15');
+INSERT INTO "TFUSER11"."BOOKS" VALUES ('2', 'Gitanjali', '1909', 'Tagore received the Nobel Prize for Literature, largely for the English translation, Song Offerings. It is part of the UNESCO Collection of Representative Works. Its central theme is devotion, and its motto is - I am here to sing thee songs', 'Bangla', '6', '9788174764270', '20');
 INSERT INTO "TFUSER11"."BOOKS" VALUES ('29', 'Harry Potter and the Philosopher''s Stone', '1997', 'Harry Potter''s life is miserable. His parents are dead and he''s stuck with his heartless relatives, who force him to live in a tiny closet under the stairs. But his fortune changes when he receives a letter that tells him the truth about himself: he''s a wizard. A mysterious visitor rescues him from his relatives and takes him to his new home, Hogwarts School of Witchcraft and Wizardry.', 'English', '15', '524189734615', '14');
-INSERT INTO "TFUSER11"."BOOKS" VALUES ('1', 'Jochona O Jononir Golpo', '2004', 'Jochna O Jononir Golpo is a novel based on the Liberation War of Bangladesh.', 'Bangla', '3', '9789845021326', '8');
+INSERT INTO "TFUSER11"."BOOKS" VALUES ('1', 'Jochona O Jononir Golpo', '2005', 'Jochna O Jononir Golpo is a novel based on the Liberation War of Bangladesh.', 'Bangla', '3', '9789845021326', '10');
 INSERT INTO "TFUSER11"."BOOKS" VALUES ('4', 'শেষের কবিতা', '1929', 'Shesher Kabita is a novel by Rabindranath Tagore. The novel was serialised in 1928, from Bhadra to Choitro in the magazine Probashi, and was published in book form the following year. It has been translated into English as The Last Poem and Farewell song.', 'Bangla', '7', '9848794352', '12');
 INSERT INTO "TFUSER11"."BOOKS" VALUES ('5', 'হাঙর নদী গ্রেনেড', '1976', 'হাঙর নদী গ্রেনেড উপন্যাসটি ১৯৭১ সালে বাংলাদেশের স্বাধীনতা যুদ্ধের সময়কালের যশোরের কালীগঞ্জ গ্রামের এক মায়ের সত্য ঘটনা অবলম্বনে রচনা', 'Bangla', '1', '9789844122994', '15');
-INSERT INTO "TFUSER11"."BOOKS" VALUES ('13', 'INTRODUCTION TO ALGORITHMS', '1989', 'Introduction to Algorithms uniquely combines rigor and comprehensiveness. The book covers a broad range of algorithms in depth, yet makes their design and analysis accessible to all levels of readers. Each chapter is relatively self-contained and can be used as a unit of study.', 'English', '3', '9780262033848', '100');
+INSERT INTO "TFUSER11"."BOOKS" VALUES ('13', 'INTRODUCTION TO ALGORITHMS', '1989', 'Introduction to Algorithms uniquely combines rigor and comprehensiveness. The book covers a broad range of algorithms in depth, yet makes their design and analysis accessible to all levels of readers. Each chapter is relatively self-contained and can be used as a unit of study.', 'English', '3', '9780262033848', '99');
 INSERT INTO "TFUSER11"."BOOKS" VALUES ('31', 'Harry Potter and the Prisoner of Azkaban', '1999', 'Harry Potter and the Chamber of Secrets is a fantasy novel written by British author J. K. Rowling and the second novel in the Harry Potter series.', 'English', '15', '524189734617', '3');
 INSERT INTO "TFUSER11"."BOOKS" VALUES ('30', 'Harry Potter and the Chamber of Secrets', '1998', 'Harry Potter and the Chamber of Secrets is a fantasy novel written by British author J. K. Rowling and the second novel in the Harry Potter series.', 'English', '15', '524189734616', '16');
+INSERT INTO "TFUSER11"."BOOKS" VALUES ('32', 'Test book', '2020', 'Test Description', 'Bengali', '16', '1234567', '8');
 
 -- ----------------------------
 -- Table structure for BOOKS_AUTHORS
@@ -141,9 +142,9 @@ INSERT INTO "TFUSER11"."BOOKS_AUTHORS" VALUES ('13', '10');
 INSERT INTO "TFUSER11"."BOOKS_AUTHORS" VALUES ('13', '11');
 INSERT INTO "TFUSER11"."BOOKS_AUTHORS" VALUES ('31', '15');
 INSERT INTO "TFUSER11"."BOOKS_AUTHORS" VALUES ('2', '2');
-INSERT INTO "TFUSER11"."BOOKS_AUTHORS" VALUES ('3', '2');
 INSERT INTO "TFUSER11"."BOOKS_AUTHORS" VALUES ('1', '1');
 INSERT INTO "TFUSER11"."BOOKS_AUTHORS" VALUES ('30', '15');
+INSERT INTO "TFUSER11"."BOOKS_AUTHORS" VALUES ('32', '19');
 
 -- ----------------------------
 -- Table structure for BOOKS_GENRE
@@ -175,6 +176,8 @@ DISABLE ROW MOVEMENT
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('29', '8');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('5', '1');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('5', '3');
+INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('1', '23');
+INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('1', '5');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('4', '5');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('4', '1');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('4', '2');
@@ -182,13 +185,9 @@ INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('31', '8');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('13', '3');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('13', '6');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('13', '7');
-INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('3', '5');
-INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('3', '10');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('2', '5');
-INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('3', '2');
-INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('1', '1');
-INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('1', '2');
-INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('1', '3');
+INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('32', '5');
+INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('32', '23');
 INSERT INTO "TFUSER11"."BOOKS_GENRE" VALUES ('30', '8');
 
 -- ----------------------------
@@ -220,8 +219,8 @@ DISABLE ROW MOVEMENT
 -- ----------------------------
 -- Records of BOOK_COPY
 -- ----------------------------
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('209', '3', '2', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('210', '3', '2', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('209', '3', '2', '0');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('210', '3', '2', '0');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('211', '3', '2', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('212', '3', '2', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('213', '3', '2', '1');
@@ -240,21 +239,6 @@ INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('225', '3', '2', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('226', '3', '2', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('227', '3', '2', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('228', '3', '2', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('229', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('230', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('231', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('232', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('233', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('234', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('235', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('236', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('237', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('238', '1', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('239', '2', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('240', '2', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('241', '2', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('242', '2', '3', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('243', '2', '3', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('244', '4', '1', '0');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('245', '4', '1', '0');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('246', '4', '1', '1');
@@ -332,6 +316,8 @@ INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('369', '10', '29', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('370', '10', '29', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('354', '2', '2', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('355', '2', '2', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('422', '1', '1', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('423', '1', '1', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('404', '1', '30', '0');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('405', '1', '30', '0');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('406', '1', '30', '1');
@@ -350,7 +336,7 @@ INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('418', '1', '30', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('419', '1', '30', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('420', '1', '30', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('421', '1', '30', '1');
-INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('304', '7', '13', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('304', '7', '13', '0');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('305', '7', '13', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('306', '7', '13', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('307', '7', '13', '1');
@@ -433,6 +419,16 @@ INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('400', '9', '31', '0');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('401', '9', '31', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('402', '9', '31', '1');
 INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('403', '9', '31', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('424', '1', '32', '0');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('425', '1', '32', '0');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('426', '1', '32', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('427', '1', '32', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('428', '1', '32', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('429', '1', '32', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('430', '1', '32', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('431', '1', '32', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('432', '1', '32', '1');
+INSERT INTO "TFUSER11"."BOOK_COPY" VALUES ('433', '1', '32', '1');
 
 -- ----------------------------
 -- Table structure for FINE_HISTORY
@@ -466,10 +462,12 @@ DISABLE ROW MOVEMENT
 -- ----------------------------
 -- Records of FINE_HISTORY
 -- ----------------------------
-INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('13', '25', TO_DATE('2022-01-22 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '84', '0', NULL, '73');
-INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('14', '25', TO_DATE('2022-01-22 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '84', '0', NULL, '74');
-INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('15', '25', TO_DATE('2022-01-22 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '84', '0', NULL, '75');
-INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('12', '19', TO_DATE('2022-02-15 19:01:41', 'SYYYY-MM-DD HH24:MI:SS'), '36', '1', TO_DATE('2022-02-23 02:02:11', 'SYYYY-MM-DD HH24:MI:SS'), '62');
+INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('13', '25', TO_DATE('2022-01-22 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '86', '0', NULL, '73');
+INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('14', '25', TO_DATE('2022-01-22 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '86', '0', NULL, '74');
+INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('15', '25', TO_DATE('2022-01-22 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '86', '0', NULL, '75');
+INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('16', '20', TO_DATE('2022-02-01 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '66', '1', TO_DATE('2022-02-24 12:40:17', 'SYYYY-MM-DD HH24:MI:SS'), '71');
+INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('17', '21', TO_DATE('2022-02-01 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '66', '0', NULL, '72');
+INSERT INTO "TFUSER11"."FINE_HISTORY" VALUES ('18', '20', TO_DATE('2022-02-01 03:28:13', 'SYYYY-MM-DD HH24:MI:SS'), '66', '0', NULL, '70');
 
 -- ----------------------------
 -- Table structure for GENRE
@@ -519,6 +517,7 @@ INSERT INTO "TFUSER11"."GENRE" VALUES ('22', 'SPIRITUAL');
 INSERT INTO "TFUSER11"."GENRE" VALUES ('13', 'TECHNOLOGY');
 INSERT INTO "TFUSER11"."GENRE" VALUES ('8', 'TEEN-FICTION');
 INSERT INTO "TFUSER11"."GENRE" VALUES ('6', 'THRILLER');
+INSERT INTO "TFUSER11"."GENRE" VALUES ('23', 'Test Genre');
 INSERT INTO "TFUSER11"."GENRE" VALUES ('3', 'WAR');
 
 -- ----------------------------
@@ -669,7 +668,9 @@ DISABLE ROW MOVEMENT
 -- Records of PUBLISHER
 -- ----------------------------
 INSERT INTO "TFUSER11"."PUBLISHER" VALUES ('7', 'Others 2', '123456', 'Dhanmondi', 'Dhaka', '1209', 'Bangladesh');
+INSERT INTO "TFUSER11"."PUBLISHER" VALUES ('17', 'New Publlisher', '1234', 'Dhaka, Bangladesh', 'Dhaka', '1207', 'Bangladesh');
 INSERT INTO "TFUSER11"."PUBLISHER" VALUES ('9', 'The MIT Press', '617-253-5646', '12th floor of One Broadway', 'Cambridge', 'MA 02142', 'USA');
+INSERT INTO "TFUSER11"."PUBLISHER" VALUES ('16', 'Test Publisher', '1234', 'Address', 'abc', '13', 'BD');
 INSERT INTO "TFUSER11"."PUBLISHER" VALUES ('15', 'BloomsBury', '+44 (0)20 7631 5600', '31 Bedford Avenue', 'London', 'WC1B 3AT', 'England');
 INSERT INTO "TFUSER11"."PUBLISHER" VALUES ('3', 'Ankur Prokashoni', '02 7111069', '38/4, banglabazar', 'Dhaka', '1100', 'Bangladesh');
 INSERT INTO "TFUSER11"."PUBLISHER" VALUES ('4', 'BoiBazar.com', '+88-09638777777', NULL, NULL, NULL, NULL);
@@ -713,20 +714,20 @@ DISABLE ROW MOVEMENT
 -- Records of RENTAL_HISTORY
 -- ----------------------------
 INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('61', TO_DATE('2022-02-22 18:58:44', 'SYYYY-MM-DD HH24:MI:SS'), '4', '19', '209', TO_DATE('2022-02-22 22:56:07', 'SYYYY-MM-DD HH24:MI:SS'));
-INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('65', TO_DATE('2022-02-22 23:02:58', 'SYYYY-MM-DD HH24:MI:SS'), '4', '17', '229', TO_DATE('2022-02-22 23:03:55', 'SYYYY-MM-DD HH24:MI:SS'));
-INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('62', TO_DATE('2022-02-01 18:59:41', 'SYYYY-MM-DD HH24:MI:SS'), '4', '19', '230', TO_DATE('2022-02-22 03:26:21', 'SYYYY-MM-DD HH24:MI:SS'));
-INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('66', TO_DATE('2022-02-22 23:03:25', 'SYYYY-MM-DD HH24:MI:SS'), '4', '17', '231', TO_DATE('2022-02-22 23:03:59', 'SYYYY-MM-DD HH24:MI:SS'));
-INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('60', TO_DATE('2022-02-22 18:58:31', 'SYYYY-MM-DD HH24:MI:SS'), '4', '17', '229', TO_DATE('2022-02-22 22:55:52', 'SYYYY-MM-DD HH24:MI:SS'));
-INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('67', TO_DATE('2022-02-22 23:05:10', 'SYYYY-MM-DD HH24:MI:SS'), '4', '17', '239', TO_DATE('2022-02-23 02:02:04', 'SYYYY-MM-DD HH24:MI:SS'));
+INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('80', TO_DATE('2022-02-24 12:36:02', 'SYYYY-MM-DD HH24:MI:SS'), '1', '17', '210', NULL);
 INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('68', TO_DATE('2022-02-23 00:32:50', 'SYYYY-MM-DD HH24:MI:SS'), '1', '25', '244', NULL);
 INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('69', TO_DATE('2022-02-23 00:33:15', 'SYYYY-MM-DD HH24:MI:SS'), '1', '25', '245', NULL);
+INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('77', TO_DATE('2022-02-23 10:41:27', 'SYYYY-MM-DD HH24:MI:SS'), '4', '17', '357', TO_DATE('2022-02-24 13:00:25', 'SYYYY-MM-DD HH24:MI:SS'));
+INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('79', TO_DATE('2022-02-23 12:26:24', 'SYYYY-MM-DD HH24:MI:SS'), '1', '20', '209', NULL);
 INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('64', TO_DATE('2022-02-22 22:58:45', 'SYYYY-MM-DD HH24:MI:SS'), '4', '17', '209', TO_DATE('2022-02-22 23:03:41', 'SYYYY-MM-DD HH24:MI:SS'));
-INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('70', TO_DATE('2022-02-23 03:23:00', 'SYYYY-MM-DD HH24:MI:SS'), '1', '20', '404', NULL);
-INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('71', TO_DATE('2022-02-23 03:23:50', 'SYYYY-MM-DD HH24:MI:SS'), '1', '20', '398', NULL);
-INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('72', TO_DATE('2022-02-23 03:24:11', 'SYYYY-MM-DD HH24:MI:SS'), '1', '21', '399', NULL);
+INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('70', TO_DATE('2022-02-23 03:23:00', 'SYYYY-MM-DD HH24:MI:SS'), '2', '20', '404', NULL);
+INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('71', TO_DATE('2022-02-01 03:23:50', 'SYYYY-MM-DD HH24:MI:SS'), '3', '20', '398', NULL);
+INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('72', TO_DATE('2022-02-01 03:24:11', 'SYYYY-MM-DD HH24:MI:SS'), '2', '21', '399', NULL);
 INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('73', TO_DATE('2022-01-08 03:24:42', 'SYYYY-MM-DD HH24:MI:SS'), '2', '25', '400', NULL);
 INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('75', TO_DATE('2022-01-08 03:25:33', 'SYYYY-MM-DD HH24:MI:SS'), '2', '25', '356', NULL);
 INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('74', TO_DATE('2022-01-08 03:24:56', 'SYYYY-MM-DD HH24:MI:SS'), '2', '25', '405', NULL);
+INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('82', TO_DATE('2022-02-24 13:33:21', 'SYYYY-MM-DD HH24:MI:SS'), '1', '17', '425', NULL);
+INSERT INTO "TFUSER11"."RENTAL_HISTORY" VALUES ('81', TO_DATE('2022-02-24 13:33:09', 'SYYYY-MM-DD HH24:MI:SS'), '1', '20', '424', NULL);
 
 -- ----------------------------
 -- Table structure for SYSTEM_REGISTER
@@ -756,15 +757,15 @@ DISABLE ROW MOVEMENT
 -- ----------------------------
 -- Records of SYSTEM_REGISTER
 -- ----------------------------
-INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('3', 'GENRE_TABLE', '23');
-INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('4', 'BOOKS_TABLE', '32');
-INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('5', 'PUBLISHER_TABLE', '16');
+INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('3', 'GENRE_TABLE', '24');
+INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('4', 'BOOKS_TABLE', '33');
+INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('5', 'PUBLISHER_TABLE', '18');
 INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('6', 'MAGAZINES_TABLE', '7');
-INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('7', 'RENTAL_HISTORY_TABLE', '76');
-INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('8', 'FINE_HISTORY_TABLE', '16');
-INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('9', 'BOOK_COPY_TABLE', '422');
-INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('1', 'USERS_TABLE', '28');
-INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('2', 'AUTHORS_TABLE', '19');
+INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('7', 'RENTAL_HISTORY_TABLE', '83');
+INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('8', 'FINE_HISTORY_TABLE', '19');
+INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('9', 'BOOK_COPY_TABLE', '434');
+INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('1', 'USERS_TABLE', '29');
+INSERT INTO "TFUSER11"."SYSTEM_REGISTER" VALUES ('2', 'AUTHORS_TABLE', '20');
 
 -- ----------------------------
 -- Table structure for USERS
@@ -798,13 +799,13 @@ DISABLE ROW MOVEMENT
 -- ----------------------------
 -- Records of USERS
 -- ----------------------------
-INSERT INTO "TFUSER11"."USERS" VALUES ('17', 'Anup1223', 'anupbhowmik.1998@gmail.com', '$2b$05$atoGYtWwszIjUQruXks26.SrEjZ0MCbGZfiz2OAOMSGb8J3G9K.Fi', '12312', 'Male', '1');
+INSERT INTO "TFUSER11"."USERS" VALUES ('17', 'Anup', 'anupbhowmik.1998@gmail.com', '$2b$05$egeK4O0UWBBVYaR/LhvKE.c2VE1KWXPhF.vCOSzs0RQTPtWgpxBGu', '1234', 'Male', '1');
 INSERT INTO "TFUSER11"."USERS" VALUES ('15', 'Harold Finch', 'haroldfinch@gmail.com', '$2b$05$AXcHAw7BtIWaAw.ARQBw3esnkhGFiifTsntBXZxIHscLUBxJUwgGu', '+880900021', 'Male', '2');
 INSERT INTO "TFUSER11"."USERS" VALUES ('19', 'Pam Beasley', 'pam@gmail.com', '$2b$05$d7cQ3qgAEbPpeMF3EULoJe1u3ebHEetQ.omIpDg6iCN7RfDX1GiJG', '+9801111237878', 'Female', '1');
 INSERT INTO "TFUSER11"."USERS" VALUES ('27', 'Bernadette Rostankowski', 'bernie@gmail.com', '$2b$05$0.rWFFwdrVWkaRn.BWRLv.F8n1yKKiaEeRV1mqg1.yKcE8b9TtxFm', '745294153', 'Female', '2');
 INSERT INTO "TFUSER11"."USERS" VALUES ('5', 'Sherlock Holmes', 'holmes@gmail.com', '$2b$05$bwbYpWGVd71/b0lEvlBR.eYGNPkEjX80W1guwRSq2iCBzkY5k2AUG', '+8801789', 'Male', '2');
 INSERT INTO "TFUSER11"."USERS" VALUES ('21', 'Ross Geller', 'ross@gmail.com', '$2b$05$uA76B2R6BythTMIw3ux3nORva4wS5coTWXBPVgLT0b4U4hgh9vFHa', '+980234679788', 'Male', '1');
-INSERT INTO "TFUSER11"."USERS" VALUES ('20', 'Monica Geller', 'monica@gmail.com', '$2b$05$C0KivsjePtS9CcLRuTC5Lul99UoSiSg8eME5tuo3Q2HkmjOaVeovK', '+980234523788', 'Female', '1');
+INSERT INTO "TFUSER11"."USERS" VALUES ('20', 'Monica', 'monica@gmail.com', '$2b$05$C0KivsjePtS9CcLRuTC5Lul99UoSiSg8eME5tuo3Q2HkmjOaVeovK', '+980234523788', 'Female', '1');
 INSERT INTO "TFUSER11"."USERS" VALUES ('25', 'Iftekhar E Mahbub Zeeon', 'mahbubzeeon@gmail.com', '$2b$05$m2DRTCIS4nF.s8hiWf0WT.KFm8KI8aFTajF.6xQgNv9TkKRj2y4mm', '01947429553', 'Male', '1');
 INSERT INTO "TFUSER11"."USERS" VALUES ('26', 'Howard Wolowitz', 'howard@gmail.com', '$2b$05$g5gtkRVlna9PlHZETUTK7OwFI571WzWattIa8.l4f7Y.amCo5a9aW', '745295651', 'Male', '2');
 INSERT INTO "TFUSER11"."USERS" VALUES ('12', 'Mr. Jim Halpert', 'jimhalpert@gmail.com', '$2b$05$lK2jGi0aAumzLwbcb.99MOtSuNXxKMtScOHTaxjfOcVRKKGxVcjzi', '+8801913375180', 'Male', '1');
@@ -813,6 +814,7 @@ INSERT INTO "TFUSER11"."USERS" VALUES ('16', 'John Reese', 'reese@gmail.com', '$
 INSERT INTO "TFUSER11"."USERS" VALUES ('22', 'Pheobe Buffay', 'pheobe@gmail.com', '$2b$05$jUuz3lcu3Swz7.1JyKLno.1F7AijNRFeL/Q.CPenfxswxUbQK1v2q', '+88014523698721', 'Female', '2');
 INSERT INTO "TFUSER11"."USERS" VALUES ('23', 'Leonard Hofstadter', 'leonard@gmail.com', '$2b$05$Hzfat/hOEB.tLnVFdI5GiugYXoB2mknDd/8gzMzekDkEzSV.F8PCm', '01869055338', 'Male', '2');
 INSERT INTO "TFUSER11"."USERS" VALUES ('24', 'Rajesh Koothrappali', 'raj@gmail.com', '$2b$05$KGmpARBxD7CgWV7.t6Ta3e1Hq369cKYfv4xTNCBbvQXHDYX2t9Fau', '+8801478532631', 'Male', '2');
+INSERT INTO "TFUSER11"."USERS" VALUES ('28', 'Test Employee', 'empl2@gmail.com', '$2b$05$t5ZsvA1IBORJipCZNHWGGuccIx3L2KLtLouPLCkf8NHJCukt/s5t6', '1234', 'Male', '2');
 
 -- ----------------------------
 -- Table structure for USER_EMPLOYEE
@@ -851,6 +853,7 @@ INSERT INTO "TFUSER11"."USER_EMPLOYEE" VALUES ('23', '22-FEB-22 06.55.28.5650000
 INSERT INTO "TFUSER11"."USER_EMPLOYEE" VALUES ('16', '21-FEB-22 03.18.27.606000000 AM', NULL, '4');
 INSERT INTO "TFUSER11"."USER_EMPLOYEE" VALUES ('22', '22-FEB-22 06.54.09.876000000 PM', NULL, '2');
 INSERT INTO "TFUSER11"."USER_EMPLOYEE" VALUES ('24', '22-FEB-22 06.56.29.157000000 PM', NULL, '6');
+INSERT INTO "TFUSER11"."USER_EMPLOYEE" VALUES ('28', '24-FEB-22 01.37.02.391000000 PM', NULL, '2');
 
 -- ----------------------------
 -- Table structure for USER_READERS
@@ -976,19 +979,6 @@ ALTER TABLE "TFUSER11"."BOOK_COPY" ADD CONSTRAINT "SYS_C0025700" CHECK ("EDITION
 -- ----------------------------
 -- Triggers structure for table BOOK_COPY
 -- ----------------------------
-CREATE TRIGGER "TFUSER11"."BOOK_COPY_DELETION" BEFORE DELETE ON "TFUSER11"."BOOK_COPY" REFERENCING OLD AS "OLD" NEW AS "NEW" FOR EACH ROW 
-DECLARE
-B_ID NUMBER;
-BC_ID NUMBER;
-AV_COP NUMBER;
-BEGIN
-B_ID := :OLD.BOOK_ID;
-BC_ID := :OLD.BOOK_COPY_ID;
-SELECT AVAILABLE_COPIES INTO AV_COP FROM BOOKS WHERE BOOK_ID = B_ID;
-UPDATE BOOKS SET AVAILABLE_COPIES = (AV_COP - 1) WHERE BOOK_ID = B_ID;
-DELETE FROM RENTAL_HISTORY WHERE BOOK_COPY_ID = BC_ID;
-END;
-/
 CREATE TRIGGER "TFUSER11"."BOOK_COPY_INSERTION" AFTER INSERT ON "TFUSER11"."BOOK_COPY" REFERENCING OLD AS "OLD" NEW AS "NEW" FOR EACH ROW 
 DECLARE
 B_ID NUMBER;
