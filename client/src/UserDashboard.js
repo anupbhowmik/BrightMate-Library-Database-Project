@@ -53,7 +53,7 @@ function UserDashboard(props) {
         var issueDate = dateStr.split("T")
         var issueTime = issueDate[1].split(".")
         return (
-            <> <DateRangeIcon sx={{ pt: 1}}/> {issueDate[0]} <AccessTimeIcon  sx={{pt: 1}}/> {issueTime[0]} </>)
+            <> <DateRangeIcon sx={{pt: 1}}/> {issueDate[0]} <AccessTimeIcon sx={{pt: 1}}/> {issueTime[0]} </>)
     }
 
     var [userDetails, setUserDetails] = useState(
@@ -507,78 +507,131 @@ function UserDashboard(props) {
                     <div style={{display: "flex", justifyContent: "center"}}>
 
                         <List aria-colcount={2} fullwidth>
-                            {userDetails.FineObject.map((fineObject) => (
+                            {userDetails.RentalObject?.map((rentalObject) => (
 
-                                <Card style={{textAlign: 'left', marginBottom: '10px'}}
-                                      key={fineObject.FineId}
-                                      elevation={0}
-                                      sx={{minWidth: 700}}>
+                                rentalObject.FineObject.length !== 0 ?
+                                    <Card style={{textAlign: 'left', marginBottom: '10px'}}
+                                          key={rentalObject.BookObject[0].BookID}
+                                          elevation={0}
+                                          sx={{minWidth: 700}}>
 
-                                    <CardContent>
+                                        <CardContent>
 
-                                        <Grid container padding={1}>
-                                            <Grid sx={1} md={1}>
-                                                <ListItemIcon sx={{mb: 1.2}}>
-                                                    <Avatar sx={{bgcolor: "#E91E63"}}>
-                                                        <IoReceiptSharp/>
-                                                    </Avatar>
-                                                </ListItemIcon>
+                                            <Grid container padding={1}>
+                                                <Grid sx={1} md={1}>
+                                                    <ListItemIcon sx={{mb: 1.2}}>
+                                                        <Avatar sx={{bgcolor: "#3A7CFF"}}>
+                                                            <LibraryBooksIcon/>
+                                                        </Avatar>
+                                                    </ListItemIcon>
+                                                </Grid>
+
+
+                                                <Grid sx={6} md={8}>
+                                                    <b><strong><Typography variant="h6" component="div">
+                                                        {rentalObject.BookObject[0].Title}
+                                                    </Typography> </strong></b>
+                                                </Grid>
                                             </Grid>
 
-                                            <Grid sx={6} md={8}>
-                                                <b><strong><Typography sx={{mt: 0.5}} variant="h6" component="div">
-                                                    Fine Starting
-                                                    {dateFix(fineObject.FineStartingDate)}
-                                                </Typography> </strong></b>
+                                            <Typography sx={{mb: 1}} variant="body1" component="div">
+                                                ISBN: {rentalObject.BookObject[0].ISBN}
+                                            </Typography>
+
+                                            <Chip variant="outlined" sx={{mr: 1.5}}
+                                                  label={'Edition:' + rentalObject.BookObject[0].Edition}/>
+
+                                            <List>
+                                                {rentalObject.BookObject[0].AuthorObject.map((singleAuthor) => (
+                                                    <Chip sx={{mr: 1.5, mt: 1}} label={singleAuthor.AuthorName}
+                                                    />
+                                                ))}
+
+                                            </List>
+
+                                            <Typography variant="body1" component="div">
+                                                Book copy ID: {rentalObject.BookCopyId}
+                                            </Typography>
+
+
+                                            <hr color="#F3F4F8"/>
+
+                                            <Typography variant="body1" component="div">
+
+                                                Issued On {dateFix(rentalObject.IssueDate)}
+
+                                            </Typography>
+
+                                            <Grid container padding={1}>
+                                                <Grid sx={1} md={1}>
+                                                    <ListItemIcon sx={{mb: 1.2}}>
+                                                        <Avatar sx={{bgcolor: "#E91E63"}}>
+                                                            <IoReceiptSharp/>
+                                                        </Avatar>
+                                                    </ListItemIcon>
+                                                </Grid>
+
+                                                <Grid sx={6} md={8}>
+                                                    <b><strong><Typography sx={{mt: 0.5}} variant="h6" component="div">
+                                                        Fine Starting
+                                                        {dateFix(rentalObject.FineObject[0].FineStartingDate)}
+                                                    </Typography> </strong></b>
+                                                </Grid>
+
+                                                <Grid sx={5} md={3}></Grid>
+
+                                                <Grid sx={1} md={1}>
+                                                    <ListItemIcon sx={{mb: 1.2}}>
+                                                        <Avatar sx={{bgcolor: "#50CB88"}}>
+                                                            <MonetizationOnIcon/>
+                                                        </Avatar>
+                                                    </ListItemIcon>
+                                                </Grid>
+
+                                                <Grid sx={6} md={8}>
+                                                    <b><strong><Typography sx={{mt: 0.5}} variant="h6" component="div">
+
+                                                        {"Fee: BDT " + rentalObject.FineObject[0].Fee}
+                                                    </Typography> </strong></b>
+                                                </Grid>
                                             </Grid>
 
-                                            <Grid sx={5} md={3}></Grid>
+                                            <Typography variant="body1" component="div">
+                                                Fine ID: {rentalObject.FineObject[0].FineId}
+                                            </Typography>
 
-                                            <Grid sx={1} md={1}>
-                                                <ListItemIcon sx={{mb: 1.2}}>
-                                                    <Avatar sx={{bgcolor: "#50CB88"}}>
-                                                        <MonetizationOnIcon/>
-                                                    </Avatar>
-                                                </ListItemIcon>
-                                            </Grid>
+                                            <Typography variant="body1" component="div">
+                                                Rental History ID: {rentalObject.FineObject[0].RentalId}
+                                            </Typography>
 
-                                            <Grid sx={6} md={8}>
-                                                <b><strong><Typography sx={{mt: 0.5}} variant="h6" component="div">
+                                            <Typography variant="body1" component="div">
 
-                                                    {"Fee: BDT " + fineObject.Fee}
-                                                </Typography> </strong></b>
-                                            </Grid>
-                                        </Grid>
+                                                {rentalObject.FineObject[0].FineStatus === "1" ?
+                                                    <div>Payment
+                                                        Date {dateFix(rentalObject.FineObject[0].PaymentDate)}</div> :
+                                                    <div></div>}
 
-                                        <Typography variant="body1" component="div">
-                                            Fine ID: {fineObject.FineId}
-                                        </Typography>
-
-                                        <Typography variant="body1" component="div">
-                                            Rental History ID: {fineObject.RentalId}
-                                        </Typography>
-
-                                        <Typography variant="body1" component="div">
-
-                                            {fineObject.FineStatus === "1" ?
-                                                <div>Payment Date {dateFix(fineObject.PaymentDate)}</div> :
-                                                <div></div>}
-
-                                        </Typography>
+                                            </Typography>
 
 
-                                        {fineObject.FineStatus === "1" ?
-                                            <Chip variant="outlined" color="success" sx={{mr: 1.5, mt: 1}}
-                                                  label="Fine Paid"/> :
-                                            <Chip variant="outlined" color="error" sx={{mr: 1.5, mt: 1}}
-                                                  label="Fine Due"/>}
-
-                                    </CardContent>
+                                            {rentalObject.FineObject[0].FineStatus === 1 ?
+                                                <Chip variant="filled" color="success" sx={{mr: 1.5, mt: 1}}
+                                                      label="Fine Paid"/> :
+                                                <Chip variant="filled" color="error" sx={{mr: 1.5, mt: 1}}
+                                                      label="Fine Due"/>}
 
 
-                                </Card>
+                                        </CardContent>
+
+
+                                    </Card>
+                                    :
+                                    <div></div>
+
                             ))}
                         </List>
+
+
                     </div>
                 </Grid>
 

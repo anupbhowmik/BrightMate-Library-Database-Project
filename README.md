@@ -123,7 +123,6 @@ If not starting, goto
   - Add New Book
   - Add Copies of an Edition
   - Edit Book Information
-  - Delete Book
   - Search Book
 - Magazine
   - See All Magazines List
@@ -139,8 +138,8 @@ If not starting, goto
   - Add New Publisher
   - Edit Publisher Information
 - Rental History
-  - Return Book
   - See Rental History List
+  - Return Book
 - Dues
   - See Due List
   - Clear Due
