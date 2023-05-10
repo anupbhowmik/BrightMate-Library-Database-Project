@@ -8,7 +8,7 @@ This was the term project of BUET Level 2 Term 2 of Database Course (CSE 216).
 
 ## Authors
 
-- [@Anupznk](https://github.com/Anupznk)
+- [@anupbhowmik](https://github.com/anupbhowmik)
 - [@fabihatasneem](https://github.com/fabihatasneem)
 
 
